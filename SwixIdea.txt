@@ -1,0 +1,9 @@
+SimpleWix (Swix) is a small domain-specific language (DSL) aimed at making work with WIX (Windows Installer Xml) easier.
+This project provides means to parse *.swix files and transform them to *.wxs which could be consumed by WIX directly.
+
+This transformation could be used at pre-build time of WIX project, thus updating resulting wxs dynamically and convenient
+to work either from Visual Studio or without it.
+
+Project does not set as a goal to fully replace WIX, only to make work with it simpler. Thus it is totally possible and 
+encouraged to mix handwritten WIX sources with generated from Swix (only do not alter generated files as they would be
+regenerated on the very next build).

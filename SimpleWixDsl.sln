@@ -15,8 +15,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{E50E01C1-08B1-46B8-945C-E193BFDCDD07}"
 	ProjectSection(SolutionItems) = preProject
 		ProjectConfigurations.targets = ProjectConfigurations.targets
-		sample.swix = sample.swix
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
+		SwixIdea.txt = SwixIdea.txt
+		SwixSemantics.swix = SwixSemantics.swix
+		SwixSyntaxRules.txt = SwixSyntaxRules.txt
 	EndProjectSection
 EndProject
 Global

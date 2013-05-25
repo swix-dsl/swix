@@ -1,0 +1,24 @@
+Colon at the beginning of the line marks keywords. Each keyword starts a section or subsection.
+
+Section may contain one or more child items or other subsections, etc. Each item has one key attribute which is always
+mandatory and stated first in the item line. 
+
+As type of children is never stated, any section can contain only one type of children. In other words, children type is fully 
+specified with parent section type. If section could have more than one type of items - it should have subsections.
+
+Optionally line can then contain double colons (::) which starts list of non-key attribute setters. Non-key attributes could 
+be mandatory or not. Each non-key attribute seter has form <attr-name>=<attr-value>.
+
+Non-key attribute setters separated with comma (,). If double colon (::) or comma (,) ends current line - next line counts as
+line continuation and its indent is ignored.
+
+Swix is case-sensitive.
+
+Indent marks nesting and is important; concrete indent size is not important, but all children of a particular item or subsection
+should have exactly same indent. 
+
+Any attribute value containing spaces, commas or double quotes should be enclosed in double quotes. Double quotes in the content 
+should be represented with doubling (""), e.g. string value a"b would be represented correctly as "a""b".
+
+Sections could specify defaults for any applicable attributes of its direct or indirect children. If several nested levels 
+
