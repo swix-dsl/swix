@@ -1,0 +1,17 @@
+swixDoc ::= {line}
+
+line ::= ident ( ':' keyword | attributeValue ) [ '::' attributesList ] ['\r']'\n'
+
+ident ::= {' '}
+keyword ::= id
+attributesList ::= {space} attributeDefinition { ',' }
+attributeDefinition ::= id '=' attributeValue
+attributeValue ::= {nonEscapeSymbol} | ('"' { nonQuotesSymbol | '""' } '"')
+
+id ::= letter { letter | digit }
+letter ::= 'a' | ... | 'z' | 'A' | ... | 'Z' | '_'
+digit ::= '0' | ... | '9'
+space ::=  endLine | ' '
+endLine ::= '\n' | '\r'
+nonEscapeSymbol ::= <any Unicode symbol except '\n', '\r', '\t', ' ', ',' and '"'>
+nonQuotesSymbol ::= <any Unicode symbol except '"'>

@@ -17,8 +17,8 @@ Swix is case-sensitive.
 Indent marks nesting and is important; concrete indent size is not important, but all children of a particular item or subsection
 should have exactly same indent. 
 
-Any attribute value containing spaces, commas or double quotes should be enclosed in double quotes. Double quotes in the content 
-should be represented with doubling (""), e.g. string value a"b would be represented correctly as "a""b".
+Any attribute value containing spaces, commas, equal signs or double quotes should be enclosed in double quotes. Double quotes in 
+the content should be represented with doubling (""), e.g. string value a"b would be represented correctly as "a""b".
 
 Sections could specify defaults for any applicable attributes of its direct or indirect children. If several nested levels 
 
