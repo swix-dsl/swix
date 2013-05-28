@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SimpleWixDsl.Swix.Parsing
+namespace SimpleWixDsl.Ahl.Parsing
 {
     public class LineLexem : LexemBase
     {

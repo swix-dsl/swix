@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
+namespace SimpleWixDsl.Ahl.Parsing
 {
     public class RecursiveItemSyntax : IItemSyntax
     {

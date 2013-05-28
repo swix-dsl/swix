@@ -1,4 +1,4 @@
-﻿namespace SimpleWixDsl.Swix.Parsing
+﻿namespace SimpleWixDsl.Ahl.Parsing
 {
     /// <summary>
     /// Determines current parsing rules: each section could have different types of children items or sections, 

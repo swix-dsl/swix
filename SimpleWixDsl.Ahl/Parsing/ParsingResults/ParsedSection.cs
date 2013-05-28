@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using SimpleWixDsl.Swix.Parsing.SyntaxDescription;
 
-namespace SimpleWixDsl.Swix.Parsing
+namespace SimpleWixDsl.Ahl.Parsing
 {
     public class ParsedSection
     {

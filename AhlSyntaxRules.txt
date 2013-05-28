@@ -1,3 +1,8 @@
+AHL stands for Another Hierarchy Language and allows to define nested structures similar to XML but with less noise.
+Also it allows defining of default attribute values to reduce noise even further. AHL document consists of several 
+sections (each starts with keyword, see below). Section may specify default attribute values and contain other sections
+and/or items.
+
 Colon at the beginning of the line marks keywords. Each keyword starts a section or subsection.
 
 Section may contain one or more child items or other subsections, etc. Each item has one key attribute which is always
@@ -12,7 +17,7 @@ be mandatory or not. Each non-key attribute seter has form <attr-name>=<attr-val
 Non-key attribute setters separated with comma (,). If double colon (::) or comma (,) ends current line - next line counts as
 line continuation and its indent is ignored.
 
-Swix is case-sensitive.
+AHL is case-sensitive.
 
 Indent marks nesting and is important; concrete indent size is not important, but all children of a particular item or subsection
 should have exactly same indent. 
@@ -22,3 +27,28 @@ the content should be represented with doubling (""), e.g. string value a"b woul
 
 Sections could specify defaults for any applicable attributes of its direct or indirect children. If several nested levels 
 
+
+
+Additional
+==========
+1. Alternative syntax for specifying one item in specific section:
+    :my-section
+	  !my-subsection item-key-1 :: item-attribute=attribute-value-1
+	  !my-subsection item-key-2 :: item-attribute=attribute-value-2
+
+  instead of
+    :my-section
+	  :my-subsection
+	    item-key-1 :: item-attribute=attribute-value-1
+		item-key-2 :: item-attribute=attribute-value-2
+
+  May be especially useful when there's many sections with small number of items (1-2).
+
+2. Alternative syntax for attributes:
+    :my-section
+	  my-item
+	    ?item-attribute=attribute-value-1
+
+   May eliminate need to parse several lines of attributes. Also may be more convenient with long attributes or
+   for copy&paste.
+   Also allows to set default attributes for root section which doesn't have separate node.

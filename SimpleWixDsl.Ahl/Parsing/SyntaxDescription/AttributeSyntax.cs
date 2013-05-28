@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
+namespace SimpleWixDsl.Ahl.Parsing
 {
     public class AttributeSyntax : IAttributeSyntax
     {

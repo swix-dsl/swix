@@ -1,4 +1,4 @@
-﻿namespace SimpleWixDsl.Swix.Parsing
+﻿namespace SimpleWixDsl.Ahl.Parsing
 {
     public enum LineType
     {

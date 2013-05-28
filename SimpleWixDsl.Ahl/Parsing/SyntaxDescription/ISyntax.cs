@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
+namespace SimpleWixDsl.Ahl.Parsing
 {
     public interface ISyntax
     {

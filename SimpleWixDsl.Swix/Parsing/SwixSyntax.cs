@@ -1,4 +1,4 @@
-﻿using SimpleWixDsl.Swix.Parsing.SyntaxDescription;
+﻿using SimpleWixDsl.Ahl.Parsing;
 
 namespace SimpleWixDsl.Swix.Parsing
 {

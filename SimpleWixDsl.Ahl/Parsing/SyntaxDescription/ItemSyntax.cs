@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
+namespace SimpleWixDsl.Ahl.Parsing
 {
     public class ItemSyntax : SyntaxBase, IItemSyntax
     {

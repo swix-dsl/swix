@@ -14,13 +14,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWixDsl.Swix", "Simple
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{E50E01C1-08B1-46B8-945C-E193BFDCDD07}"
 	ProjectSection(SolutionItems) = preProject
+		AhlSyntaxBnf.txt = AhlSyntaxBnf.txt
+		AhlSyntaxRules.txt = AhlSyntaxRules.txt
 		ProjectConfigurations.targets = ProjectConfigurations.targets
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
 		SwixIdea.txt = SwixIdea.txt
 		SwixSemantics.swix = SwixSemantics.swix
-		SwixSyntaxBnf.txt = SwixSyntaxBnf.txt
-		SwixSyntaxRules.txt = SwixSyntaxRules.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWixDsl.Ahl", "SimpleWixDsl.Ahl\SimpleWixDsl.Ahl.csproj", "{5143CB6C-0F8A-45EB-88C4-49353E34D39E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
