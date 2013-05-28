@@ -13,5 +13,5 @@ letter ::= 'a' | ... | 'z' | 'A' | ... | 'Z' | '_'
 digit ::= '0' | ... | '9'
 space ::=  endLine | ' '
 endLine ::= '\n' | '\r'
-nonEscapeSymbol ::= <any Unicode symbol except '\n', '\r', '\t', ' ', ',' and '"'>
+nonEscapeSymbol ::= <any Unicode symbol except '\n', '\r', '\t', ' ', ',', '!', '?' and '"'>
 nonQuotesSymbol ::= <any Unicode symbol except '"'>

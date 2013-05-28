@@ -33,6 +33,12 @@
     <Compile Include="Parsing\SourceLocation.cs" />
     <Compile Include="Parsing\SwixLexer.cs" />
     <Compile Include="Parsing\SwixParser.cs" />
+    <Compile Include="Parsing\SwixSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\ISyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\ItemSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\RecursiveItemSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\SyntaxBase.cs" />
+    <Compile Include="Parsing\SyntaxDescription\SectionSyntax.cs" />
     <Compile Include="SwixProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)SharedAssemblyInfo.cs">
