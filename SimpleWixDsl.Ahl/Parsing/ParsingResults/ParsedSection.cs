@@ -6,19 +6,22 @@ namespace SimpleWixDsl.Ahl.Parsing
     {
         public ParsedSection(SourceLocation startLocation,
                              ISectionSyntax syntax,
-                             List<ParsedAttribute> defaultAttributes,
+                             Dictionary<string, string> defaultAttributes,
                              List<ParsedSection> sections,
                              List<ParsedItem> items)
-            :base(startLocation, syntax)
+            : base(startLocation, syntax)
         {
             Items = items;
             Sections = sections;
             DefaultAttributes = defaultAttributes;
         }
 
-        public new ISectionSyntax Syntax { get { return (ISectionSyntax) base.Syntax; } }
+        public new ISectionSyntax Syntax
+        {
+            get { return (ISectionSyntax) base.Syntax; }
+        }
 
-        public List<ParsedAttribute> DefaultAttributes { get; private set; }
+        public Dictionary<string, string> DefaultAttributes { get; private set; }
         public List<ParsedSection> Sections { get; private set; }
         public List<ParsedItem> Items { get; private set; }
     }

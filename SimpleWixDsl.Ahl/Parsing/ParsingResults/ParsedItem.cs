@@ -6,11 +6,13 @@ namespace SimpleWixDsl.Ahl.Parsing
     {
         public ParsedItem(SourceLocation startLocation,
                           IItemSyntax syntax,
-                          List<ParsedAttribute> directAttributes,
+                          string keyValue,
+                          Dictionary<string, string> directAttributes,
                           List<ParsedSection> sections,
                           List<ParsedItem> items)
             : base(startLocation, syntax)
         {
+            KeyValue = keyValue;
             Items = items;
             Sections = sections;
             DirectAttributes = directAttributes;
@@ -21,7 +23,8 @@ namespace SimpleWixDsl.Ahl.Parsing
             get { return (IItemSyntax) base.Syntax; }
         }
 
-        public List<ParsedAttribute> DirectAttributes { get; private set; }
+        public string KeyValue { get; private set; }
+        public Dictionary<string, string> DirectAttributes { get; private set; }
         public List<ParsedSection> Sections { get; private set; }
         public List<ParsedItem> Items { get; private set; }
     }

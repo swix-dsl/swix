@@ -7,33 +7,26 @@ namespace SimpleWixDsl.Ahl.Parsing
     {
         public class Item
         {
-            private readonly IAttributeSyntax _key;
-            private readonly List<IAttributeSyntax> _attributes;
+            private readonly List<string> _attributeNames;
             private readonly List<ISectionSyntax> _sectionSyntaxes;
             private IItemSyntax _itemSyntax;
             private EventHandler<ParseProcessEventArgs> _whenParsingStarts;
             private EventHandler<ParseProcessEventArgs> _whenParsingDone;
 
-            public static Item Keyed(IAttributeSyntax key)
+            public static Item Add()
             {
-                return new Item(key);
+                return new Item();
             }
 
-            public static Item Keyed(string keyAttributeName, Func<string, bool> validation = null)
+            private Item()
             {
-                return new Item(new AttributeSyntax(keyAttributeName, true, string.Empty, validation));
-            }
-
-            private Item(IAttributeSyntax key)
-            {
-                _key = key;
-                _attributes = new List<IAttributeSyntax>();
+                _attributeNames = new List<string>();
                 _sectionSyntaxes = new List<ISectionSyntax>();
             }
 
-            public Item Attribute(IAttributeSyntax attribute)
+            public Item Attribute(string attributeName)
             {
-                _attributes.Add(attribute);
+                _attributeNames.Add(attributeName);
                 return this;
             }
 
@@ -45,19 +38,19 @@ namespace SimpleWixDsl.Ahl.Parsing
                 return this;
             }
 
-            public Item WhenStarts(EventHandler<ParseProcessEventArgs> whenParsingStarts)
+            public Item WhenStarts(Action<ParsedItem> whenParsingStarts)
             {
                 if (_whenParsingStarts != null)
                     throw new InvalidOperationException("WhenDone action already specified");
-                _whenParsingStarts = whenParsingStarts;
+                _whenParsingStarts = (s, e) => whenParsingStarts((ParsedItem) e.Target);
                 return this;
             }
 
-            public Item WhenDone(EventHandler<ParseProcessEventArgs> whenParsingDone)
+            public Item WhenDone(Action<ParsedItem> whenParsingDone)
             {
                 if (_whenParsingDone != null)
                     throw new InvalidOperationException("WhenDone action already specified");
-                _whenParsingDone = whenParsingDone;
+                _whenParsingDone = (s, e) => whenParsingDone((ParsedItem) e.Target);
                 return this;
             }
 
@@ -69,7 +62,7 @@ namespace SimpleWixDsl.Ahl.Parsing
 
             public IItemSyntax Make()
             {
-                var itemSyntax = new ItemSyntax(_key, _attributes, _itemSyntax, _sectionSyntaxes.ToArray());
+                var itemSyntax = new ItemSyntax(_attributeNames, _itemSyntax, _sectionSyntaxes.ToArray());
                 if (_whenParsingStarts != null)
                     itemSyntax.ParseStarted += _whenParsingStarts;
                 if (_whenParsingDone != null)
@@ -82,7 +75,7 @@ namespace SimpleWixDsl.Ahl.Parsing
                 if (_itemSyntax != null)
                     throw new InvalidOperationException("Children syntax already specified");
 
-                var itemSyntax = new RecursiveItemSyntax(_key, _attributes);
+                var itemSyntax = new RecursiveItemSyntax(_attributeNames);
                 if (_whenParsingStarts != null)
                     itemSyntax.ParseStarted += _whenParsingStarts;
                 if (_whenParsingDone != null)
@@ -96,6 +89,8 @@ namespace SimpleWixDsl.Ahl.Parsing
             private readonly string _keyword;
             private readonly List<ISectionSyntax> _sectionSyntaxes;
             private IItemSyntax _itemSyntax;
+            private EventHandler<ParseProcessEventArgs> _whenParsingStarts;
+            private EventHandler<ParseProcessEventArgs> _whenParsingDone;
 
             public static Section Keyword(string keyword)
             {
@@ -122,9 +117,30 @@ namespace SimpleWixDsl.Ahl.Parsing
                 return this;
             }
 
+            public Section WhenStarts(Action<ParsedSection> whenParsingStarts)
+            {
+                if (_whenParsingStarts != null)
+                    throw new InvalidOperationException("WhenDone action already specified");
+                _whenParsingStarts = (s, e) => whenParsingStarts((ParsedSection) e.Target);
+                return this;
+            }
+
+            public Section WhenDone(Action<ParsedSection> whenParsingDone)
+            {
+                if (_whenParsingDone != null)
+                    throw new InvalidOperationException("WhenDone action already specified");
+                _whenParsingDone = (s, e) => whenParsingDone((ParsedSection) e.Target);
+                return this;
+            }
+
             public ISectionSyntax Make()
             {
-                return new SectionSyntax(_keyword, _itemSyntax, _sectionSyntaxes.ToArray());
+                var sectionSyntax = new SectionSyntax(_keyword, _itemSyntax, _sectionSyntaxes.ToArray());
+                if (_whenParsingStarts != null)
+                    sectionSyntax.ParseStarted += _whenParsingStarts;
+                if (_whenParsingDone != null)
+                    sectionSyntax.ParseFinished += _whenParsingDone;
+                return sectionSyntax;
             }
         }
     }

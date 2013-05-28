@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace SimpleWixDsl.Ahl.Parsing
 {
     public class RecursiveItemSyntax : ElementSyntaxBase, IItemSyntax
     {
-        public RecursiveItemSyntax(IAttributeSyntax key, IEnumerable<IAttributeSyntax> attributes)
+        public RecursiveItemSyntax(IEnumerable<string> attributeNames)
         {
-            Attributes = attributes;
-            Key = key;
+            AttributeNames = attributeNames;
         }
 
         public IItemSyntax ChildItem
@@ -22,7 +20,6 @@ namespace SimpleWixDsl.Ahl.Parsing
             get { return Enumerable.Empty<ISectionSyntax>(); }
         }
 
-        public IAttributeSyntax Key { get; private set; }
-        public IEnumerable<IAttributeSyntax> Attributes { get; private set; }
+        public IEnumerable<string> AttributeNames { get; private set; }
     }
 }

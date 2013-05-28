@@ -4,14 +4,12 @@ namespace SimpleWixDsl.Ahl.Parsing
 {
     public class ItemSyntax : NodeSyntaxBase, IItemSyntax
     {
-        public ItemSyntax(IAttributeSyntax key, IEnumerable<IAttributeSyntax> attributes, IItemSyntax itemSyntax, params ISectionSyntax[] subsections)
+        public ItemSyntax(IEnumerable<string> attributeNames, IItemSyntax itemSyntax, params ISectionSyntax[] subsections)
             : base(itemSyntax, subsections)
         {
-            Attributes = attributes;
-            Key = key;
+            AttributeNames = attributeNames;
         }
 
-        public IAttributeSyntax Key { get; private set; }
-        public IEnumerable<IAttributeSyntax> Attributes { get; private set; }
+        public IEnumerable<string> AttributeNames { get; private set; }
     }
 }

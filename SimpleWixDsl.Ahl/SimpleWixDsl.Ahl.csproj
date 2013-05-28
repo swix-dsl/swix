@@ -24,14 +24,11 @@
     <Compile Include="Parsing\Lexems\LexemBase.cs" />
     <Compile Include="Parsing\Lexems\LineLexem.cs" />
     <Compile Include="Parsing\Lexems\LineType.cs" />
-    <Compile Include="Parsing\ParsingResults\ParsedAttribute.cs" />
     <Compile Include="Parsing\ParsingResults\ParsedElement.cs" />
     <Compile Include="Parsing\ParsingResults\ParsedItem.cs" />
     <Compile Include="Parsing\ParsingResults\ParsedSection.cs" />
     <Compile Include="Parsing\SourceLocation.cs" />
-    <Compile Include="Parsing\SyntaxDescription\AttributeSyntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\Builders\Syntax.cs" />
-    <Compile Include="Parsing\SyntaxDescription\Builders\Validators.cs" />
     <Compile Include="Parsing\SyntaxDescription\ElementSyntaxBase.cs" />
     <Compile Include="Parsing\SyntaxDescription\INodeSyntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\ItemSyntax.cs" />

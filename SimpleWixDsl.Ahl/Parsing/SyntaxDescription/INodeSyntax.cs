@@ -33,20 +33,11 @@ namespace SimpleWixDsl.Ahl.Parsing
 
     public interface IItemSyntax : INodeSyntax
     {
-        IAttributeSyntax Key { get; }
-        IEnumerable<IAttributeSyntax> Attributes { get; }
+        IEnumerable<string> AttributeNames { get; }
     }
 
     public interface ISectionSyntax : INodeSyntax
     {
         string Keyword { get; }
-    }
-
-    public interface IAttributeSyntax : IElementSyntax
-    {
-        string Name { get; }
-        bool IsMandatory { get; }
-        string DefaultValue { get; }
-        Func<string, bool> Validation { get; }
     }
 }

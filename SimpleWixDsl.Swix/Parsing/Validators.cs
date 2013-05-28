@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace SimpleWixDsl.Ahl.Parsing
+namespace SimpleWixDsl.Swix.Parsing
 {
     public static class Validators
     {
