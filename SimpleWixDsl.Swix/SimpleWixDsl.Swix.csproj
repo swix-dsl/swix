@@ -10,6 +10,9 @@
   </PropertyGroup>
   <Import Project="$(SolutionDir)ProjectConfigurations.targets" />
   <ItemGroup>
+    <Reference Include="Antlr4.Runtime.v4.0">
+      <HintPath>..\Antlr4\Antlr4.Runtime.v4.0.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -19,6 +22,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\SwixModel.cs" />
+    <Compile Include="Parsing\ParsingStates\FileParsingState.cs" />
+    <Compile Include="Parsing\IParsingContext.cs" />
+    <Compile Include="Parsing\IParsingState.cs" />
+    <Compile Include="Parsing\Lexems\AttributeLexem.cs" />
+    <Compile Include="Parsing\Lexems\LexemBase.cs" />
+    <Compile Include="Parsing\Lexems\LineLexem.cs" />
+    <Compile Include="Parsing\LineType.cs" />
+    <Compile Include="Parsing\SourceLocation.cs" />
+    <Compile Include="Parsing\SwixLexer.cs" />
+    <Compile Include="Parsing\SwixParser.cs" />
     <Compile Include="SwixProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)SharedAssemblyInfo.cs">
