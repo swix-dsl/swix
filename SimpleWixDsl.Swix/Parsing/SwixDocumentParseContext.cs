@@ -10,18 +10,17 @@ namespace SimpleWixDsl.Swix.Parsing
 
         private ISectionSyntax GetRootSyntax()
         {
-            var componentGroups = Syntax.Section.Keyword("componentGroups")
-                                        .Children(Syntax.Item.Add()
+            var componentGroups = Syntax.Section("componentGroups")
+                                        .Children(Syntax.Item()
                                                         .WhenDone(AddComponentGroup)
                                                         .Make())
                                         .Make();
 
-            var directories = Syntax.Section.Keyword("directories")
-                                    .Children(Syntax.Item.Add()
+            var directories = Syntax.Section("directories")
+                                    .Children(Syntax.Item()
                                                     .MakeRecursive())
                                     .Make();
-            return Syntax.Section
-                         .Keyword("root")
+            return Syntax.Section("root")
                          .Subsection(componentGroups)
                          .Subsection(directories)
                          .Make();
