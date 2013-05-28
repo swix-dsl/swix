@@ -10,7 +10,7 @@ namespace SimpleWixDsl.Swix.Parsing
                                         .Children(Syntax.Item.Keyed("Name").Make())
                                         .Make();
             var directories = Syntax.Section.Keyword("directories")
-                                    .Children(Syntax.Item.Keyed("PartialPath", Validators.FileSystemPath).Make())
+                                    .Children(Syntax.Item.Keyed("PartialPath", Validators.FileSystemPath).MakeRecursive())
                                     .Make();
             return Syntax.Section
                          .Keyword("root")

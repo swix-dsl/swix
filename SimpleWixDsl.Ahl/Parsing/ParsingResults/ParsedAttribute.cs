@@ -1,16 +1,17 @@
 ﻿namespace SimpleWixDsl.Ahl.Parsing
 {
-    public class ParsedAttribute
+    public class ParsedAttribute : ParsedElement
     {
         public ParsedAttribute(SourceLocation startLocation, IAttributeSyntax syntax, string value)
+            : base(startLocation, syntax)
         {
             Value = value;
-            Syntax = syntax;
-            StartLocation = startLocation;
         }
 
-        public SourceLocation StartLocation { get; private set; }
-        public IAttributeSyntax Syntax { get; private set; }
+        public new IAttributeSyntax Syntax
+        {
+            get { return (IAttributeSyntax) base.Syntax; }
+        }
 
         public string Value { get; private set; }
     }

@@ -2,7 +2,7 @@
 
 namespace SimpleWixDsl.Ahl.Parsing
 {
-    public class AttributeSyntax : IAttributeSyntax
+    public class AttributeSyntax : ElementSyntaxBase, IAttributeSyntax
     {
         public AttributeSyntax(string name, bool isMandatory, string defaultValue, Func<string, bool> validation)
         {

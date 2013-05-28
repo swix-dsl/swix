@@ -1,6 +1,6 @@
 ﻿namespace SimpleWixDsl.Ahl.Parsing
 {
-    public class SectionSyntax : SyntaxBase, ISectionSyntax
+    public class SectionSyntax : NodeSyntaxBase, ISectionSyntax
     {
         public SectionSyntax(string keyword,
                              IItemSyntax itemSyntax,

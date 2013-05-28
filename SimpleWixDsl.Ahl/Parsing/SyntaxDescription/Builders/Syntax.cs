@@ -11,6 +11,8 @@ namespace SimpleWixDsl.Ahl.Parsing
             private readonly List<IAttributeSyntax> _attributes;
             private readonly List<ISectionSyntax> _sectionSyntaxes;
             private IItemSyntax _itemSyntax;
+            private EventHandler<ParseProcessEventArgs> _whenParsingStarts;
+            private EventHandler<ParseProcessEventArgs> _whenParsingDone;
 
             public static Item Keyed(IAttributeSyntax key)
             {
@@ -43,6 +45,22 @@ namespace SimpleWixDsl.Ahl.Parsing
                 return this;
             }
 
+            public Item WhenStarts(EventHandler<ParseProcessEventArgs> whenParsingStarts)
+            {
+                if (_whenParsingStarts != null)
+                    throw new InvalidOperationException("WhenDone action already specified");
+                _whenParsingStarts = whenParsingStarts;
+                return this;
+            }
+
+            public Item WhenDone(EventHandler<ParseProcessEventArgs> whenParsingDone)
+            {
+                if (_whenParsingDone != null)
+                    throw new InvalidOperationException("WhenDone action already specified");
+                _whenParsingDone = whenParsingDone;
+                return this;
+            }
+
             public Item Subsection(ISectionSyntax section)
             {
                 _sectionSyntaxes.Add(section);
@@ -51,7 +69,25 @@ namespace SimpleWixDsl.Ahl.Parsing
 
             public IItemSyntax Make()
             {
-                return new ItemSyntax(_key, _attributes, _itemSyntax, _sectionSyntaxes.ToArray());
+                var itemSyntax = new ItemSyntax(_key, _attributes, _itemSyntax, _sectionSyntaxes.ToArray());
+                if (_whenParsingStarts != null)
+                    itemSyntax.ParseStarted += _whenParsingStarts;
+                if (_whenParsingDone != null)
+                    itemSyntax.ParseFinished += _whenParsingDone;
+                return itemSyntax;
+            }
+
+            public IItemSyntax MakeRecursive()
+            {
+                if (_itemSyntax != null)
+                    throw new InvalidOperationException("Children syntax already specified");
+
+                var itemSyntax = new RecursiveItemSyntax(_key, _attributes);
+                if (_whenParsingStarts != null)
+                    itemSyntax.ParseStarted += _whenParsingStarts;
+                if (_whenParsingDone != null)
+                    itemSyntax.ParseFinished += _whenParsingDone;
+                return itemSyntax;
             }
         }
 

@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SimpleWixDsl.Ahl.Parsing
 {
-    public class RecursiveItemSyntax : IItemSyntax
+    public class RecursiveItemSyntax : ElementSyntaxBase, IItemSyntax
     {
         public RecursiveItemSyntax(IAttributeSyntax key, IEnumerable<IAttributeSyntax> attributes)
         {

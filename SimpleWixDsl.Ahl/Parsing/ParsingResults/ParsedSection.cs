@@ -2,23 +2,21 @@
 
 namespace SimpleWixDsl.Ahl.Parsing
 {
-    public class ParsedSection
+    public class ParsedSection : ParsedElement
     {
         public ParsedSection(SourceLocation startLocation,
                              ISectionSyntax syntax,
                              List<ParsedAttribute> defaultAttributes,
                              List<ParsedSection> sections,
                              List<ParsedItem> items)
+            :base(startLocation, syntax)
         {
             Items = items;
             Sections = sections;
             DefaultAttributes = defaultAttributes;
-            Syntax = syntax;
-            StartLocation = startLocation;
         }
 
-        public SourceLocation StartLocation { get; private set; }
-        public ISectionSyntax Syntax { get; private set; }
+        public new ISectionSyntax Syntax { get { return (ISectionSyntax) base.Syntax; } }
 
         public List<ParsedAttribute> DefaultAttributes { get; private set; }
         public List<ParsedSection> Sections { get; private set; }

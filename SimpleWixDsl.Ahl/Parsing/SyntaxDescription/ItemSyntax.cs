@@ -2,7 +2,7 @@
 
 namespace SimpleWixDsl.Ahl.Parsing
 {
-    public class ItemSyntax : SyntaxBase, IItemSyntax
+    public class ItemSyntax : NodeSyntaxBase, IItemSyntax
     {
         public ItemSyntax(IAttributeSyntax key, IEnumerable<IAttributeSyntax> attributes, IItemSyntax itemSyntax, params ISectionSyntax[] subsections)
             : base(itemSyntax, subsections)

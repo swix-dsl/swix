@@ -2,9 +2,9 @@
 
 namespace SimpleWixDsl.Ahl.Parsing
 {
-    public abstract class SyntaxBase : ISyntax
+    public abstract class NodeSyntaxBase : ElementSyntaxBase, INodeSyntax
     {
-        protected SyntaxBase(IItemSyntax childItem, IEnumerable<ISectionSyntax> sections)
+        protected NodeSyntaxBase(IItemSyntax childItem, IEnumerable<ISectionSyntax> sections)
         {
             Sections = sections;
             ChildItem = childItem;

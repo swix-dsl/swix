@@ -25,17 +25,19 @@
     <Compile Include="Parsing\Lexems\LineLexem.cs" />
     <Compile Include="Parsing\Lexems\LineType.cs" />
     <Compile Include="Parsing\ParsingResults\ParsedAttribute.cs" />
+    <Compile Include="Parsing\ParsingResults\ParsedElement.cs" />
     <Compile Include="Parsing\ParsingResults\ParsedItem.cs" />
     <Compile Include="Parsing\ParsingResults\ParsedSection.cs" />
     <Compile Include="Parsing\SourceLocation.cs" />
     <Compile Include="Parsing\SyntaxDescription\AttributeSyntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\Builders\Syntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\Builders\Validators.cs" />
-    <Compile Include="Parsing\SyntaxDescription\ISyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\ElementSyntaxBase.cs" />
+    <Compile Include="Parsing\SyntaxDescription\INodeSyntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\ItemSyntax.cs" />
-    <Compile Include="Parsing\SyntaxDescription\RecursiveItemSyntax.cs" />
-    <Compile Include="Parsing\SyntaxDescription\SectionSyntax.cs" />
-    <Compile Include="Parsing\SyntaxDescription\SyntaxBase.cs" />
+    <Compile Include="Parsing\SyntaxDescription\RecursiveItemNodeSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\SectionNodeSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\NodeSyntaxBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
