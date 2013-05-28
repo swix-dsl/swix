@@ -6,39 +6,52 @@ namespace SimpleWixDsl.Swix.Parsing
 {
     public class SwixDocumentParseContext
     {
-        private List<Dictionary<string, string>> _defaultAttributes = new List<Dictionary<string, string>>();
+        private readonly SwixModel _parseResult = new SwixModel();
+
+        private readonly List<Dictionary<string, string>> _defaultAttributes = new List<Dictionary<string, string>>();
 
         private ISectionSyntax GetRootSyntax()
         {
-            var componentGroups = Syntax.Section("componentGroups")
-                                        .Children(Syntax.Item()
-                                                        .WhenDone(AddComponentGroup)
-                                                        .Make())
-                                        .Make();
+            var componentGroups = Section("componentGroups").Children(Syntax.Item()
+                                                                            .WhenDone(ProcessComponentGroup)
+                                                                            .Make())
+                                                            .Make();
 
-            var directories = Syntax.Section("directories")
-                                    .Children(Syntax.Item()
-                                                    .MakeRecursive())
-                                    .Make();
+            var directories = Section("directories").Children(Syntax.Item()
+                                                                    .MakeRecursive())
+                                                    .Make();
             return Syntax.Section("root")
                          .Subsection(componentGroups)
                          .Subsection(directories)
                          .Make();
         }
 
-        private void AddComponentGroup(ParsedItem item)
+        private Syntax.SectionBuilder Section(string sectionName)
         {
+            return Syntax.Section(sectionName)
+                         .WhenStarts(section => _defaultAttributes.Add(section.DefaultAttributes))
+                         .WhenDone(_ => _defaultAttributes.RemoveAt(_defaultAttributes.Count - 1));
         }
 
-        private string GetAttributeValue(string attribute, ParsedItem item)
+        private void ProcessComponentGroup(ParsedItem item)
         {
-            //var q = item.DirectAttributes
+            var cg = new ComponentGroup(item.KeyValue);
+            _parseResult.ComponentGroups.Add(cg);
+        }
 
-            //for (int i = _defaultAttributes.Count - 1; i >= 0; i--)
-            //{
-            //    var context = _defaultAttributes[i];
-            //}
-            return null;
+        private string GetAttributeValue(string attribute, ParsedItem item, string defaultValue)
+        {
+            string result;
+            if (item.DirectAttributes.TryGetValue(attribute, out result))
+                return result;
+
+            for (int i = _defaultAttributes.Count - 1; i >= 0; i--)
+            {
+                var context = _defaultAttributes[i];
+                if (context.TryGetValue(attribute, out result))
+                    return result;
+            }
+            return defaultValue;
         }
     }
 }
