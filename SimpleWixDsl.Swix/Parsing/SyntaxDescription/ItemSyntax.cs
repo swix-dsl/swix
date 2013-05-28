@@ -1,16 +1,17 @@
-﻿namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
+﻿using System.Collections.Generic;
+
+namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
 {
-    public class ItemSyntax : SyntaxBase
+    public class ItemSyntax : SyntaxBase, IItemSyntax
     {
-        public ItemSyntax(ItemSyntax itemSyntax,
-                          params SectionSyntax[] subsections)
+        public ItemSyntax(IAttributeSyntax key, IEnumerable<IAttributeSyntax> attributes, IItemSyntax itemSyntax, params ISectionSyntax[] subsections)
             : base(itemSyntax, subsections)
         {
+            Attributes = attributes;
+            Key = key;
         }
 
-        public ItemSyntax(params SectionSyntax[] subsections)
-            : base(null, subsections)
-        {
-        }
+        public IAttributeSyntax Key { get; private set; }
+        public IEnumerable<IAttributeSyntax> Attributes { get; private set; }
     }
 }

@@ -4,11 +4,13 @@ namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
 {
     public abstract class SyntaxBase : ISyntax
     {
-        protected SyntaxBase(ItemSyntax item, IEnumerable<SectionSyntax> sections)
+        protected SyntaxBase(IItemSyntax childItem, IEnumerable<ISectionSyntax> sections)
         {
+            Sections = sections;
+            ChildItem = childItem;
         }
 
-        public ISyntax ChildItem { get; private set; }
-        public IEnumerable<SectionSyntax> Sections { get; private set; }
+        public IItemSyntax ChildItem { get; private set; }
+        public IEnumerable<ISectionSyntax> Sections { get; private set; }
     }
 }

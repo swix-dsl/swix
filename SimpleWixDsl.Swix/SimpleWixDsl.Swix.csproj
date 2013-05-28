@@ -10,9 +10,6 @@
   </PropertyGroup>
   <Import Project="$(SolutionDir)ProjectConfigurations.targets" />
   <ItemGroup>
-    <Reference Include="Antlr4.Runtime.v4.0">
-      <HintPath>..\Antlr4\Antlr4.Runtime.v4.0.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -23,17 +20,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\SwixModel.cs" />
-    <Compile Include="Parsing\ParsingStates\FileParsingState.cs" />
-    <Compile Include="Parsing\IParsingContext.cs" />
     <Compile Include="Parsing\IParsingState.cs" />
     <Compile Include="Parsing\Lexems\AttributeLexem.cs" />
     <Compile Include="Parsing\Lexems\LexemBase.cs" />
     <Compile Include="Parsing\Lexems\LineLexem.cs" />
-    <Compile Include="Parsing\LineType.cs" />
+    <Compile Include="Parsing\Lexems\LineType.cs" />
+    <Compile Include="Parsing\ParsingResults\ParsedAttribute.cs" />
+    <Compile Include="Parsing\ParsingResults\ParsedItem.cs" />
+    <Compile Include="Parsing\ParsingResults\ParsedSection.cs" />
     <Compile Include="Parsing\SourceLocation.cs" />
     <Compile Include="Parsing\SwixLexer.cs" />
     <Compile Include="Parsing\SwixParser.cs" />
     <Compile Include="Parsing\SwixSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\AttributeSyntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\Builders\Syntax.cs" />
+    <Compile Include="Parsing\SyntaxDescription\Builders\Validators.cs" />
     <Compile Include="Parsing\SyntaxDescription\ISyntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\ItemSyntax.cs" />
     <Compile Include="Parsing\SyntaxDescription\RecursiveItemSyntax.cs" />

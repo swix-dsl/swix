@@ -14,6 +14,7 @@ namespace SimpleWixDsl.Swix.Parsing
         public SwixModel Parse()
         {
             var result = new SwixModel();
+            return result;
         }
     }
 }

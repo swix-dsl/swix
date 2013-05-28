@@ -3,16 +3,25 @@ using System.Linq;
 
 namespace SimpleWixDsl.Swix.Parsing.SyntaxDescription
 {
-    public class RecursiveItemSyntax : ISyntax
+    public class RecursiveItemSyntax : IItemSyntax
     {
-        public ISyntax ChildItem
+        public RecursiveItemSyntax(IAttributeSyntax key, IEnumerable<IAttributeSyntax> attributes)
+        {
+            Attributes = attributes;
+            Key = key;
+        }
+
+        public IItemSyntax ChildItem
         {
             get { return this; }
         }
 
-        public IEnumerable<SectionSyntax> Sections
+        public IEnumerable<ISectionSyntax> Sections
         {
-            get { return Enumerable.Empty<SectionSyntax>(); }
+            get { return Enumerable.Empty<ISectionSyntax>(); }
         }
+
+        public IAttributeSyntax Key { get; private set; }
+        public IEnumerable<IAttributeSyntax> Attributes { get; private set; }
     }
 }
