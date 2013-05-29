@@ -52,3 +52,11 @@ Additional
    May eliminate need to parse several lines of attributes. Also may be more convenient with long attributes or
    for copy&paste.
    Also allows to set default attributes for root section which doesn't have separate node.
+
+   Another application: suppose scope of alternatively-specified attribute defined as "below its declaration".
+   Then it is possible to have different defaults in the same scope without redeclaring it again, like below:
+
+     :my-section :: attr=10
+	   item-with-10
+	   ?attr=15
+	   item-with-15
