@@ -1,4 +1,4 @@
-ahlDoc ::= {line}
+swixDoc ::= {line}
 
 line ::= ident ( ':' keyword | attributeValue ) [ '::' attributesList ] ['\r']'\n'
 
