@@ -74,10 +74,10 @@ namespace SimpleWixDsl.Swix
             while ((current = line.IndexOf("//", current, StringComparison.Ordinal)) != -1)
             {
                 int pos = current;
-                int quoteCount = line.Take(pos - 1).Count(c => c == '"');
+                int quoteCount = line.Take(pos).Count(c => c == '"');
                 bool isPotentialCommentPartOfTheString = quoteCount % 2 == 1;
                 if (!isPotentialCommentPartOfTheString)
-                    return line.Substring(0, pos - 1);
+                    return line.Substring(0, pos);
                 current += 2; // next time skip these '//' found now
             }
             return line;

@@ -169,6 +169,40 @@ namespace SimpleWixDsl.UnitTests
   y::e=5,f=""6"",g=7");
         }
 
+        [Test]
+        public void LineWithCommentSkipped()
+        {
+            RunTest("  // something");
+        }
+
+        [Test]
+        public void SectionWithCloseCommentCorrectlyProcessed()
+        {
+            ExpectLine(1, 0, ":s", null);
+            RunTest(":s// dfdsfd");
+        }
+
+        [Test]
+        public void AttributesInCommentsAreNotParsed()
+        {
+            ExpectLine(1, 0, ":s", null, new AhlAttribute("a", "1"));
+            RunTest(":s :: a=1//, b=2");
+        }
+
+        [Test]
+        public void DoubleSlashInsideQuotesNotTreatedAsComment()
+        {
+            ExpectLine(1, 0, null, "//aaa");
+            RunTest("\"//aaa\"");
+        }
+
+        [Test]
+        public void ComplexCaseWithCommentsAndQuotes()
+        {
+            ExpectLine(1, 0, ":s", "aa//bb", new AhlAttribute("attr", "//x//y\"//z"));
+            RunTest(":s \"aa//bb\"::attr=\"//x//y\"\"//z\"//,real=\"comment");
+        }
+
         private void RunFailingTest(string input)
         {
             RunTest(input, expectEof: false);
