@@ -9,6 +9,7 @@ namespace SimpleWixDsl.Swix
         {
             int Indent { get; }
             IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes);
+            IParsingState PushEof();
         }
 
         private class StubParsingState : IParsingState
@@ -22,6 +23,11 @@ namespace SimpleWixDsl.Swix
             {
                 var msg = String.Format("Inconsistent indent at line {0}", lineNumber);
                 throw new InvalidOperationException(msg);
+            }
+
+            public IParsingState PushEof()
+            {
+                return null;
             }
         }
 
@@ -87,6 +93,11 @@ namespace SimpleWixDsl.Swix
                     return new ParsingState(this, semSubcontext);
                 }
             }
+
+            public IParsingState PushEof()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private IParsingState _currentParsingState;
@@ -99,6 +110,11 @@ namespace SimpleWixDsl.Swix
         public void PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes)
         {
             _currentParsingState = _currentParsingState.PushLine(lineNumber, indent, keyword, key, attributes);
+        }
+
+        public void PushEof()
+        {
+            throw new NotImplementedException();
         }
     }
 }

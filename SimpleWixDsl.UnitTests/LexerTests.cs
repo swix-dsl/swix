@@ -39,7 +39,7 @@ namespace SimpleWixDsl.UnitTests
         [ExpectedException(typeof (LexerException))]
         public void TabCharResultsInException()
         {
-            RunTest(" \t ");
+            RunFailingTest(" \t ");
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace SimpleWixDsl.UnitTests
         [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithAttribute_AttributeValueContainsEqualsAndNotQuoted()
         {
-            RunTest(":section :: val==string");
+            RunFailingTest(":section :: val==string");
         }
 
         [Test]
@@ -102,14 +102,14 @@ namespace SimpleWixDsl.UnitTests
         [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithIncompleteArgumentList_Exception()
         {
-            RunTest(":section :: val=string,");
+            RunFailingTest(":section :: val=string,");
         }
 
         [Test]
         [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithIncompleteLine_Exception()
         {
-            RunTest(":section ::");
+            RunFailingTest(":section ::");
         }
 
         [Test]
@@ -169,8 +169,20 @@ namespace SimpleWixDsl.UnitTests
   y::e=5,f=""6"",g=7");
         }
 
+        private void RunFailingTest(string input)
+        {
+            RunTest(input, expectEof: false);
+        }
+
         private void RunTest(string input)
         {
+            RunTest(input, expectEof: true);
+        }
+
+        private void RunTest(string input, bool expectEof)
+        {
+            if (expectEof)
+                _parsingContext.Expect(pc => pc.PushEof());
             _orderedModeToken.Dispose();
             _mocks.ReplayAll();
             var stream = new StringReader(input);

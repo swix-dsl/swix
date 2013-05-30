@@ -65,6 +65,7 @@ namespace SimpleWixDsl.Swix
 
                 _parsingContext.PushLine(lineNumber, indent, keyword, key, attributes);
             }
+            _parsingContext.PushEof();
         }
 
         private string StripComments(string line)
