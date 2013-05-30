@@ -37,9 +37,8 @@ namespace SimpleWixDsl.Swix
             private readonly IParsingState _parentState;
 
             public ParsingState(ISemanticContext semanticContext)
+                :this(new StubParsingState(), semanticContext)
             {
-                _semanticContext = semanticContext;
-                _parentState = new StubParsingState();
             }
 
             private ParsingState(IParsingState parentState, ISemanticContext semanticContext)
@@ -56,7 +55,13 @@ namespace SimpleWixDsl.Swix
                 // one of these cases are possible:
                 // 1. indent equals to one of parent's indents --> finish prev semantic context and pass line to parent
                 // 2. indent equals to our indent --> finish prev semantic context and add this line to current one
-                // 3. indent is greater than ours --> create new block & semantic context and pass line there
+                //
+                // note that indent can't be greater than ours, when ours is not -1: as it is not -1 there was at 
+                // least one child, hence this ParsingState can't be on top of the states' stack: each time we add
+                // item to it directly, we switch there immediately; if item is added to parent - this state is done
+                // at all and replaced in stack with newly added item.
+                // So with correct input we may happen here with Indent!=-1 only from child state via 1st case. But 
+                // then larged indent case already has been excluded by indent<Indent clause with exception.
 
                 // 1st case
                 if (indent <= _parentState.Indent)
@@ -76,27 +81,22 @@ namespace SimpleWixDsl.Swix
                 if (indent < Indent)
                 {
                     var msg = String.Format("Inconsistent indentation at line {0}. Should be between <={1} or >={2}, but was {3}", lineNumber, _parentState.Indent, Indent, indent);
-                    throw new InvalidOperationException(msg);
+                    throw new IndentationException(msg);
                 }
 
                 // 2nd case
                 if (indent == Indent)
                 {
-                    _semanticContext.FinishItem();
                     var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
                     return new ParsingState(this, semSubcontext);
                 }
-                else
-                {
-                    // 3rd case
-                    var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
-                    return new ParsingState(this, semSubcontext);
-                }
+                throw new InvalidOperationException("This was not supposed to happen.");
             }
 
             public IParsingState PushEof()
             {
-                throw new NotImplementedException();
+                _semanticContext.FinishItem();
+                return _parentState;
             }
         }
 
@@ -114,7 +114,10 @@ namespace SimpleWixDsl.Swix
 
         public void PushEof()
         {
-            throw new NotImplementedException();
+            while (_currentParsingState != null)
+            {
+                _currentParsingState = _currentParsingState.PushEof();
+            }
         }
     }
 }

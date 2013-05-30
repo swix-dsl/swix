@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AhlAttribute.cs" />
+    <Compile Include="IndentationException.cs" />
     <Compile Include="IParsingContext.cs" />
     <Compile Include="LexerException.cs" />
     <Compile Include="ParsingContext.cs" />
