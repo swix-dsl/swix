@@ -78,6 +78,13 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
+        [ExpectedException(typeof(LexerException))]
+        public void EmptyKeywordThrowsException()
+        {
+            RunFailingTest(":");
+        }
+
+        [Test]
         [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithAttribute_AttributeValueContainsEqualsAndNotQuoted()
         {
