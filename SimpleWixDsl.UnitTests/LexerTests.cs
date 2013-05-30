@@ -193,8 +193,7 @@ namespace SimpleWixDsl.UnitTests
                                  {
                                      CollectionAssert.AreEqual(attributes, list, new AttributeComparer());
                                      return true;
-                                 }))
-                         .Return(_parsingContext);
+                                 }));
         }
 
         private class AttributeComparer : IComparer

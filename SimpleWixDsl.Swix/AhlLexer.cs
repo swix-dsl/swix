@@ -20,7 +20,7 @@ namespace SimpleWixDsl.Swix
             RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         private readonly TextReader _sourceStream;
-        private IParsingContext _parsingContext;
+        private readonly IParsingContext _parsingContext;
 
         public AhlLexer(IParsingContext parsingContext, TextReader sourceStream)
         {
@@ -63,7 +63,7 @@ namespace SimpleWixDsl.Swix
                     attributes.Add(new Attribute(attrName, attrValue));
                 }
 
-                _parsingContext = _parsingContext.PushLine(lineNumber, indent, keyword, key, attributes);
+                _parsingContext.PushLine(lineNumber, indent, keyword, key, attributes);
             }
         }
 
