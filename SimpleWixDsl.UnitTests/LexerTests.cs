@@ -38,7 +38,7 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(LexerException))]
+        [ExpectedException(typeof (LexerException))]
         public void TabCharResultsInException()
         {
             RunTest(" \t ");
@@ -80,7 +80,7 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(LexerException))]
+        [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithAttribute_AttributeValueContainsEqualsAndNotQuoted()
         {
             RunTest(":section :: val==string");
@@ -101,14 +101,14 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(LexerException))]
+        [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithIncompleteArgumentList_Exception()
         {
             RunTest(":section :: val=string,");
         }
 
         [Test]
-        [ExpectedException(typeof(LexerException))]
+        [ExpectedException(typeof (LexerException))]
         public void SimpleSectionWithIncompleteLine_Exception()
         {
             RunTest(":section ::");
@@ -183,17 +183,17 @@ namespace SimpleWixDsl.UnitTests
         private void ExpectLine(int lineNumber, int indent, string keyword, string key, params Attribute[] attributes)
         {
             _parsingContext.Expect(c => c.PushLine(lineNumber, indent, keyword, key, attributes))
-                         .IgnoreArguments()
-                         .Constraints(
-                             Is.Equal(lineNumber),
-                             Is.Equal(indent),
-                             Is.Equal(keyword),
-                             Is.Equal(key),
-                             Is.Matching<List<Attribute>>(list =>
-                                 {
-                                     CollectionAssert.AreEqual(attributes, list, new AttributeComparer());
-                                     return true;
-                                 }));
+                           .IgnoreArguments()
+                           .Constraints(
+                               Is.Equal(lineNumber),
+                               Is.Equal(indent),
+                               Is.Equal(keyword),
+                               Is.Equal(key),
+                               Is.Matching<List<Attribute>>(list =>
+                                   {
+                                       CollectionAssert.AreEqual(attributes, list, new AttributeComparer());
+                                       return true;
+                                   }));
         }
 
         private class AttributeComparer : IComparer
@@ -207,7 +207,7 @@ namespace SimpleWixDsl.UnitTests
                 if (b == null) return 1;
 
                 if (a.Key == b.Key && a.Value == b.Value) return 0;
-                
+
                 int keyComparison = String.CompareOrdinal(a.Key, b.Key);
                 return keyComparison != 0 ? keyComparison : String.CompareOrdinal(a.Value, b.Value);
             }
