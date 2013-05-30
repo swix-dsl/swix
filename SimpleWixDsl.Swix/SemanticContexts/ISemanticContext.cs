@@ -4,7 +4,7 @@ namespace SimpleWixDsl.Swix
 {
     public interface ISemanticContext
     {
-        ISemanticContext AddChild(string key, IEnumerable<Attribute> attributes);
+        ISemanticContext PushLine(int line, string keyword, string key, IEnumerable<Attribute> attributes);
         void FinishItem();
     }
 }

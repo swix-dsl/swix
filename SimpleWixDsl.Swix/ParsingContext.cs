@@ -63,7 +63,7 @@ namespace SimpleWixDsl.Swix
                 if (Indent == -1)
                 {
                     Indent = indent;
-                    var semSubcontext = _semanticContext.AddChild(key, attributes);
+                    var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
                     return new ParsingState(this, semSubcontext);
                 }
 
@@ -77,13 +77,13 @@ namespace SimpleWixDsl.Swix
                 if (indent == Indent)
                 {
                     _semanticContext.FinishItem();
-                    var semSubcontext = _semanticContext.AddChild(key, attributes);
+                    var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
                     return new ParsingState(this, semSubcontext);
                 }
                 else
                 {
                     // 3rd case
-                    var semSubcontext = _semanticContext.AddChild(key, attributes);
+                    var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
                     return new ParsingState(this, semSubcontext);
                 }
             }

@@ -22,9 +22,10 @@
     <Compile Include="Attribute.cs" />
     <Compile Include="IParsingContext.cs" />
     <Compile Include="LexerException.cs" />
-    <Compile Include="ISemanticContext.cs" />
     <Compile Include="ParsingContext.cs" />
     <Compile Include="AhlLexer.cs" />
+    <Compile Include="SemanticContexts\FileSemanticContext.cs" />
+    <Compile Include="SemanticContexts\ISemanticContext.cs" />
     <Compile Include="SwixModel.cs" />
     <Compile Include="SwixParser.cs" />
     <Compile Include="SwixProcessor.cs" />
