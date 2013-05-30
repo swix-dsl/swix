@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SimpleWixDsl.Swix
+namespace SimpleWixDsl.Ahl
 {
     public interface IParsingContext
     {

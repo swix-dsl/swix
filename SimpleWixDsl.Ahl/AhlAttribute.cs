@@ -1,4 +1,4 @@
-﻿namespace SimpleWixDsl.Swix
+﻿namespace SimpleWixDsl.Ahl
 {
     public class AhlAttribute
     {

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
 {

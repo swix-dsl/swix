@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using SimpleWixDsl.Swix;
+using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.UnitTests
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SimpleWixDsl.Swix;
+using SimpleWixDsl.Ahl;
 using Is = Rhino.Mocks.Constraints.Is;
 
 namespace SimpleWixDsl.UnitTests

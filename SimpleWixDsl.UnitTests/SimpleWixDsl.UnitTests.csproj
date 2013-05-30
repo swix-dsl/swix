@@ -40,6 +40,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SimpleWixDsl.Ahl\SimpleWixDsl.Ahl.csproj">
+      <Project>{5143CB6C-0F8A-45EB-88C4-49353E34D39E}</Project>
+      <Name>SimpleWixDsl.Ahl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SimpleWixDsl.Swix\SimpleWixDsl.Swix.csproj">
       <Project>{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}</Project>
       <Name>SimpleWixDsl.Swix</Name>

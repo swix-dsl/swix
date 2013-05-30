@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace SimpleWixDsl.Swix
+namespace SimpleWixDsl.Ahl
 {
     [Serializable]
-    public class IndentationException : Exception
+    public class LexerException : Exception
     {
         //
         // For guidelines regarding the creation of new exception types, see
@@ -13,19 +13,19 @@ namespace SimpleWixDsl.Swix
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
         //
 
-        public IndentationException()
+        public LexerException()
         {
         }
 
-        public IndentationException(string message) : base(message)
+        public LexerException(string message) : base(message)
         {
         }
 
-        public IndentationException(string message, Exception inner) : base(message, inner)
+        public LexerException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected IndentationException(
+        protected LexerException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {
