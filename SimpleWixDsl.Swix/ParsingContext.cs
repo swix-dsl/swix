@@ -8,7 +8,7 @@ namespace SimpleWixDsl.Swix
         private interface IParsingState
         {
             int Indent { get; }
-            IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<Attribute> attributes);
+            IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes);
         }
 
         private class StubParsingState : IParsingState
@@ -18,7 +18,7 @@ namespace SimpleWixDsl.Swix
                 get { return -1; }
             }
 
-            public IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<Attribute> attributes)
+            public IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes)
             {
                 var msg = String.Format("Inconsistent indent at line {0}", lineNumber);
                 throw new InvalidOperationException(msg);
@@ -45,7 +45,7 @@ namespace SimpleWixDsl.Swix
 
             public int Indent { get; private set; }
 
-            public IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<Attribute> attributes)
+            public IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes)
             {
                 // one of these cases are possible:
                 // 1. indent equals to one of parent's indents --> finish prev semantic context and pass line to parent
@@ -96,7 +96,7 @@ namespace SimpleWixDsl.Swix
             _currentParsingState = new ParsingState(semanticContext);
         }
 
-        public void PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<Attribute> attributes)
+        public void PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes)
         {
             _currentParsingState = _currentParsingState.PushLine(lineNumber, indent, keyword, key, attributes);
         }

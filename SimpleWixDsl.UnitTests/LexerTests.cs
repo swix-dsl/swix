@@ -4,7 +4,6 @@ using System.IO;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SimpleWixDsl.Swix;
-using Attribute = SimpleWixDsl.Swix.Attribute;
 using Is = Rhino.Mocks.Constraints.Is;
 
 namespace SimpleWixDsl.UnitTests
@@ -74,7 +73,7 @@ namespace SimpleWixDsl.UnitTests
         [Test]
         public void SimpleSectionWithAttribute()
         {
-            ExpectLine(1, 0, ":section", null, new Attribute("val", "string"));
+            ExpectLine(1, 0, ":section", null, new AhlAttribute("val", "string"));
             RunTest(":section :: val=string");
         }
 
@@ -88,14 +87,14 @@ namespace SimpleWixDsl.UnitTests
         [Test]
         public void SimpleSectionWithOneLetterAttribute()
         {
-            ExpectLine(1, 0, ":section", null, new Attribute("a", "1"));
+            ExpectLine(1, 0, ":section", null, new AhlAttribute("a", "1"));
             RunTest(":section :: a=1");
         }
 
         [Test]
         public void SimpleSectionWithSeveralAttributes()
         {
-            ExpectLine(1, 0, ":section", null, new Attribute("val", "string"), new Attribute("val2", "string2"));
+            ExpectLine(1, 0, ":section", null, new AhlAttribute("val", "string"), new AhlAttribute("val2", "string2"));
             RunTest(":section :: val=string, val2=string2");
         }
 
@@ -130,7 +129,7 @@ namespace SimpleWixDsl.UnitTests
         [Test]
         public void AllClusesAtOnce()
         {
-            ExpectLine(1, 0, ":section", "key", new Attribute("attr1", "val1"), new Attribute("attr2", "val2"));
+            ExpectLine(1, 0, ":section", "key", new AhlAttribute("attr1", "val1"), new AhlAttribute("attr2", "val2"));
             RunTest(":section   key::attr1=val1  ,attr2 = val2");
         }
 
@@ -153,17 +152,17 @@ namespace SimpleWixDsl.UnitTests
         [Test]
         public void SectionWithSubsectionAndSomeAttributes()
         {
-            ExpectLine(1, 0, ":section", null, new Attribute("a", "1"));
-            ExpectLine(2, 1, ":subsection", null, new Attribute("b", "2"));
+            ExpectLine(1, 0, ":section", null, new AhlAttribute("a", "1"));
+            ExpectLine(2, 1, ":subsection", null, new AhlAttribute("b", "2"));
             RunTest(":section :: a=1\n :subsection :: b=2");
         }
 
         [Test]
         public void SectionWithMixOfQuotedAndUnquotedAttrsAndItems()
         {
-            ExpectLine(2, 0, ":s", null, new Attribute("a", "1,"), new Attribute("b", "2"));
-            ExpectLine(3, 2, "!ss", "ssx", new Attribute("c", "3"), new Attribute("d", "4"));
-            ExpectLine(4, 2, null, "y", new Attribute("e", "5"), new Attribute("f", "6"), new Attribute("g", "7"));
+            ExpectLine(2, 0, ":s", null, new AhlAttribute("a", "1,"), new AhlAttribute("b", "2"));
+            ExpectLine(3, 2, "!ss", "ssx", new AhlAttribute("c", "3"), new AhlAttribute("d", "4"));
+            ExpectLine(4, 2, null, "y", new AhlAttribute("e", "5"), new AhlAttribute("f", "6"), new AhlAttribute("g", "7"));
             RunTest(@"
 :s ::a=""1,"",b  =2 
   !ss   ""ssx""::c=3,d=4
@@ -179,18 +178,18 @@ namespace SimpleWixDsl.UnitTests
             sut.Run();
         }
 
-        private void ExpectLine(int lineNumber, int indent, string keyword, string key, params Attribute[] attributes)
+        private void ExpectLine(int lineNumber, int indent, string keyword, string key, params AhlAttribute[] ahlAttributes)
         {
-            _parsingContext.Expect(c => c.PushLine(lineNumber, indent, keyword, key, attributes))
+            _parsingContext.Expect(c => c.PushLine(lineNumber, indent, keyword, key, ahlAttributes))
                            .IgnoreArguments()
                            .Constraints(
                                Is.Equal(lineNumber),
                                Is.Equal(indent),
                                Is.Equal(keyword),
                                Is.Equal(key),
-                               Is.Matching<List<Attribute>>(list =>
+                               Is.Matching<List<AhlAttribute>>(list =>
                                    {
-                                       CollectionAssert.AreEqual(attributes, list, new AttributeComparer());
+                                       CollectionAssert.AreEqual(ahlAttributes, list, new AhlAttributeComparer());
                                        return true;
                                    }));
         }

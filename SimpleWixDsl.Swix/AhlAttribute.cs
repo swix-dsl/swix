@@ -1,8 +1,8 @@
 ﻿namespace SimpleWixDsl.Swix
 {
-    public class Attribute
+    public class AhlAttribute
     {
-        public Attribute(string key, string value)
+        public AhlAttribute(string key, string value)
         {
             Key = key;
             Value = value;

@@ -9,7 +9,7 @@ namespace SimpleWixDsl.Swix
             throw new System.NotImplementedException();
         }
 
-        public ISemanticContext PushLine(int line, string keyword, string key, IEnumerable<Attribute> attributes)
+        public ISemanticContext PushLine(int line, string keyword, string key, IEnumerable<AhlAttribute> attributes)
         {
             throw new System.NotImplementedException();
         }

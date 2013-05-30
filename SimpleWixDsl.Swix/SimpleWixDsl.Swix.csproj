@@ -19,7 +19,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attribute.cs" />
+    <Compile Include="AhlAttribute.cs" />
     <Compile Include="IParsingContext.cs" />
     <Compile Include="LexerException.cs" />
     <Compile Include="ParsingContext.cs" />

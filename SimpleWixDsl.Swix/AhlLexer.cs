@@ -54,13 +54,13 @@ namespace SimpleWixDsl.Swix
 
                 string keyword = match.Groups["keyword"].Success ? match.Groups["keyword"].Captures[0].Value : null;
                 string key = match.Groups["key"].Success ? Unquote(match.Groups["key"].Captures[0].Value) : null;
-                var attributes = new List<Attribute>();
+                var attributes = new List<AhlAttribute>();
 
                 for (int i = 0; i < match.Groups["attrName"].Captures.Count; i++)
                 {
                     var attrName = match.Groups["attrName"].Captures[i].Value;
                     var attrValue = Unquote(match.Groups["attrValue"].Captures[i].Value);
-                    attributes.Add(new Attribute(attrName, attrValue));
+                    attributes.Add(new AhlAttribute(attrName, attrValue));
                 }
 
                 _parsingContext.PushLine(lineNumber, indent, keyword, key, attributes);
