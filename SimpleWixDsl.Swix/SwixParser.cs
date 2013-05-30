@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace SimpleWixDsl.Swix
 {
@@ -18,7 +19,30 @@ namespace SimpleWixDsl.Swix
 
         public SwixModel Run()
         {
-            
+            var result = new SwixModel();
+            ISemanticContext semanticContext = new FileSemanticContext(result);
+            IParsingContext parsingContext = new ParsingContext(semanticContext);
+            var lexer = new AhlLexer(parsingContext, _sourceStream);
+            lexer.Run();
+            return result;
+        }
+    }
+
+    public class FileSemanticContext : ISemanticContext
+    {
+        public FileSemanticContext(SwixModel result)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ISemanticContext AddChild(string key, IEnumerable<Attribute> attributes)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void FinishItem()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
