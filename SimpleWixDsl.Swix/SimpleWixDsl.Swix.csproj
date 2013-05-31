@@ -20,14 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttributeContext.cs" />
+    <Compile Include="Model\CabFile.cs" />
+    <Compile Include="Model\SwixModel.cs" />
+    <Compile Include="SemanticContexts\CabFilesSection.cs" />
     <Compile Include="SemanticContexts\FileSemanticContext.cs" />
-    <Compile Include="SemanticContexts\BaseSwixSemanticContext.cs" />
+    <Compile Include="SemanticContexts\Helpers\BaseSwixSemanticContext.cs" />
     <Compile Include="SemanticContexts\Helpers\ItemHandlerAttribute.cs" />
     <Compile Include="SemanticContexts\Helpers\MetaHandlerAttribute.cs" />
     <Compile Include="SemanticContexts\Helpers\ReflectionUtils.cs" />
     <Compile Include="SemanticContexts\Helpers\SectionHandlerAttribute.cs" />
     <Compile Include="SemanticContexts\Helpers\SemanticContextReflectionInfo.cs" />
-    <Compile Include="SwixModel.cs" />
+    <Compile Include="SemanticContexts\Helpers\StubSwixElement.cs" />
     <Compile Include="SwixParser.cs" />
     <Compile Include="SwixProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

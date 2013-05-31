@@ -36,6 +36,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BaseSwixSemanticContextTests.cs" />
+    <Compile Include="SwixParsingIntegrationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -16,7 +16,7 @@ namespace SimpleWixDsl.Swix
         [SectionHandler("cabFiles")]
         public ISemanticContext CabFiles(IEnumerable<AhlAttribute> attributes)
         {
-            return null;
+            return new CabFilesSection(CurrentAttributeContext, _result);
         }
     }
 }

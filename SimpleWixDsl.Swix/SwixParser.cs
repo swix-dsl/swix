@@ -5,14 +5,14 @@ namespace SimpleWixDsl.Swix
 {
     public class SwixParser
     {
-        public static SwixModel Parse(StreamReader sourceStream)
+        public static SwixModel Parse(TextReader sourceStream)
         {
             return new SwixParser(sourceStream).Run();
         }
 
-        private readonly StreamReader _sourceStream;
+        private readonly TextReader _sourceStream;
 
-        private SwixParser(StreamReader sourceStream)
+        private SwixParser(TextReader sourceStream)
         {
             _sourceStream = sourceStream;
         }
