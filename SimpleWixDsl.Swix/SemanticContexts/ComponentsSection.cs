@@ -16,11 +16,9 @@ namespace SimpleWixDsl.Swix
         }
 
         [ItemHandler]
-        public ISemanticContext Component(string key, IEnumerable<AhlAttribute> attributes)
+        public ISemanticContext Component(string key, IAttributeContext itemContext)
         {
-            var childContext = new AttributeContext(CurrentAttributeContext);
-            childContext.SetAttributes(attributes);
-            return new StubSwixElement(CurrentAttributeContext, () => _toAdd.Add(WixComponent.FromContext(key, childContext)));
+            return new StubSwixElement(CurrentAttributeContext, () => _toAdd.Add(WixComponent.FromContext(key, itemContext)));
         }
 
         protected override void FinishItemCore()

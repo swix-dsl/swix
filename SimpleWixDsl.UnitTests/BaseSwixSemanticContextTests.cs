@@ -18,26 +18,32 @@ namespace SimpleWixDsl.UnitTests
             {
             }
 
-            public Func<string, IEnumerable<AhlAttribute>, ISemanticContext> ItemFunc;
-            public Func<IEnumerable<AhlAttribute>, ISemanticContext> S1Func;
-            public Func<string, IEnumerable<AhlAttribute>, ISemanticContext> M1Func;
-
+            public Func<string, IAttributeContext, ISemanticContext> ItemFunc;
+            public Func<IAttributeContext, ISemanticContext> S1Func;
+            public Func<string, IAttributeContext, ISemanticContext> M1Func;
+            public Func<IAttributeContext> AttributeContextFactory = () => new AttributeContext();
+                
             [ItemHandler]
-            public ISemanticContext ItemHandler(string key, IEnumerable<AhlAttribute> attributes)
+            public ISemanticContext ItemHandler(string key, IAttributeContext itemContext)
             {
-                return ItemFunc(key, attributes);
+                return ItemFunc(key, itemContext);
             }
 
             [SectionHandler("s1")]
-            public ISemanticContext S1(IEnumerable<AhlAttribute> attributes)
+            public ISemanticContext S1(IAttributeContext childContext)
             {
-                return S1Func(attributes);
+                return S1Func(childContext);
             }
 
             [MetaHandler("m1")]
-            public ISemanticContext M1(string key, IEnumerable<AhlAttribute> attributes)
+            public ISemanticContext M1(string key, IAttributeContext metaContext)
             {
-                return M1Func(key, attributes);
+                return M1Func(key, metaContext);
+            }
+
+            protected override IAttributeContext CreateNewAttributeContext()
+            {
+                return AttributeContextFactory();
             }
         }
 
@@ -45,18 +51,20 @@ namespace SimpleWixDsl.UnitTests
         public void ItemLine_RoutedCorrectlyWithSameAttributes()
         {
             var sut = new SemContextStub();
-            var expectedAttrs = new List<AhlAttribute>();
+            var expectedChildContext = MockRepository.GenerateStub<IAttributeContext>();
+            sut.AttributeContextFactory = () => expectedChildContext;
+
             var expectedResult = MockRepository.GenerateStub<ISemanticContext>();
             bool called = false;
-            sut.ItemFunc = (key, attrs) =>
+            sut.ItemFunc = (key, context) =>
                 {
                     called = true;
                     Assert.AreEqual("mykey", key);
-                    Assert.AreSame(expectedAttrs, attrs);
+                    Assert.AreSame(expectedChildContext, context);
                     sut.ItemFunc = null;
                     return expectedResult;
                 };
-            var result = sut.PushLine(0, null, "mykey", expectedAttrs);
+            var result = sut.PushLine(0, null, "mykey", new List<AhlAttribute>());
             Assert.IsTrue(called);
             Assert.AreSame(expectedResult, result);
         }
@@ -65,17 +73,19 @@ namespace SimpleWixDsl.UnitTests
         public void SectionLine_RoutedCorrectlyWithSameAttributes()
         {
             var sut = new SemContextStub();
-            var expectedAttrs = new List<AhlAttribute>();
+            var attributeContext = MockRepository.GenerateStub<IAttributeContext>();
+            sut.AttributeContextFactory = () => attributeContext;
             var expectedResult = MockRepository.GenerateStub<ISemanticContext>();
+            
             bool called = false;
-            sut.S1Func = attrs =>
+            sut.S1Func = context =>
                 {
                     called = true;
-                    Assert.AreSame(expectedAttrs, attrs);
+                    Assert.AreSame(attributeContext, context);
                     sut.S1Func = null;
                     return expectedResult;
                 };
-            var result = sut.PushLine(0, ":s1", null, expectedAttrs);
+            var result = sut.PushLine(0, ":s1", null, new List<AhlAttribute>());
             Assert.IsTrue(called);
             Assert.AreSame(expectedResult, result);
         }
@@ -84,18 +94,19 @@ namespace SimpleWixDsl.UnitTests
         public void MetaLine_RoutedCorrectlyWithSameAttributes()
         {
             var sut = new SemContextStub();
-            var expectedAttrs = new List<AhlAttribute>();
+            var expectedChildContext = MockRepository.GenerateStub<IAttributeContext>();
+            sut.AttributeContextFactory = () => expectedChildContext;
             var expectedResult = MockRepository.GenerateStub<ISemanticContext>();
             bool called = false;
-            sut.M1Func = (key, attrs) =>
+            sut.M1Func = (key, context) =>
                 {
                     called = true;
                     Assert.AreEqual("mykey", key);
-                    Assert.AreSame(expectedAttrs, attrs);
+                    Assert.AreSame(expectedChildContext, context);
                     sut.M1Func = null;
                     return expectedResult;
                 };
-            var result = sut.PushLine(0, "?m1", "mykey", expectedAttrs);
+            var result = sut.PushLine(0, "?m1", "mykey", new AhlAttribute[0]);
             Assert.IsTrue(called);
             Assert.AreSame(expectedResult, result);
         }
@@ -105,18 +116,19 @@ namespace SimpleWixDsl.UnitTests
         {
             var mr = new MockRepository();
             var sut = new SemContextStub();
-            var expectedAttrs = new List<AhlAttribute>();
+            var expectedChildContext = MockRepository.GenerateStub<IAttributeContext>();
+            sut.AttributeContextFactory = () => expectedChildContext;
             var sectionContext = mr.StrictMock<ISemanticContext>();
             sectionContext.Expect(sc => sc.FinishItem());
             var itemContext = mr.StrictMock<ISemanticContext>();
             itemContext.Expect(i => i.OnFinished += null).IgnoreArguments();
             
-            sectionContext.Expect(sc => sc.PushLine(0, null, "mykey", expectedAttrs))
+            sectionContext.Expect(sc => sc.PushLine(0, null, "mykey", new AhlAttribute[0]))
                 .Return(itemContext);
             sut.S1Func = _ => sectionContext;
             
             mr.ReplayAll();
-            var result = sut.PushLine(0, "!s1", "mykey", expectedAttrs);
+            var result = sut.PushLine(0, "!s1", "mykey", new AhlAttribute[0]);
             Assert.AreSame(itemContext, result);
             itemContext.GetEventRaiser(i => i.OnFinished += null).Raise(itemContext, EventArgs.Empty);
             mr.VerifyAll();

@@ -14,23 +14,21 @@ namespace SimpleWixDsl.Swix
         }
 
         [SectionHandler("cabFiles")]
-        public ISemanticContext CabFiles(IEnumerable<AhlAttribute> attributes)
+        public ISemanticContext CabFiles(IAttributeContext sectionContext)
         {
-            return new CabFilesSection(CurrentAttributeContext, _result);
+            return new CabFilesSection(sectionContext, _result);
         }
 
         [SectionHandler("directories")]
-        public ISemanticContext Directories(IEnumerable<AhlAttribute> attributes)
+        public ISemanticContext Directories(IAttributeContext sectionContext)
         {
-            return new DirectoriesSection(CurrentAttributeContext, _result.RootDirectory);
+            return new DirectoriesSection(sectionContext, _result.RootDirectory);
         }
 
         [SectionHandler("components")]
-        public ISemanticContext Components(IEnumerable<AhlAttribute> attributes)
+        public ISemanticContext Components(IAttributeContext sectionContext)
         {
-            var childContext = new AttributeContext(CurrentAttributeContext);
-            childContext.SetAttributes(attributes);
-            return new ComponentsSection(childContext, _result.Components);
+            return new ComponentsSection(sectionContext, _result.Components);
         }
     }
 }

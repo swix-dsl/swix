@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
@@ -19,16 +18,26 @@ namespace SimpleWixDsl.Swix
         {
             _currentLine = line;
 
-            var reflectionInfo = SemanticContextReflectionInfo.Get(GetType());
-
             if (keyword == null)
             {
-                var itemHandler = reflectionInfo.GetItemHandler();
-                if (itemHandler == null)
-                    throw new SwixSemanticException(FormatError("Direct items in this context are not allowed in the SWIX format."));
-                return itemHandler(this, key, attributes);
+                return HandleItem(key, attributes);
             }
 
+            var reflectionInfo = SemanticContextReflectionInfo.Get(GetType());
+            if (keyword[0] == '!')
+            {
+                var sectionName = keyword.Substring(1);
+                var sectionHandler = reflectionInfo.GetSectionHandler(sectionName);
+                if (sectionHandler == null)
+                    throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
+                var sectionContext = sectionHandler(this, CurrentAttributeContext);
+                var itemContext = sectionContext.PushLine(line, null, key, attributes);
+                itemContext.OnFinished += (s, e) => sectionContext.FinishItem();
+                return itemContext;
+            }
+
+            var childContext = CreateNewAttributeContext();
+            childContext.SetAttributes(attributes);
             if (keyword[0] == ':')
             {
                 if (key != null)
@@ -37,19 +46,7 @@ namespace SimpleWixDsl.Swix
                 var sectionHandler = reflectionInfo.GetSectionHandler(sectionName);
                 if (sectionHandler == null) 
                     throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
-                return sectionHandler(this, attributes);
-            }
-
-            if (keyword[0] == '!')
-            {
-                var sectionName = keyword.Substring(1);
-                var sectionHandler = reflectionInfo.GetSectionHandler(sectionName);
-                if (sectionHandler == null)
-                    throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
-                var sectionContext = sectionHandler(this, Enumerable.Empty<AhlAttribute>());
-                var itemContext = sectionContext.PushLine(line, null, key, attributes);
-                itemContext.OnFinished += (s, e) => sectionContext.FinishItem();
-                return itemContext;
+                return sectionHandler(this, childContext);
             }
 
             if (keyword[0] == '?')
@@ -58,10 +55,21 @@ namespace SimpleWixDsl.Swix
                 var metaHandler = reflectionInfo.GetMetaHandler(metaName);
                 if (metaHandler == null)
                     throw new SwixSemanticException(FormatError("Meta {0} is not allowed here according to SWIX format.", metaName));
-                return metaHandler(this, key, attributes);
+                return metaHandler(this, key, childContext);
             }
 
             throw new SwixSemanticException(FormatError("SWIX keywords are only prepended by :, ! or ?"));
+        }
+
+        private ISemanticContext HandleItem(string key, IEnumerable<AhlAttribute> attributes)
+        {
+            var reflectionInfo = SemanticContextReflectionInfo.Get(GetType());
+            var itemHandler = reflectionInfo.GetItemHandler();
+            if (itemHandler == null)
+                throw new SwixSemanticException(FormatError("Direct items in this context are not allowed in the SWIX format."));
+            var itemContext = CreateNewAttributeContext();
+            itemContext.SetAttributes(attributes);
+            return itemHandler(this, key, itemContext);
         }
 
         public void FinishItem()
@@ -81,6 +89,11 @@ namespace SimpleWixDsl.Swix
         {
             var userMsg = string.Format(format, args);
             return string.Format("Line {0}: {1}", _currentLine, userMsg);
+        }
+
+        protected virtual IAttributeContext CreateNewAttributeContext()
+        {
+            return new AttributeContext(CurrentAttributeContext);
         }
     }
 }

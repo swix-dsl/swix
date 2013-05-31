@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SimpleWixDsl.Ahl;
+﻿using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
 {
@@ -14,7 +13,7 @@ namespace SimpleWixDsl.Swix
         }
 
         [ItemHandler]
-        public ISemanticContext HandleFile(string key, IEnumerable<AhlAttribute> attributes)
+        public ISemanticContext HandleFile(string key, IAttributeContext attributes)
         {
             return new StubSwixElement(CurrentAttributeContext, () => _model.CabFiles.Add(new CabFile(key)));
         }

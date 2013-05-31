@@ -7,22 +7,22 @@ using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
 {
-    public delegate ISemanticContext MetaHandler(object callTarget, string key, IEnumerable<AhlAttribute> attributes);
-    public delegate ISemanticContext SectionHandler(object callTarget, IEnumerable<AhlAttribute> attributes);
-    public delegate ISemanticContext ItemHandler(object callTarget, string key, IEnumerable<AhlAttribute> attributes);
+    public delegate ISemanticContext MetaHandler(object callTarget, string key, IAttributeContext context);
+    public delegate ISemanticContext SectionHandler(object callTarget, IAttributeContext sectionContext);
+    public delegate ISemanticContext ItemHandler(object callTarget, string key, IAttributeContext itemContext);
 
     public class SemanticContextReflectionInfo
     {
-        private static readonly ConditionalWeakTable<Type, SemanticContextReflectionInfo> _cache = new ConditionalWeakTable<Type, SemanticContextReflectionInfo>();
+        private static readonly ConditionalWeakTable<Type, SemanticContextReflectionInfo> Cache = new ConditionalWeakTable<Type, SemanticContextReflectionInfo>();
 
         public static SemanticContextReflectionInfo Get(Type target)
         {
             SemanticContextReflectionInfo result;
-            if (_cache.TryGetValue(target, out result))
+            if (Cache.TryGetValue(target, out result))
                 return result;
 
             result = new SemanticContextReflectionInfo(target);
-            _cache.Add(target, result);
+            Cache.Add(target, result);
             return result;
         }
 
