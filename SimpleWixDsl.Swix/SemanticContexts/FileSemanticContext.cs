@@ -24,5 +24,13 @@ namespace SimpleWixDsl.Swix
         {
             return new DirectoriesSection(CurrentAttributeContext, _result.RootDirectory);
         }
+
+        [SectionHandler("components")]
+        public ISemanticContext Components(IEnumerable<AhlAttribute> attributes)
+        {
+            var childContext = new AttributeContext(CurrentAttributeContext);
+            childContext.SetAttributes(attributes);
+            return new ComponentsSection(childContext, _result.Components);
+        }
     }
 }

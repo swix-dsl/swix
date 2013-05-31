@@ -33,6 +33,17 @@ namespace SimpleWixDsl.UnitTests
             Assert.AreEqual(0, anotherTest.Subdirectories.Count);
         }
 
+        [Test]
+        public void BunchOfComponents()
+        {
+            var model = Parse(":components :: from=mydir\n c1::id=iii\n subdir\\c3 :: cabFileRef=cab, targetDirRef=targetDir");
+            Assert.AreEqual(2, model.Components.Count);
+            CollectionAssert.AreEqual(new[] {"mydir\\c1", "mydir\\subdir\\c3"}, model.Components.Select(c => c.SourcePath));
+            Assert.AreEqual("iii", model.Components[0].Id);
+            Assert.AreEqual("cab", model.Components[1].CabFileRef);
+            Assert.AreEqual("targetDir", model.Components[1].TargetDirRef);
+        }
+
         public SwixModel Parse(string input)
         {
             var stream = new StringReader(input);
