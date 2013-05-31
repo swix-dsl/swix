@@ -18,5 +18,11 @@ namespace SimpleWixDsl.Swix
         {
             return new CabFilesSection(CurrentAttributeContext, _result);
         }
+
+        [SectionHandler("directories")]
+        public ISemanticContext Directories(IEnumerable<AhlAttribute> attributes)
+        {
+            return new DirectoriesSection(CurrentAttributeContext, _result.RootDirectory);
+        }
     }
 }

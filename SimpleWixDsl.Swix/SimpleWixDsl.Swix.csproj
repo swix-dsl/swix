@@ -22,7 +22,9 @@
     <Compile Include="AttributeContext.cs" />
     <Compile Include="Model\CabFile.cs" />
     <Compile Include="Model\SwixModel.cs" />
+    <Compile Include="Model\WixTargetDirectory.cs" />
     <Compile Include="SemanticContexts\CabFilesSection.cs" />
+    <Compile Include="SemanticContexts\DirectoriesSection.cs" />
     <Compile Include="SemanticContexts\FileSemanticContext.cs" />
     <Compile Include="SemanticContexts\Helpers\BaseSwixSemanticContext.cs" />
     <Compile Include="SemanticContexts\Helpers\ItemHandlerAttribute.cs" />
