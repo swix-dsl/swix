@@ -3,21 +3,20 @@ using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
 {
-    public class FileSemanticContext : ISemanticContext
+    public class FileSemanticContext : BaseSwixSemanticContext
     {
+        private readonly SwixModel _result;
+
         public FileSemanticContext(SwixModel result)
+            :base(new AttributeContext())
         {
-            throw new System.NotImplementedException();
+            _result = result;
         }
 
-        public ISemanticContext PushLine(int line, string keyword, string key, IEnumerable<AhlAttribute> attributes)
+        [SectionHandler("cabFiles")]
+        public ISemanticContext CabFiles(IEnumerable<AhlAttribute> attributes)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public void FinishItem()
-        {
-            throw new System.NotImplementedException();
+            return null;
         }
     }
 }

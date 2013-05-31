@@ -19,7 +19,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributeContext.cs" />
     <Compile Include="SemanticContexts\FileSemanticContext.cs" />
+    <Compile Include="SemanticContexts\BaseSwixSemanticContext.cs" />
+    <Compile Include="SemanticContexts\Helpers\ItemHandlerAttribute.cs" />
+    <Compile Include="SemanticContexts\Helpers\MetaHandlerAttribute.cs" />
+    <Compile Include="SemanticContexts\Helpers\ReflectionUtils.cs" />
+    <Compile Include="SemanticContexts\Helpers\SectionHandlerAttribute.cs" />
+    <Compile Include="SemanticContexts\Helpers\SemanticContextReflectionInfo.cs" />
     <Compile Include="SwixModel.cs" />
     <Compile Include="SwixParser.cs" />
     <Compile Include="SwixProcessor.cs" />
@@ -27,6 +34,7 @@
     <Compile Include="$(SolutionDir)SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="SwixSemanticException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleWixDsl.Ahl\SimpleWixDsl.Ahl.csproj">
