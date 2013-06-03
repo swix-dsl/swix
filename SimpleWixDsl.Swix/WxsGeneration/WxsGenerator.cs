@@ -91,7 +91,7 @@ namespace SimpleWixDsl.Swix
             {
                 doc.WriteStartElement("Media");
                 doc.WriteAttributeString("Id", _cabFilesIds[cabFile.Name].ToString(CultureInfo.InvariantCulture));
-                doc.WriteAttributeString("Cabinet", cabFile.Name);
+                doc.WriteAttributeString("Cabinet", cabFile.Name + ".cab");
                 doc.WriteAttributeString("EmbedCab", "yes");
                 doc.WriteAttributeString("CompressionLevel", "mszip");
                 doc.WriteEndElement();
@@ -110,7 +110,6 @@ namespace SimpleWixDsl.Swix
                 doc.WriteEndElement();
             }
         }
-
 
         private string GetComponentId(WixComponent component)
         {
@@ -133,7 +132,7 @@ namespace SimpleWixDsl.Swix
                 bool allowed = sb[i] >= 'a' && sb[i] <= 'z' ||
                                sb[i] >= 'A' && sb[i] <= 'Z' ||
                                sb[i] >= '0' && sb[i] <= '9' && i > 0 ||
-                               sb[i] == '_';
+                               sb[i] == '_' || sb[i] == '.';
                 if (!allowed)
                     sb[i] = '_';
             }
