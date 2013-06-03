@@ -42,6 +42,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="SwixSemanticException.cs" />
+    <Compile Include="WxsGeneration\GuidProvider.cs" />
+    <Compile Include="WxsGeneration\SwixGuidType.cs" />
+    <Compile Include="WxsGeneration\WxsGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SimpleWixDsl.Ahl\SimpleWixDsl.Ahl.csproj">

@@ -15,7 +15,7 @@ namespace SimpleWixDsl.Swix
 
         public WixTargetDirectory(string name)
         {
-            Id = Name = name;
+            Name = name;
             Subdirectories = new List<WixTargetDirectory>();
         }
 
