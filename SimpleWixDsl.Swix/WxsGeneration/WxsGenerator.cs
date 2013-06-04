@@ -73,7 +73,7 @@ namespace SimpleWixDsl.Swix
             var id = GetComponentId(component);
             doc.WriteAttributeString("Id", id);
             var componentGuid = _guidProvider.Get(SwixGuidType.Component, component.SourcePath);
-            doc.WriteAttributeString("Guid", componentGuid.ToString("B"));
+            doc.WriteAttributeString("Guid", componentGuid.ToString("B").ToUpperInvariant());
 
             doc.WriteStartElement("File");
             doc.WriteAttributeString("Id", id);
