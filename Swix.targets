@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+         DefaultTargets="Build">
+
+  <PropertyGroup>
+    <SwixInstallPath Condition=" '$(SwixInstallPath)' == '' ">$(MSBuildThisFileDirectory)</SwixInstallPath>
+    <SwixTasksPath Condition=" '$(SwixTasksPath)' == '' ">$(SwixInstallPath)\SimpleWixDsl.MSBuild.dll</SwixTasksPath>
+<!--    <BuildDependsOn Condition=" '$(BuildDependsOn)' != '' ">SwixTransformTarget;$(BuildDependsOn)</BuildDependsOn>
+    <BuildDependsOn Condition=" '$(BuildDependsOn)' == '' ">SwixTransformTarget</BuildDependsOn> -->
+  </PropertyGroup>
+
+  <UsingTask TaskName="SwixTransform" AssemblyFile="$(SwixTasksPath)" />
+
+</Project>
