@@ -18,7 +18,18 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext Component(string key, IAttributeContext itemContext)
         {
-            return new StubSwixElement(CurrentAttributeContext, () => _toAdd.Add(WixComponent.FromContext(key, itemContext)));
+            return new StubSwixElement(CurrentAttributeContext, () =>
+                {
+                    try
+                    {
+                        var component = WixComponent.FromContext(key, itemContext);
+                        _toAdd.Add(component);
+                    }
+                    catch (SwixSemanticException e)
+                    {
+                        throw new SwixSemanticException(FormatError(e.Message));
+                    }
+                });
         }
 
         protected override void FinishItemCore()

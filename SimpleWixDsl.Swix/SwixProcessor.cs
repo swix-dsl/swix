@@ -16,7 +16,16 @@ namespace SimpleWixDsl.Swix
 
             SwixModel model;
             using (var sourceReader = new StreamReader(swixFilename))
-                model = SwixParser.Parse(sourceReader);
+            {
+                try
+                {
+                    model = SwixParser.Parse(sourceReader);
+                }
+                catch (SwixSemanticException e)
+                {
+                    throw new SwixSemanticException(string.Format("{0} {1}", swixFilename, e.Message));
+                }
+            }
 
             GuidProvider guidProvider;
             if (File.Exists(guidProviderFileName))

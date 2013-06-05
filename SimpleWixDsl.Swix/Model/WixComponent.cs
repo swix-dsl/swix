@@ -13,11 +13,15 @@ namespace SimpleWixDsl.Swix
             var targetDirRef = context.GetInheritedAttribute("targetDirRef");
             if (targetDirRef != null)
                 result.TargetDirRef = targetDirRef;
+            else
+                throw new SwixSemanticException("targetDirRef attribute is mandatory for all components");
 
             var cabFileRef = context.GetInheritedAttribute("cabFileRef");
             if (cabFileRef != null)
                 result.CabFileRef = cabFileRef;
-            
+            else
+                throw new SwixSemanticException("cabFileRef attribute is mandatory for all components");
+
             var id = context.GetInheritedAttribute("id");
             if (id != null)
                 result.Id = id;
