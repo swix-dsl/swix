@@ -61,6 +61,14 @@ namespace SimpleWixDsl.Swix
             throw new SwixSemanticException(FormatError("SWIX keywords are only prepended by :, ! or ?"));
         }
 
+        [MetaHandler("set")]
+        public ISemanticContext HandleMeta(string key, IAttributeContext metaContext)
+        {
+            if (key != null)
+                throw new SwixSemanticException("Meta-keyword set doesn't allow key attribute");
+            return new StubSwixElement(metaContext, () => CurrentAttributeContext.SetAttributes(metaContext.GetDirectlySetAttributes()));
+        }
+
         private ISemanticContext HandleItem(string key, IEnumerable<AhlAttribute> attributes)
         {
             var reflectionInfo = SemanticContextReflectionInfo.Get(GetType());

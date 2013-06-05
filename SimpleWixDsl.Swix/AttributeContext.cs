@@ -8,6 +8,8 @@ namespace SimpleWixDsl.Swix
     {
         private class NullAttributeContext : IAttributeContext
         {
+            private readonly Dictionary<string, string> _emptyDictionary = new Dictionary<string, string>();
+
             public string GetInheritedAttribute(string attributeName)
             {
                 return null;
@@ -16,6 +18,16 @@ namespace SimpleWixDsl.Swix
             public void SetAttributes(IEnumerable<AhlAttribute> attributes)
             {
                 throw new NotSupportedException();
+            }
+
+            public void SetAttributes(IDictionary<string, string> attributes)
+            {
+                throw new NotSupportedException();
+            }
+
+            public IDictionary<string, string> GetDirectlySetAttributes()
+            {
+                return _emptyDictionary;
             }
         }
 
@@ -47,11 +59,26 @@ namespace SimpleWixDsl.Swix
             foreach (var attr in attributes)
                 _attributes[attr.Key] = attr.Value;
         }
+
+        public void SetAttributes(IDictionary<string, string> attributes)
+        {
+            foreach (var pair in attributes)
+            {
+                _attributes[pair.Key] = pair.Value;
+            }
+        }
+
+        public IDictionary<string, string> GetDirectlySetAttributes()
+        {
+            return _attributes;
+        }
     }
 
     public interface IAttributeContext
     {
         string GetInheritedAttribute(string attributeName);
         void SetAttributes(IEnumerable<AhlAttribute> attributes);
+        void SetAttributes(IDictionary<string, string> attributes);
+        IDictionary<string, string> GetDirectlySetAttributes();
     }
 }
