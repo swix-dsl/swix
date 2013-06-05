@@ -12,7 +12,7 @@ namespace SimpleWixDsl.Swix
             var folderPath = Path.GetDirectoryName(swixFilename) ?? Path.GetPathRoot(swixFilename);
             var baseName = Path.GetFileNameWithoutExtension(swixFilename);
             var guidProviderFileName = Path.Combine(folderPath, baseName + ".guid.info");
-            var outputFile = Path.Combine(folderPath, baseName + ".wxs");
+            var outputFile = Path.Combine(folderPath, baseName + ".generated.wxs");
 
             SwixModel model;
             using (var sourceReader = new StreamReader(swixFilename))
