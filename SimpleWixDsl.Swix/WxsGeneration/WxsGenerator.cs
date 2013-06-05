@@ -104,6 +104,8 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("Id", id);
             doc.WriteAttributeString("KeyPath", "yes");
             doc.WriteAttributeString("Source", component.SourcePath);
+            if (!_cabFilesIds.ContainsKey(component.CabFileRef))
+                throw new SwixSemanticException(String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
             doc.WriteAttributeString("DiskId", _cabFilesIds[component.CabFileRef].ToString(CultureInfo.InvariantCulture));
             doc.WriteEndElement();
 
