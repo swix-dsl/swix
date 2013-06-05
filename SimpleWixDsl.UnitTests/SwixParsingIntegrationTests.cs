@@ -36,7 +36,7 @@ namespace SimpleWixDsl.UnitTests
         [Test]
         public void BunchOfComponents()
         {
-            var model = Parse(":components :: from=mydir\n c1::id=iii\n subdir\\c3 :: cabFileRef=cab, targetDirRef=targetDir");
+            var model = Parse(":components :: from=mydir, targetDirRef=123, cabFileRef=ccc\n c1::id=iii\n subdir\\c3 :: cabFileRef=cab, targetDirRef=targetDir");
             Assert.AreEqual(2, model.Components.Count);
             CollectionAssert.AreEqual(new[] {"mydir\\c1", "mydir\\subdir\\c3"}, model.Components.Select(c => c.SourcePath));
             Assert.AreEqual("iii", model.Components[0].Id);
