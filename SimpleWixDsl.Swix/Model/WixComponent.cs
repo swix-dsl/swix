@@ -22,6 +22,10 @@ namespace SimpleWixDsl.Swix
             else
                 throw new SwixSemanticException("cabFileRef attribute is mandatory for all components");
 
+            var componentGroupRef = context.GetInheritedAttribute("componentGroupRef");
+            if (componentGroupRef != null)
+                result.ComponentGroupRef = componentGroupRef;
+
             var id = context.GetInheritedAttribute("id");
             if (id != null)
                 result.Id = id;
@@ -37,6 +41,8 @@ namespace SimpleWixDsl.Swix
         public string TargetDirRef { get; set; }
 
         public string CabFileRef { get; set; }
+        
+        public string ComponentGroupRef { get; set; }
 
         public string Id { get; set; }
 

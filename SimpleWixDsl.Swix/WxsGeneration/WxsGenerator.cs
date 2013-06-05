@@ -68,6 +68,7 @@ namespace SimpleWixDsl.Swix
 
                 doc.WriteStartElement("Fragment");
 
+                WriteComponentGroups(doc);
                 WriteSubDirectories(doc, _model.RootDirectory);
                 WriteCabFiles(doc, _model.CabFiles);
                 WriteComponents(doc, _model.Components);
@@ -77,6 +78,26 @@ namespace SimpleWixDsl.Swix
                 doc.WriteEndElement();
                 doc.WriteEndDocument();
                 doc.Flush();
+            }
+        }
+
+        private void WriteComponentGroups(XmlWriter doc)
+        {
+            var groupedComponents = _model.Components.GroupBy(c => c.ComponentGroupRef);
+            foreach (var group in groupedComponents)
+            {
+                var componentGroupRef = group.Key;
+                doc.WriteStartElement("ComponentGroup");
+                doc.WriteAttributeString("Id", componentGroupRef);
+
+                foreach (var component in group)
+                {
+                    doc.WriteStartElement("ComponentRef");
+                    doc.WriteAttributeString("Id", GetComponentId(component));
+                    doc.WriteEndElement();
+                }
+
+                doc.WriteEndElement();
             }
         }
 
