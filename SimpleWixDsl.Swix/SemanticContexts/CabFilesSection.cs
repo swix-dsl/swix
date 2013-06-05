@@ -15,7 +15,7 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext HandleFile(string key, IAttributeContext attributes)
         {
-            return new StubSwixElement(CurrentAttributeContext, () => _model.CabFiles.Add(new CabFile(key)));
+            return new StubSwixElement(CurrentAttributeContext, () => _model.CabFiles.Add(CabFile.FromContext(key, attributes)));
         }
     }
 }

@@ -145,7 +145,7 @@ namespace SimpleWixDsl.Swix
                 doc.WriteAttributeString("Id", _cabFilesIds[cabFile.Name].ToString(CultureInfo.InvariantCulture));
                 doc.WriteAttributeString("Cabinet", cabFile.Name + ".cab");
                 doc.WriteAttributeString("EmbedCab", "yes");
-                doc.WriteAttributeString("CompressionLevel", "mszip");
+                doc.WriteAttributeString("CompressionLevel", cabFile.CompressionLevel);
                 doc.WriteEndElement();
             }
         }
