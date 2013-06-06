@@ -82,7 +82,7 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var component in _model.Components)
             {
-                if (component.TargetDir == null) continue;
+                if (String.IsNullOrEmpty(component.TargetDir)) continue;
                 string[] path = component.TargetDir.Split('\\');
 
                 var dir = _directories[component.TargetDirRef];
