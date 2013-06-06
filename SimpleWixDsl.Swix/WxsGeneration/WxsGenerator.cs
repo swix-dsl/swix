@@ -134,7 +134,7 @@ namespace SimpleWixDsl.Swix
             var settings = new XmlWriterSettings();
             settings.Indent = true;
             settings.IndentChars = "  ";
-            settings.NewLineChars = "\n";
+            settings.NewLineChars = "\r\n";
             settings.NewLineHandling = NewLineHandling.Entitize;
             using (var doc = XmlWriter.Create(target, settings))
             {
