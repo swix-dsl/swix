@@ -17,7 +17,7 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext RootDirectory(string key, IAttributeContext itemContext)
         {
-            var dir = WixTargetDirectory.FromAttributes(key, itemContext);
+            var dir = WixTargetDirectory.FromAttributes(key, itemContext, _currentDir);
             _subdirs.Add(dir);
             return new DirectoriesSection(CurrentAttributeContext, dir);
         }

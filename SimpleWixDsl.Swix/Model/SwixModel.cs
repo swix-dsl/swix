@@ -7,7 +7,7 @@ namespace SimpleWixDsl.Swix
         public SwixModel()
         {
             CabFiles = new List<CabFile>();
-            RootDirectory = new WixTargetDirectory("root");
+            RootDirectory = new WixTargetDirectory("root", null);
             Components = new List<WixComponent>();
         }
 
