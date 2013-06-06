@@ -10,6 +10,7 @@ namespace SimpleWixDsl.Swix
 {
     public class WxsGenerator
     {
+        private const int MaxLengthOfComponentId = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, int> _cabFilesIds = new Dictionary<string, int>();
@@ -47,7 +48,7 @@ namespace SimpleWixDsl.Swix
 
         private static string GetDirectoryReadableId(WixTargetDirectory dir)
         {
-            return dir.Id ?? MakeReadableId(dir.Name);
+            return dir.Id ?? MakeReadableId(dir.Name, 140);
         }
 
         public void WriteToStream(StreamWriter target)
@@ -168,27 +169,25 @@ namespace SimpleWixDsl.Swix
             int idx = component.SourcePath.LastIndexOf('\\');
             string filename = component.SourcePath.Substring(idx + 1);
             var guid = _guidProvider.Get(SwixGuidType.Component, component.SourcePath);
-            return MakeUniqueId(guid, filename);
+            return MakeUniqueId(guid, filename, MaxLengthOfComponentId);
         }
 
-        private string MakeUniqueId(Guid guid, string filename)
+        private string MakeUniqueId(Guid guid, string filename, int maxLength)
         {
-            var readableId = MakeReadableId(filename);
+            var readableId = MakeReadableId(filename, maxLength - 33); // 32 for guid and 1 for separation underscore
             return String.Format("{0}_{1:N}", readableId, guid);
         }
 
-        private static string MakeReadableId(string filename)
+        private static string MakeReadableId(string filename, int maxIdLength)
         {
-            const int maxFilenameSubstringLength = 100;
-            int substringLength = Math.Min(filename.Length, maxFilenameSubstringLength);
+            int substringLength = Math.Min(filename.Length, maxIdLength);
 
             // if filename has max acceptable length and first char is digit - we will insert
             // underscore, thus taking one character less from filename itself
-            if (substringLength == maxFilenameSubstringLength && filename[0] >= '0' && filename[0] <= '9')
+            if (substringLength == maxIdLength && filename[0] >= '0' && filename[0] <= '9')
                 substringLength--;
 
-            // <optional-underscore><filename-substring><underscore><guid> == 1 + substringLength + 1 + 32
-            var sb = new StringBuilder(filename, 0, substringLength, substringLength + 34);
+            var sb = new StringBuilder(filename, 0, substringLength, substringLength + 1);
             CleanseForUseAsId(sb);
 
             if (filename[0] >= '0' && filename[0] <= '9')
