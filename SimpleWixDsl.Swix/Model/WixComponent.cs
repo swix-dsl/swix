@@ -16,6 +16,10 @@ namespace SimpleWixDsl.Swix
             else
                 throw new SwixSemanticException("targetDirRef attribute is mandatory for all components");
 
+            var targetDir = context.GetInheritedAttribute("targetDir");
+            if (targetDir != null)
+                result.TargetDir = targetDir;
+
             var cabFileRef = context.GetInheritedAttribute("cabFileRef");
             if (cabFileRef != null)
                 result.CabFileRef = cabFileRef;
@@ -37,6 +41,14 @@ namespace SimpleWixDsl.Swix
         /// Source directory, combined with 'from' property from context if exists
         /// </summary>
         public string SourcePath { get; set; }
+
+        /// <summary>
+        /// Allows to declare dir inline without previous declaration in :directories section.
+        /// Will be created under specified TargetDirRef which is still mandatory.
+        /// Separate directory entry with unique ID will be created in the directory structure 
+        /// automatically. 
+        /// </summary>
+        public string TargetDir { get; set; }
 
         public string TargetDirRef { get; set; }
 

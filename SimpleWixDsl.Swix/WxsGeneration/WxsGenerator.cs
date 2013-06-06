@@ -11,44 +11,122 @@ namespace SimpleWixDsl.Swix
     public class WxsGenerator
     {
         private const int MaxLengthOfComponentId = 72;
+        private const int MaxLengthOfDirectoryId = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, int> _cabFilesIds = new Dictionary<string, int>();
+        private readonly Dictionary<string, WixTargetDirectory> _directories = new Dictionary<string, WixTargetDirectory>();
+        private HashSet<string> _nonUniqueDirectoryReadableIds;
 
         public WxsGenerator(SwixModel model, GuidProvider guidProvider)
         {
             _model = model;
             _guidProvider = guidProvider;
-            int id = 1;
-            foreach (var cabFile in model.CabFiles)
-                _cabFilesIds[cabFile.Name] = id++;
 
-            var nonUniqueDirectoryReadableIds = FindNonUniqueDirectoryReadableIds();
-            if (nonUniqueDirectoryReadableIds.Count > 0)
+            AssignCabFileIds();
+            FindNonUniqueDirectoryReadableIds();
+            AssignDirectoryIds();
+            VerifyDirectoryRefs();
+            VerifyCabFileRefs();
+            HandleInlineTargetDirSpecifications();
+        }
+
+        private void AssignCabFileIds()
+        {
+            int id = 1;
+            foreach (var cabFile in _model.CabFiles)
+                _cabFilesIds[cabFile.Name] = id++;
+        }
+
+        private void VerifyCabFileRefs()
+        {
+            foreach (var component in _model.Components)
             {
-                var msg = string.Format("The following directories' IDs are not unique: {0}. You should rename some of them or specify IDs explicitly.",
-                                        String.Join(", ", nonUniqueDirectoryReadableIds));
-                throw new SwixSemanticException(msg);
+                if (!_cabFilesIds.ContainsKey(component.CabFileRef))
+                    throw new SwixSemanticException(String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
             }
         }
 
-        private HashSet<string> FindNonUniqueDirectoryReadableIds()
+        private void VerifyDirectoryRefs()
         {
-            var result = new HashSet<string>();
+            foreach (var component in _model.Components)
+            {
+                if (_nonUniqueDirectoryReadableIds.Contains(component.TargetDirRef))
+                {
+                    var msg = string.Format("Component {0} references directory via implicit ID {1} which is noq unique", component.SourcePath, component.TargetDirRef);
+                    throw new SwixSemanticException(msg);
+                }
+                if (!_directories.ContainsKey(component.TargetDirRef))
+                {
+                    var msg = string.Format("Component {0} references undeclared directory ID {1}", component.SourcePath, component.TargetDirRef);
+                    throw new SwixSemanticException(msg);
+                }
+            }
+        }
+
+        private void AssignDirectoryIds()
+        {
+            foreach (var dir in TraverseDfs(_model.RootDirectory, dir => dir.Subdirectories))
+            {
+                var id = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId);
+                if (_nonUniqueDirectoryReadableIds.Contains(id))
+                    id = GetDirectoryUniqueId(dir);
+                dir.Id = id;
+                _directories[id] = dir;
+            }
+        }
+
+        // modifies directory structure to include all directories specified inline and modifies components
+        // to have direct targetDirRefs there instead of combination targetDirRef/targetDir
+        private void HandleInlineTargetDirSpecifications()
+        {
+            foreach (var component in _model.Components)
+            {
+                if (component.TargetDir == null) continue;
+                string[] path = component.TargetDir.Split('\\');
+
+                var dir = _directories[component.TargetDirRef];
+                foreach (var nextDirName in path)
+                {
+                    var nextDir = dir.Subdirectories.Find(subdir => subdir.Name == nextDirName);
+                    if (nextDir == null)
+                    {
+                        nextDir = new WixTargetDirectory(nextDirName, dir);
+                        nextDir.Id = GetDirectoryUniqueId(nextDir);
+                        dir.Subdirectories.Add(nextDir);
+                    }
+                    dir = nextDir;
+                }
+                component.TargetDirRef = dir.Id;
+                component.TargetDir = null;
+            }
+        }
+
+        private void FindNonUniqueDirectoryReadableIds()
+        {
+            _nonUniqueDirectoryReadableIds = new HashSet<string>();
             var usedIds = new HashSet<string>();
             foreach (var dir in TraverseDfs(_model.RootDirectory, dir => dir.Subdirectories))
             {
-                var id = GetDirectoryReadableId(dir);
+                var id = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId);
                 bool isUnique = usedIds.Add(id);
                 if (!isUnique)
-                    result.Add(id);
+                    _nonUniqueDirectoryReadableIds.Add(id);
             }
-            return result;
         }
 
-        private static string GetDirectoryReadableId(WixTargetDirectory dir)
+        private string GetDirectoryUniqueId(WixTargetDirectory dir)
         {
-            return dir.Id ?? MakeReadableId(dir.Name, 140);
+            var readableId = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId - 33);
+            var guid = _guidProvider.Get(SwixGuidType.Directory, GetFullPath(dir));
+            return String.Format("{0}_{1:N}", readableId, guid);
+        }
+
+        private string GetFullPath(WixTargetDirectory dir)
+        {
+            if (dir.Parent == null)
+                return dir.Name;
+            return String.Format("{0}\\{1}", GetFullPath(dir.Parent), dir.Name);
         }
 
         public void WriteToStream(StreamWriter target)
@@ -130,8 +208,6 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("Id", id);
             doc.WriteAttributeString("KeyPath", "yes");
             doc.WriteAttributeString("Source", component.SourcePath);
-            if (!_cabFilesIds.ContainsKey(component.CabFileRef))
-                throw new SwixSemanticException(String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
             doc.WriteAttributeString("DiskId", _cabFilesIds[component.CabFileRef].ToString(CultureInfo.InvariantCulture));
             doc.WriteEndElement();
 
@@ -156,7 +232,7 @@ namespace SimpleWixDsl.Swix
             foreach (var directory in rootDirectory.Subdirectories)
             {
                 doc.WriteStartElement("Directory");
-                doc.WriteAttributeString("Id", GetDirectoryReadableId(directory));
+                doc.WriteAttributeString("Id", directory.Id);
                 doc.WriteAttributeString("Name", directory.Name);
                 WriteSubDirectories(doc, directory);
                 doc.WriteEndElement();
