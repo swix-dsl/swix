@@ -12,7 +12,12 @@ namespace SimpleWixDsl.Swix
             var folderPath = Path.GetDirectoryName(swixFilename) ?? Path.GetPathRoot(swixFilename);
             var baseName = Path.GetFileNameWithoutExtension(swixFilename);
             var guidProviderFileName = Path.Combine(folderPath, baseName + ".guid.info");
+            if (File.Exists(guidProviderFileName))
+                StripReadonlyIfSet(guidProviderFileName);
+
             var outputFile = Path.Combine(folderPath, baseName + ".generated.wxs");
+            if (File.Exists(outputFile))
+                StripReadonlyIfSet(outputFile);
 
             SwixModel model;
             using (var sourceReader = new StreamReader(swixFilename))
@@ -43,6 +48,13 @@ namespace SimpleWixDsl.Swix
                 wxsGenerator.WriteToStream(outputStream);
             using (var guidOutputStream = new StreamWriter(guidProviderFileName))
                 guidProvider.SaveToStream(guidOutputStream);
+        }
+
+        private static void StripReadonlyIfSet(string filename)
+        {
+            var outputFileAttributes = File.GetAttributes(filename);
+            if ((outputFileAttributes & FileAttributes.ReadOnly) != 0)
+                File.SetAttributes(filename, outputFileAttributes ^ FileAttributes.ReadOnly);
         }
     }
 }
