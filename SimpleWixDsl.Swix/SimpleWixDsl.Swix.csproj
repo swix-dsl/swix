@@ -29,6 +29,7 @@
     <Compile Include="SemanticContexts\DirectoriesSection.cs" />
     <Compile Include="SemanticContexts\FileSemanticContext.cs" />
     <Compile Include="SemanticContexts\Helpers\BaseSwixSemanticContext.cs" />
+    <Compile Include="SemanticContexts\Helpers\IgnoringSemanticContext.cs" />
     <Compile Include="SemanticContexts\Helpers\ItemHandlerAttribute.cs" />
     <Compile Include="SemanticContexts\Helpers\MetaHandlerAttribute.cs" />
     <Compile Include="SemanticContexts\Helpers\ReflectionUtils.cs" />

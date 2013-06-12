@@ -9,6 +9,7 @@ namespace SimpleWixDsl.Swix
     public class BaseSwixSemanticContext : ISemanticContext
     {
         private static readonly Regex SwixVarRegex = new Regex(@"\$\(swix\.(?<group>[a-z]+)\.(?<name>\w+)\)", RegexOptions.Compiled);
+        private static readonly Regex SwixConditionRegex = new Regex(@"^\s*'(?<lhs>[^']*)'\s*(?<op>==|!=)\s*'(?<rhs>[^']*)'\s*$", RegexOptions.Compiled);
         private readonly Stack<IAttributeContext> _currentContexts = new Stack<IAttributeContext>();
         private int _currentLine;
 
@@ -80,6 +81,28 @@ namespace SimpleWixDsl.Swix
                 throw new SwixSemanticException(FormatError("Meta-keyword 'set' doesn't allow key attribute"));
             _currentContexts.Push(metaContext);
             return this;
+        }
+
+        [MetaHandler("if")] // attributes interpreted as if they were just ?set
+        public ISemanticContext HandleMetaIf(string key, IAttributeContext metaContext)
+        {
+            if (key == null)
+                throw new SwixSemanticException(FormatError("Meta-keyword 'if' requires condition as a key"));
+            var match = SwixConditionRegex.Match(key);
+            if (!match.Success)
+                throw new SwixSemanticException(FormatError("Condition has incorrect format: {0}.", key));
+            var op = match.Groups["op"].Value;
+            var lhs = match.Groups["lhs"].Value;
+            var rhs = match.Groups["rhs"].Value;
+            switch (op)
+            {
+                case "==":
+                    return rhs == lhs ? HandleMetaSet(null, metaContext) : new IgnoringSemanticContext();
+                case "!=":
+                    return rhs != lhs ? HandleMetaSet(null, metaContext) : new IgnoringSemanticContext();
+                default:
+                    throw new SwixSemanticException(FormatError("Unknown operator in condition: {0}", op));
+            }
         }
 
         private ISemanticContext HandleItem(string key, IEnumerable<AhlAttribute> attributes)
