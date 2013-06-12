@@ -70,9 +70,14 @@ namespace SimpleWixDsl.Swix
             {
                 var id = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId);
                 if (_nonUniqueDirectoryReadableIds.Contains(id))
-                    id = GetDirectoryUniqueId(dir);
-                dir.Id = id;
-                _directories[id] = dir;
+                {
+                    AssignDirectoryUniqueId(dir);
+                }
+                else
+                {
+                    dir.Id = id;
+                    _directories[id] = dir;
+                }
             }
         }
 
@@ -92,7 +97,7 @@ namespace SimpleWixDsl.Swix
                     if (nextDir == null)
                     {
                         nextDir = new WixTargetDirectory(nextDirName, dir);
-                        nextDir.Id = GetDirectoryUniqueId(nextDir);
+                        AssignDirectoryUniqueId(nextDir);
                         dir.Subdirectories.Add(nextDir);
                     }
                     dir = nextDir;
@@ -115,18 +120,13 @@ namespace SimpleWixDsl.Swix
             }
         }
 
-        private string GetDirectoryUniqueId(WixTargetDirectory dir)
+        private void AssignDirectoryUniqueId(WixTargetDirectory dir)
         {
             var readableId = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId - 33);
-            var guid = _guidProvider.Get(SwixGuidType.Directory, GetFullPath(dir));
-            return String.Format("{0}_{1:N}", readableId, guid);
-        }
-
-        private string GetFullPath(WixTargetDirectory dir)
-        {
-            if (dir.Parent == null)
-                return dir.Name;
-            return String.Format("{0}\\{1}", GetFullPath(dir.Parent), dir.Name);
+            var guid = _guidProvider.Get(SwixGuidType.Directory, dir.GetFullTargetPath());
+            var finalId = String.Format("{0}_{1:N}", readableId, guid);
+            dir.Id = finalId;
+            _directories[finalId] = dir;
         }
 
         public void WriteToStream(StreamWriter target)
@@ -201,7 +201,7 @@ namespace SimpleWixDsl.Swix
             doc.WriteStartElement("Component");
             var id = GetComponentId(component);
             doc.WriteAttributeString("Id", id);
-            var componentGuid = _guidProvider.Get(SwixGuidType.Component, component.SourcePath);
+            var componentGuid = _guidProvider.Get(SwixGuidType.Component, GetComponentFullTargetPath(component));
             doc.WriteAttributeString("Guid", componentGuid.ToString("B").ToUpperInvariant());
 
             doc.WriteStartElement("File");
@@ -239,13 +239,19 @@ namespace SimpleWixDsl.Swix
             }
         }
 
+        private string GetComponentFullTargetPath(WixComponent component)
+        {
+            if (component.TargetDir != null)
+                throw new InvalidOperationException("This method should not be called before handling inline targetDirs");
+            var dir = _directories[component.TargetDirRef];
+            return string.Format("{0}\\{1}", dir.GetFullTargetPath(), component.FileName);
+        }
+
         private string GetComponentId(WixComponent component)
         {
             if (component.Id != null) return component.Id;
-            int idx = component.SourcePath.LastIndexOf('\\');
-            string filename = component.SourcePath.Substring(idx + 1);
-            var guid = _guidProvider.Get(SwixGuidType.Component, component.SourcePath);
-            return MakeUniqueId(guid, filename, MaxLengthOfComponentId);
+            var guid = _guidProvider.Get(SwixGuidType.Component, GetComponentFullTargetPath(component));
+            return component.Id = MakeUniqueId(guid, component.FileName, MaxLengthOfComponentId);
         }
 
         private string MakeUniqueId(Guid guid, string filename, int maxLength)

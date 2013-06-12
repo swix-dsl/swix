@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SimpleWixDsl.Swix
 {
@@ -25,5 +26,20 @@ namespace SimpleWixDsl.Swix
         public WixTargetDirectory Parent { get; set; }
 
         public List<WixTargetDirectory> Subdirectories { get; private set; }
+
+        public string GetFullTargetPath()
+        {
+            return string.Join("\\", GetParentSequence().Reverse());
+        }
+
+        private IEnumerable<string> GetParentSequence()
+        {
+            var current = this;
+            while (current != null)
+            {
+                yield return current.Name;
+                current = current.Parent;
+            }
+        }
     }
 }

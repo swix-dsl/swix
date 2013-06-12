@@ -10,6 +10,15 @@ namespace SimpleWixDsl.Swix
             var path = from == null ? key : Path.Combine(from, key);
             var result = new WixComponent(path);
 
+            var fileName = context.GetInheritedAttribute("name");
+            if (fileName != null)
+                result.FileName = fileName;
+            else
+            {
+                var idx = key.LastIndexOf('\\');
+                result.FileName = key.Substring(idx + 1);
+            }
+
             var targetDirRef = context.GetInheritedAttribute("targetDirRef");
             if (targetDirRef != null)
                 result.TargetDirRef = targetDirRef;
@@ -57,6 +66,8 @@ namespace SimpleWixDsl.Swix
         public string ComponentGroupRef { get; set; }
 
         public string Id { get; set; }
+
+        public string FileName { get; set; }
 
         public WixComponent(string sourcePath)
         {
