@@ -13,6 +13,12 @@ namespace SimpleWixDsl.Swix
             _result = result;
         }
 
+        public void SetPredefinedSwixVariables(IDictionary<string, string> vars)
+        {
+            foreach (var pair in vars)
+                CurrentAttributeContext.SwixVariableDefinitions.Add(pair);
+        }
+
         [SectionHandler("cabFiles")]
         public ISemanticContext CabFiles(IAttributeContext sectionContext)
         {

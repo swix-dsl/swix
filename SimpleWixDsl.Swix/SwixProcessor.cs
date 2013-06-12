@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace SimpleWixDsl.Swix
 {
@@ -7,7 +8,7 @@ namespace SimpleWixDsl.Swix
     /// </summary>
     public class SwixProcessor
     {
-        public static void Transform(string swixFilename)
+        public static void Transform(string swixFilename, IDictionary<string, string> variableDefinitions = null)
         {
             var folderPath = Path.GetDirectoryName(swixFilename) ?? Path.GetPathRoot(swixFilename);
             var baseName = Path.GetFileNameWithoutExtension(swixFilename);
@@ -24,7 +25,7 @@ namespace SimpleWixDsl.Swix
             {
                 try
                 {
-                    model = SwixParser.Parse(sourceReader);
+                    model = SwixParser.Parse(sourceReader, variableDefinitions);
                 }
                 catch (SwixSemanticException e)
                 {
