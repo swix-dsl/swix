@@ -8,7 +8,7 @@ namespace SimpleWixDsl.Swix
         private readonly SwixModel _result;
 
         public FileSemanticContext(SwixModel result)
-            :base(new AttributeContext())
+            : base(new AttributeContext(new Dictionary<string, string>()))
         {
             _result = result;
         }

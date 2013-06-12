@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using SimpleWixDsl.Ahl;
 using SimpleWixDsl.Swix;
+using Is = Rhino.Mocks.Constraints.Is;
 
 namespace SimpleWixDsl.UnitTests
 {
@@ -14,7 +15,7 @@ namespace SimpleWixDsl.UnitTests
         private class SemContextStub : BaseSwixSemanticContext
         {
             public SemContextStub()
-                : base(new AttributeContext())
+                : base(new AttributeContext(new Dictionary<string, string>()))
             {
                 AttributeContextFactory = () => new AttributeContext(CurrentAttributeContext);
             }
@@ -23,6 +24,11 @@ namespace SimpleWixDsl.UnitTests
             public Func<IAttributeContext, ISemanticContext> S1Func;
             public Func<string, IAttributeContext, ISemanticContext> M1Func;
             public Func<IAttributeContext> AttributeContextFactory;
+
+            public IDictionary<string, string> Variables
+            {
+                get { return CurrentAttributeContext.SwixVariableDefinitions; }
+            }
 
             [ItemHandler]
             public ISemanticContext ItemHandler(string key, IAttributeContext itemContext)
@@ -124,7 +130,8 @@ namespace SimpleWixDsl.UnitTests
             var itemContext = mr.StrictMock<ISemanticContext>();
             itemContext.Expect(i => i.OnFinished += null).IgnoreArguments();
 
-            sectionContext.Expect(sc => sc.PushLine(0, null, "mykey", new AhlAttribute[0]))
+            sectionContext.Expect(sc => sc.PushLine(0, null, null, null))
+                          .Constraints(Is.Equal(0), Is.Same(null), Is.Equal("mykey"), Is.Anything())
                           .Return(itemContext);
             sut.S1Func = _ => sectionContext;
 
@@ -179,6 +186,123 @@ namespace SimpleWixDsl.UnitTests
         {
             var sut = new SemContextStub();
             sut.PushLine(0, ":s1", "a", Enumerable.Empty<AhlAttribute>());
+        }
+
+        [Test]
+        public void VariableExpansion_ItemKeysIsVarReferenceEntirely_ChildContextReceivesValueExpanded()
+        {
+            CheckVariableExpansionInKey("$(swix.var.My)", "var-value", "var-value");
+        }
+
+        [Test]
+        public void VariableExpansion_ItemKeyHasVarReferenceAndSomethingElse_ChildContextReceivesValueExpanded()
+        {
+            CheckVariableExpansionInKey("$(swix.var.My)+something", "var-value", "var-value+something");
+        }
+
+        [Test]
+        public void VariableExpansion_VarValueIsSimilarToAnotherVarReference_ExpansionHappensOnlyOnce()
+        {
+            CheckVariableExpansionInKey("$(swix.var.My)", "$(swix.var.My)", "$(swix.var.My)");
+        }
+
+        [Test]
+        public void VariableExpansion_AfterExpansionRegexGivesAnotherMatch_ExpansionHappensOnlyOnce()
+        {
+            CheckVariableExpansionInKey("$(swix.var.My).My)", "$(swix.var", "$(swix.var.My)");
+        }
+
+        [Test]
+        public void VariableExpansion_TwoVarReferences_BothAreExpanded()
+        {
+            CheckVariableExpansionInKey("$(swix.var.My)+$(swix.var.My)", "value", "value+value");
+        }
+
+        private static void CheckVariableExpansionInKey(string rawAttributeValue, string varValue, string expectedAttributeExpansion)
+        {
+            var sut = new SemContextStub();
+            sut.Variables["My"] = varValue;
+            bool itemFuncCalled = false;
+            sut.ItemFunc = (s, context) =>
+                {
+                    itemFuncCalled = true;
+                    Assert.AreEqual(expectedAttributeExpansion, s);
+                    return null;
+                };
+            sut.PushLine(0, null, rawAttributeValue, new AhlAttribute[0]);
+            Assert.IsTrue(itemFuncCalled);
+        }
+
+        [Test]
+        [ExpectedException(typeof (SwixSemanticException), ExpectedMessage = "Line 0: 'unknown' is unknown variable group")]
+        public void VariableExpansion_UnknownGroup_ExceptionThrown()
+        {
+            var sut = new SemContextStub();
+            sut.PushLine(0, null, "$(swix.unknown.var)", new AhlAttribute[0]);
+        }
+
+        [Test]
+        [ExpectedException(typeof (SwixSemanticException), ExpectedMessage = "Line 0: Variable 'var' is undefined")]
+        public void VariableExpansion_UndeclaredVariable_ExceptionThrown()
+        {
+            var sut = new SemContextStub();
+            sut.PushLine(0, null, "$(swix.var.var)", new AhlAttribute[0]);
+        }
+
+        [Test]
+        public void VariableExpansion_AttributeExpansionWorks()
+        {
+            var sut = new SemContextStub();
+            sut.Variables["My"] = "value";
+            bool itemFuncCalled = false;
+            sut.ItemFunc = (s, context) =>
+                {
+                    itemFuncCalled = true;
+                    Assert.AreEqual("value+something+value", context.GetInheritedAttribute("a"));
+                    return null;
+                };
+            sut.PushLine(0, null, "key", new[] { new AhlAttribute("a", "$(swix.var.My)+something+$(swix.var.My)") });
+            Assert.IsTrue(itemFuncCalled);
+        }
+
+        [Test]
+        public void VariableExpansion_EnvironmentVariableInKey_Expanded()
+        {
+            CheckEnvironmentVariableExpansionInKey("value", "$(swix.env.Test)+something", "value+something");
+        }
+
+        private static void CheckEnvironmentVariableExpansionInKey(string varValue, string rawAttributeValue, string expectedAttributeExpansion)
+        {
+            if (Environment.GetEnvironmentVariables().Contains("Test"))
+                Assert.Inconclusive("Environment variable with name 'test' already exists");
+            Environment.SetEnvironmentVariable("Test", varValue);
+            try
+            {
+                var sut = new SemContextStub();
+                bool itemFuncCalled = false;
+                sut.ItemFunc = (s, context) =>
+                    {
+                        itemFuncCalled = true;
+                        Assert.AreEqual(expectedAttributeExpansion, s);
+                        return null;
+                    };
+                sut.PushLine(0, null, rawAttributeValue, new AhlAttribute[0]);
+                Assert.IsTrue(itemFuncCalled);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("Test", "");
+            }
+        }
+
+        [Test]
+        [ExpectedException(typeof(SwixSemanticException), ExpectedMessage = "Line 0: Environment variable 'Test' is undefined")]
+        public void VariableExpansion_EnvironmentVariableDoesNotExist_ExceptionThrown()
+        {
+            if (Environment.GetEnvironmentVariables().Contains("Test"))
+                Assert.Inconclusive("Environment variable with name 'test' already exists");
+            var sut = new SemContextStub();
+            sut.PushLine(0, null, "$(swix.env.Test)", new AhlAttribute[0]);
         }
     }
 }

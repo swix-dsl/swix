@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
 {
     public class BaseSwixSemanticContext : ISemanticContext
     {
+        private static readonly Regex SwixVarRegex = new Regex(@"\$\(swix\.(?<group>[a-z]+)\.(?<name>\w+)\)", RegexOptions.Compiled);
         private readonly Stack<IAttributeContext> _currentContexts = new Stack<IAttributeContext>();
         private int _currentLine;
 
@@ -23,9 +26,13 @@ namespace SimpleWixDsl.Swix
         {
             _currentLine = line;
 
+            // expand variables
+            key = ExpandSwixVariables(key);
+            var expandedAttrs = attributes.Select(a => new AhlAttribute(a.Key, ExpandSwixVariables(a.Value)));
+
             if (keyword == null)
             {
-                return HandleItem(key, attributes);
+                return HandleItem(key, expandedAttrs);
             }
 
             var reflectionInfo = SemanticContextReflectionInfo.Get(GetType());
@@ -36,13 +43,13 @@ namespace SimpleWixDsl.Swix
                 if (sectionHandler == null)
                     throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
                 var sectionContext = sectionHandler(this, CurrentAttributeContext);
-                var itemContext = sectionContext.PushLine(line, null, key, attributes);
+                var itemContext = sectionContext.PushLine(line, null, key, expandedAttrs);
                 itemContext.OnFinished += (s, e) => sectionContext.FinishItem();
                 return itemContext;
             }
 
             var childContext = CreateNewAttributeContext();
-            childContext.SetAttributes(attributes);
+            childContext.SetAttributes(expandedAttrs);
             if (keyword[0] == ':')
             {
                 if (key != null)
@@ -121,6 +128,31 @@ namespace SimpleWixDsl.Swix
         protected virtual IAttributeContext CreateNewAttributeContext()
         {
             return new AttributeContext(CurrentAttributeContext);
+        }
+
+        protected string ExpandSwixVariables(string value)
+        {
+            if (value == null) return null;
+            return SwixVarRegex.Replace(value, match =>
+                {
+                    var group = match.Groups["group"].Value;
+                    var name = match.Groups["name"].Value;
+                    if (group == "var")
+                    {
+                        string varValue;
+                        if (!CurrentAttributeContext.SwixVariableDefinitions.TryGetValue(name, out varValue))
+                            throw new SwixSemanticException(FormatError("Variable '{0}' is undefined", name));
+                        return varValue;
+                    }
+                    else if (group == "env")
+                    {
+                        string varValue = Environment.GetEnvironmentVariable(name);
+                        if (varValue == null)
+                            throw new SwixSemanticException(FormatError("Environment variable '{0}' is undefined", name));
+                        return varValue;
+                    }
+                    throw new SwixSemanticException(FormatError("'{0}' is unknown variable group", group));
+                });
         }
     }
 }

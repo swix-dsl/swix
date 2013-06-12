@@ -29,20 +29,27 @@ namespace SimpleWixDsl.Swix
             {
                 return _emptyDictionary;
             }
+
+            public IDictionary<string, string> SwixVariableDefinitions
+            {
+                get { return null; }
+            }
         }
 
         private static readonly NullAttributeContext _nullAttributeContext = new NullAttributeContext();
         private readonly Dictionary<string, string> _attributes = new Dictionary<string, string>();
         private readonly IAttributeContext _parentContext;
 
-        public AttributeContext()
-            :this(_nullAttributeContext)
+        public AttributeContext(IDictionary<string, string> swixVariableDefinitions)
+            : this(_nullAttributeContext)
         {
+            SwixVariableDefinitions = swixVariableDefinitions;
         }
 
         public AttributeContext(IAttributeContext parentContext)
         {
             if (parentContext == null) throw new ArgumentNullException("parentContext");
+            SwixVariableDefinitions = parentContext.SwixVariableDefinitions;
             _parentContext = parentContext;
         }
 
@@ -72,6 +79,8 @@ namespace SimpleWixDsl.Swix
         {
             return _attributes;
         }
+
+        public IDictionary<string, string> SwixVariableDefinitions { get; private set; }
     }
 
     public interface IAttributeContext
@@ -80,5 +89,7 @@ namespace SimpleWixDsl.Swix
         void SetAttributes(IEnumerable<AhlAttribute> attributes);
         void SetAttributes(IDictionary<string, string> attributes);
         IDictionary<string, string> GetDirectlySetAttributes();
+
+        IDictionary<string, string> SwixVariableDefinitions { get; }
     }
 }
