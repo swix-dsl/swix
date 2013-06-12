@@ -155,7 +155,7 @@ namespace SimpleWixDsl.UnitTests
                     return MockRepository.GenerateStub<ISemanticContext>();
                 };
 
-            var underDefaults = sut.PushLine(0, "?defaults", null, new[] {new AhlAttribute("a", "v"),});
+            var underDefaults = sut.PushLine(0, "?set", null, new[] {new AhlAttribute("a", "v"),});
             Assert.IsFalse(itemFuncCalled);
             underDefaults.PushLine(1, null, "item", new AhlAttribute[0]);
             Assert.IsTrue(itemFuncCalled);

@@ -77,14 +77,6 @@ namespace SimpleWixDsl.Swix
         public ISemanticContext HandleMetaSet(string key, IAttributeContext metaContext)
         {
             if (key != null)
-                throw new SwixSemanticException("Meta-keyword set doesn't allow key attribute");
-            return new StubSwixElement(metaContext, () => CurrentAttributeContext.SetAttributes(metaContext.GetDirectlySetAttributes()));
-        }
-
-        [MetaHandler("defaults")]
-        public ISemanticContext HandleMetaDefaults(string key, IAttributeContext metaContext)
-        {
-            if (key != null)
                 throw new SwixSemanticException("Meta-keyword defaults doesn't allow key attribute");
             _currentContexts.Push(metaContext);
             return this;
