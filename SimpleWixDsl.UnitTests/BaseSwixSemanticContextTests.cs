@@ -13,16 +13,17 @@ namespace SimpleWixDsl.UnitTests
     {
         private class SemContextStub : BaseSwixSemanticContext
         {
-            public SemContextStub() 
+            public SemContextStub()
                 : base(new AttributeContext())
             {
+                AttributeContextFactory = () => new AttributeContext(CurrentAttributeContext);
             }
 
             public Func<string, IAttributeContext, ISemanticContext> ItemFunc;
             public Func<IAttributeContext, ISemanticContext> S1Func;
             public Func<string, IAttributeContext, ISemanticContext> M1Func;
-            public Func<IAttributeContext> AttributeContextFactory = () => new AttributeContext();
-                
+            public Func<IAttributeContext> AttributeContextFactory;
+
             [ItemHandler]
             public ISemanticContext ItemHandler(string key, IAttributeContext itemContext)
             {
@@ -76,7 +77,7 @@ namespace SimpleWixDsl.UnitTests
             var attributeContext = MockRepository.GenerateStub<IAttributeContext>();
             sut.AttributeContextFactory = () => attributeContext;
             var expectedResult = MockRepository.GenerateStub<ISemanticContext>();
-            
+
             bool called = false;
             sut.S1Func = context =>
                 {
@@ -122,11 +123,11 @@ namespace SimpleWixDsl.UnitTests
             sectionContext.Expect(sc => sc.FinishItem());
             var itemContext = mr.StrictMock<ISemanticContext>();
             itemContext.Expect(i => i.OnFinished += null).IgnoreArguments();
-            
+
             sectionContext.Expect(sc => sc.PushLine(0, null, "mykey", new AhlAttribute[0]))
-                .Return(itemContext);
+                          .Return(itemContext);
             sut.S1Func = _ => sectionContext;
-            
+
             mr.ReplayAll();
             var result = sut.PushLine(0, "!s1", "mykey", new AhlAttribute[0]);
             Assert.AreSame(itemContext, result);
@@ -135,7 +136,37 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(SwixSemanticException))]
+        public void MetaDefaults_SubChildrenGetCorrectContextAndRoutedToSameContext()
+        {
+            var sut = new SemContextStub();
+
+            bool itemFuncCalled = false;
+            sut.ItemFunc = (s, context) =>
+                {
+                    itemFuncCalled = true;
+                    Assert.AreEqual("v", context.GetInheritedAttribute("a"));
+                    return MockRepository.GenerateStub<ISemanticContext>();
+                };
+
+            var underDefaults = sut.PushLine(0, "?defaults", null, new[] {new AhlAttribute("a", "v"),});
+            Assert.IsFalse(itemFuncCalled);
+            underDefaults.PushLine(1, null, "item", new AhlAttribute[0]);
+            Assert.IsTrue(itemFuncCalled);
+            underDefaults.FinishItem();
+
+            bool itemFuncSecondCalled = false;
+            sut.ItemFunc = (s, context) =>
+                {
+                    itemFuncSecondCalled = true;
+                    Assert.IsNull(context.GetInheritedAttribute("a"));
+                    return null;
+                };
+            sut.PushLine(2, null, "item2", new AhlAttribute[0]);
+            Assert.IsTrue(itemFuncSecondCalled);
+        }
+
+        [Test]
+        [ExpectedException(typeof (SwixSemanticException))]
         public void UnsupportedSectionThrowsException()
         {
             var sut = new SemContextStub();
@@ -143,7 +174,7 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(SwixSemanticException))]
+        [ExpectedException(typeof (SwixSemanticException))]
         public void SectionWithKey_ThrowsAnError()
         {
             var sut = new SemContextStub();

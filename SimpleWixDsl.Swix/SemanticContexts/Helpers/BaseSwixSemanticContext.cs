@@ -6,12 +6,17 @@ namespace SimpleWixDsl.Swix
 {
     public class BaseSwixSemanticContext : ISemanticContext
     {
+        private readonly Stack<IAttributeContext> _currentContexts = new Stack<IAttributeContext>();
         private int _currentLine;
-        protected IAttributeContext CurrentAttributeContext { get; set; }
+
+        protected IAttributeContext CurrentAttributeContext
+        {
+            get { return _currentContexts.Peek(); }
+        }
 
         public BaseSwixSemanticContext(IAttributeContext attributeContext)
         {
-            CurrentAttributeContext = attributeContext;
+            _currentContexts.Push(attributeContext);
         }
 
         public ISemanticContext PushLine(int line, string keyword, string key, IEnumerable<AhlAttribute> attributes)
@@ -44,7 +49,7 @@ namespace SimpleWixDsl.Swix
                     throw new SwixSemanticException(FormatError("Section can't have key element"));
                 var sectionName = keyword.Substring(1);
                 var sectionHandler = reflectionInfo.GetSectionHandler(sectionName);
-                if (sectionHandler == null) 
+                if (sectionHandler == null)
                     throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
                 return sectionHandler(this, childContext);
             }
@@ -62,11 +67,20 @@ namespace SimpleWixDsl.Swix
         }
 
         [MetaHandler("set")]
-        public ISemanticContext HandleMeta(string key, IAttributeContext metaContext)
+        public ISemanticContext HandleMetaSet(string key, IAttributeContext metaContext)
         {
             if (key != null)
                 throw new SwixSemanticException("Meta-keyword set doesn't allow key attribute");
             return new StubSwixElement(metaContext, () => CurrentAttributeContext.SetAttributes(metaContext.GetDirectlySetAttributes()));
+        }
+
+        [MetaHandler("defaults")]
+        public ISemanticContext HandleMetaDefaults(string key, IAttributeContext metaContext)
+        {
+            if (key != null)
+                throw new SwixSemanticException("Meta-keyword defaults doesn't allow key attribute");
+            _currentContexts.Push(metaContext);
+            return this;
         }
 
         private ISemanticContext HandleItem(string key, IEnumerable<AhlAttribute> attributes)
@@ -82,6 +96,11 @@ namespace SimpleWixDsl.Swix
 
         public void FinishItem()
         {
+            if (_currentContexts.Count > 1)
+            {
+                _currentContexts.Pop();
+                return;
+            }
             FinishItemCore();
             var handler = OnFinished;
             if (handler != null) handler(this, EventArgs.Empty);
