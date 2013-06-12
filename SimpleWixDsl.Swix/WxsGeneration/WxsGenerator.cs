@@ -10,11 +10,31 @@ namespace SimpleWixDsl.Swix
 {
     public class WxsGenerator
     {
+        private class CabFileCounter
+        {
+            private readonly int _splitNumber;
+            private int _current;
+
+            public CabFileCounter(int startId, int splitNumber)
+            {
+                _current = 0;
+                StartId = startId;
+                _splitNumber = splitNumber;
+            }
+
+            public int StartId { get; private set; }
+
+            public int GetNextId()
+            {
+                return StartId + _current++%_splitNumber;
+            }
+        }
+
         private const int MaxLengthOfComponentId = 72;
         private const int MaxLengthOfDirectoryId = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
-        private readonly Dictionary<string, int> _cabFilesIds = new Dictionary<string, int>();
+        private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
         private readonly Dictionary<string, WixTargetDirectory> _directories = new Dictionary<string, WixTargetDirectory>();
         private HashSet<string> _nonUniqueDirectoryReadableIds;
 
@@ -35,14 +55,17 @@ namespace SimpleWixDsl.Swix
         {
             int id = 1;
             foreach (var cabFile in _model.CabFiles)
-                _cabFilesIds[cabFile.Name] = id++;
+            {
+                _cabFileCounters[cabFile.Name] = new CabFileCounter(id, cabFile.Split);
+                id += cabFile.Split;
+            }
         }
 
         private void VerifyCabFileRefs()
         {
             foreach (var component in _model.Components)
             {
-                if (!_cabFilesIds.ContainsKey(component.CabFileRef))
+                if (!_cabFileCounters.ContainsKey(component.CabFileRef))
                     throw new SwixSemanticException(String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
             }
         }
@@ -211,7 +234,7 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("KeyPath", "yes");
             doc.WriteAttributeString("Source", component.SourcePath);
             doc.WriteAttributeString("Name", component.FileName);
-            doc.WriteAttributeString("DiskId", _cabFilesIds[component.CabFileRef].ToString(CultureInfo.InvariantCulture));
+            doc.WriteAttributeString("DiskId", _cabFileCounters[component.CabFileRef].GetNextId().ToString(CultureInfo.InvariantCulture));
             doc.WriteEndElement();
 
             doc.WriteEndElement();
@@ -221,12 +244,18 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var cabFile in cabFiles)
             {
-                doc.WriteStartElement("Media");
-                doc.WriteAttributeString("Id", _cabFilesIds[cabFile.Name].ToString(CultureInfo.InvariantCulture));
-                doc.WriteAttributeString("Cabinet", cabFile.Name + ".cab");
-                doc.WriteAttributeString("EmbedCab", "yes");
-                doc.WriteAttributeString("CompressionLevel", cabFile.CompressionLevel);
-                doc.WriteEndElement();
+                var counter = _cabFileCounters[cabFile.Name];
+                for (int i = 0; i < cabFile.Split; i++)
+                {
+                    var id = string.Format("{0}", counter.StartId + i);
+                    var filename = string.Format("{0}_{1:D2}.cab", cabFile.Name, counter.StartId + i);
+                    doc.WriteStartElement("Media");
+                    doc.WriteAttributeString("Id", id);
+                    doc.WriteAttributeString("Cabinet", filename);
+                    doc.WriteAttributeString("EmbedCab", "yes");
+                    doc.WriteAttributeString("CompressionLevel", cabFile.CompressionLevel);
+                    doc.WriteEndElement();
+                }
             }
         }
 
