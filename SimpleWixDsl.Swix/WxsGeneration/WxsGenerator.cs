@@ -208,6 +208,7 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("Id", id);
             doc.WriteAttributeString("KeyPath", "yes");
             doc.WriteAttributeString("Source", component.SourcePath);
+            doc.WriteAttributeString("Name", component.FileName);
             doc.WriteAttributeString("DiskId", _cabFilesIds[component.CabFileRef].ToString(CultureInfo.InvariantCulture));
             doc.WriteEndElement();
 
