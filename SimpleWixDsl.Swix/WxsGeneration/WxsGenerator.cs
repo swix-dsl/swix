@@ -74,16 +74,29 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var component in _model.Components)
             {
-                if (_nonUniqueDirectoryReadableIds.Contains(component.TargetDirRef))
-                {
-                    var msg = string.Format("Component {0} references directory via implicit ID {1} which is noq unique", component.SourcePath, component.TargetDirRef);
-                    throw new SwixSemanticException(msg);
-                }
-                if (!_directories.ContainsKey(component.TargetDirRef))
-                {
-                    var msg = string.Format("Component {0} references undeclared directory ID {1}", component.SourcePath, component.TargetDirRef);
-                    throw new SwixSemanticException(msg);
-                }
+                VerifyTargetDirRef("Component", component.SourcePath, component.TargetDirRef);
+                foreach (var shortcut in component.Shortcuts)
+                    VerifyTargetDirRef("Shortcut", shortcut.Name, shortcut.TargetDirRef);
+            }
+        }
+
+        private void VerifyTargetDirRef(string referencingEntityType, string referencingEntityName, string targetDirRef)
+        {
+            if (_nonUniqueDirectoryReadableIds.Contains(targetDirRef))
+            {
+                var msg = string.Format("{0} {1} references directory via implicit ID {2} which is not unique",
+                                        referencingEntityType,
+                                        referencingEntityName,
+                                        targetDirRef);
+                throw new SwixSemanticException(msg);
+            }
+            if (!_directories.ContainsKey(targetDirRef))
+            {
+                var msg = string.Format("{0} {1} references undeclared directory ID {2}",
+                                        referencingEntityType,
+                                        referencingEntityName,
+                                        targetDirRef);
+                throw new SwixSemanticException(msg);
             }
         }
 
@@ -110,26 +123,44 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var component in _model.Components)
             {
-                if (component.TargetDir == string.Empty) 
+                if (component.TargetDir == string.Empty)
                     component.TargetDir = null;
-                if (component.TargetDir == null) continue;
-                string[] path = component.TargetDir.Split('\\');
-
-                var dir = _directories[component.TargetDirRef];
-                foreach (var nextDirName in path)
+                if (component.TargetDir != null)
                 {
-                    var nextDir = dir.Subdirectories.Find(subdir => subdir.Name == nextDirName);
-                    if (nextDir == null)
-                    {
-                        nextDir = new WixTargetDirectory(nextDirName, dir);
-                        AssignDirectoryUniqueId(nextDir);
-                        dir.Subdirectories.Add(nextDir);
-                    }
-                    dir = nextDir;
+                    component.TargetDirRef = HandleInlineTargetDir(component.TargetDirRef, component.TargetDir);
+                    component.TargetDir = null;
                 }
-                component.TargetDirRef = dir.Id;
-                component.TargetDir = null;
+
+                foreach (var shortcut in component.Shortcuts)
+                {
+                    if (shortcut.TargetDir == string.Empty)
+                        shortcut.TargetDir = null;
+                    if (shortcut.TargetDir != null)
+                    {
+                        shortcut.TargetDirRef = HandleInlineTargetDir(shortcut.TargetDirRef, shortcut.TargetDir);
+                        shortcut.TargetDir = null;
+                    }
+                }
             }
+        }
+
+        private string HandleInlineTargetDir(string targetDirRef, string targetDir)
+        {
+            string[] path = targetDir.Split('\\');
+            var dir = _directories[targetDirRef];
+            foreach (var nextDirName in path)
+            {
+                var nextDir = dir.Subdirectories.Find(subdir => subdir.Name == nextDirName);
+                if (nextDir == null)
+                {
+                    nextDir = new WixTargetDirectory(nextDirName, dir);
+                    AssignDirectoryUniqueId(nextDir);
+                    dir.Subdirectories.Add(nextDir);
+                }
+                dir = nextDir;
+            }
+            string resultingTargetDirRef = dir.Id;
+            return resultingTargetDirRef;
         }
 
         private void FindNonUniqueDirectoryReadableIds()
@@ -235,9 +266,26 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("Source", component.SourcePath);
             doc.WriteAttributeString("Name", component.FileName);
             doc.WriteAttributeString("DiskId", _cabFileCounters[component.CabFileRef].GetNextId().ToString(CultureInfo.InvariantCulture));
+
+            WriteComponentShortcuts(doc, component);
+
             doc.WriteEndElement();
 
             doc.WriteEndElement();
+        }
+
+        private void WriteComponentShortcuts(XmlWriter doc, WixComponent component)
+        {
+            foreach (var shortcut in component.Shortcuts)
+            {
+                doc.WriteStartElement("Shortcut");
+                doc.WriteAttributeString("Name", shortcut.Name);
+                if (shortcut.Args != null)
+                    doc.WriteAttributeString("Arguments", shortcut.Args);
+                doc.WriteAttributeString("Advertise", "yes");
+                doc.WriteAttributeString("Directory", shortcut.TargetDirRef);
+                doc.WriteEndElement();
+            }
         }
 
         private void WriteCabFiles(XmlWriter doc, IEnumerable<CabFile> cabFiles)

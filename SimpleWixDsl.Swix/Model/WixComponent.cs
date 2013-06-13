@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace SimpleWixDsl.Swix
 {
@@ -69,9 +70,12 @@ namespace SimpleWixDsl.Swix
 
         public string FileName { get; set; }
 
+        public List<Shortcut> Shortcuts { get; set; }
+
         public WixComponent(string sourcePath)
         {
             SourcePath = sourcePath;
+            Shortcuts = new List<Shortcut>();
         }
     }
 }
