@@ -16,6 +16,10 @@
             if (shortcutTargetDir != null)
                 result.TargetDir = shortcutTargetDir;
 
+            var workingDir = context.GetInheritedAttribute("workingDir");
+            if (workingDir != null)
+                result.WorkingDir = workingDir;
+
             var args = context.GetInheritedAttribute("args");
             if (args != null && string.IsNullOrWhiteSpace(args))
                 throw new SwixSemanticException("Shortcut's 'args' cannot be empty. Either set it to some value or remove altogether");
@@ -36,5 +40,7 @@
         public string TargetDirRef { get; set; }
 
         public string TargetDir { get; set; }
+
+        public string WorkingDir { get; set; }
     }
 }

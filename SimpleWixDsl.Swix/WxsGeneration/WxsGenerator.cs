@@ -289,6 +289,8 @@ namespace SimpleWixDsl.Swix
                 doc.WriteAttributeString("Name", shortcut.Name);
                 if (shortcut.Args != null)
                     doc.WriteAttributeString("Arguments", shortcut.Args);
+                if (shortcut.WorkingDir != null)
+                    doc.WriteAttributeString("WorkingDirectory", shortcut.WorkingDir);
                 doc.WriteAttributeString("Advertise", "yes");
                 doc.WriteAttributeString("Directory", shortcut.TargetDirRef);
                 doc.WriteEndElement();
