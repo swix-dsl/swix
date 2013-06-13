@@ -40,6 +40,11 @@ namespace SimpleWixDsl.Swix
             if (componentGroupRef != null)
                 result.ComponentGroupRef = componentGroupRef;
 
+            var multiInstance = context.GetInheritedAttribute("multiInstance");
+            if (multiInstance != "yes" && multiInstance != "no" && multiInstance != null)
+                throw new SwixSemanticException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
+            result.MultiInstance = multiInstance;
+
             var id = context.GetInheritedAttribute("id");
             if (id != null)
                 result.Id = id;
@@ -69,6 +74,8 @@ namespace SimpleWixDsl.Swix
         public string Id { get; set; }
 
         public string FileName { get; set; }
+
+        public string MultiInstance { get; set; }
 
         public List<Shortcut> Shortcuts { get; set; }
 
