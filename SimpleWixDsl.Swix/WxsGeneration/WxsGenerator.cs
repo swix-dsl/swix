@@ -32,6 +32,7 @@ namespace SimpleWixDsl.Swix
 
         private const int MaxLengthOfComponentId = 72;
         private const int MaxLengthOfDirectoryId = 72;
+        private const int MaxLengthOfShortcutId = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
@@ -281,6 +282,10 @@ namespace SimpleWixDsl.Swix
             foreach (var shortcut in component.Shortcuts)
             {
                 doc.WriteStartElement("Shortcut");
+                var fullPath = string.Format("{0}\\{1}", _directories[shortcut.TargetDirRef].GetFullTargetPath(), shortcut.Name);
+                var guid = _guidProvider.Get(SwixGuidType.Shortcut, fullPath);
+                var id = MakeUniqueId(guid, shortcut.Name, MaxLengthOfShortcutId);
+                doc.WriteAttributeString("Id", id);
                 doc.WriteAttributeString("Name", shortcut.Name);
                 if (shortcut.Args != null)
                     doc.WriteAttributeString("Arguments", shortcut.Args);

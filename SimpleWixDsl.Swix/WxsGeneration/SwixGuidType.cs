@@ -4,5 +4,6 @@
     {
         Component,
         Directory,
+        Shortcut,
     }
 }
