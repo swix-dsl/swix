@@ -58,7 +58,10 @@ namespace SimpleWixDsl.MSBuild
                 var ch = VariablesDefinitions[i];
                 if (lastSymbolWasEscape)
                 {
-                    current.Append(ch);
+                    if (ch == ';' || ch == '\\')
+                        current.Append(ch);
+                    else
+                        current.Append('\\').Append(ch);
                     lastSymbolWasEscape = false;
                     continue;
                 }
