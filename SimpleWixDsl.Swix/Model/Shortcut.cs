@@ -17,8 +17,9 @@
                 result.TargetDir = shortcutTargetDir;
 
             var args = context.GetInheritedAttribute("args");
-            if (args != null)
-                result.Args = args;
+            if (string.IsNullOrEmpty(args))
+                throw new SwixSemanticException("Shortcut's 'args' cannot be empty. Either set it to some value or remove altogether");
+            result.Args = args;
 
             return result;
         }

@@ -18,7 +18,17 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext HandleShortcut(string key, IAttributeContext attributes)
         {
-            return new StubSwixElement(attributes, () => _toAdd.Add(Shortcut.FromContext(key, attributes)));
+            return new StubSwixElement(attributes, () =>
+                {
+                    try
+                    {
+                        _toAdd.Add(Shortcut.FromContext(key, attributes));
+                    }
+                    catch (SwixSemanticException e)
+                    {
+                        throw new SwixSemanticException(FormatError(e.Message));
+                    }
+                });
         }
 
         protected override void FinishItemCore()
