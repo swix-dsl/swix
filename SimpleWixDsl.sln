@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{E50E01C1
 		SwixIdea.txt = SwixIdea.txt
 		SwixSemantics.swix = SwixSemantics.swix
 		SwixSyntaxBnf.txt = SwixSyntaxBnf.txt
+		Wixproj integration.txt = Wixproj integration.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWixDsl.Ahl", "SimpleWixDsl.Ahl\SimpleWixDsl.Ahl.csproj", "{5143CB6C-0F8A-45EB-88C4-49353E34D39E}"

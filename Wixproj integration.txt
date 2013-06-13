@@ -1,0 +1,12 @@
+Copy binaries and swix.targets file to some folder besides your wixproj.
+
+Before the end of wixproj file add these lines (assuming that swix binaries are placed in the sibling folder to your
+project folder and named "Swix"
+
+  <Import Project="..\Swix\Swix.targets" />
+  <Target Name="BeforeBuild">
+    <SwixTransform Source="YourSwixFilenameHere.swix" />
+  </Target>
+
+
+Also in SwixTransform task you may define VariablesDefinitions="varName1=varValue;varname2=varValue2 with \; semicolon and literal \\ backslash"
