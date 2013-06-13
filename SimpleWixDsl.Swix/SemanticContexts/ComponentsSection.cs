@@ -53,14 +53,16 @@ namespace SimpleWixDsl.Swix
                         if (filepath[harvestingRootSubstringLength] == '\\')
                             harvestingRootSubstringLength++;
                         var relativeToHarvestingRoot = filepath.Substring(harvestingRootSubstringLength);
-                        var relativeDir = Path.GetDirectoryName(relativeToHarvestingRoot) ?? ".";
+                        var relativeDir = Path.GetDirectoryName(relativeToHarvestingRoot);
                         try
                         {
                             var component = WixComponent.FromContext(filepath, CurrentAttributeContext);
-                            if (component.TargetDir == null)
-                                component.TargetDir = relativeDir;
-                            else
-                                component.TargetDir = Path.Combine(component.TargetDir, relativeDir);
+                            if (relativeDir != null)
+                            {
+                                component.TargetDir = component.TargetDir == null
+                                                          ? relativeDir
+                                                          : Path.Combine(component.TargetDir, relativeDir);
+                            }
                             _toAdd.Add(component);
                         }
                         catch (SwixSemanticException e)
