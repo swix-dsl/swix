@@ -11,6 +11,12 @@ namespace SimpleWixDsl.Swix
             var id = attributeContext.GetInheritedAttribute("id");
             if (id != null)
                 result.Id = id;
+
+            var refOnly = attributeContext.GetInheritedAttribute("refOnly");
+            if (refOnly != null && refOnly != "yes" && refOnly != "no")
+                throw new SwixSemanticException("Attribute 'refOnly' should be either 'yes' or 'no'.");
+            result.RefOnly = refOnly == "yes";
+
             return result;
         }
 
@@ -24,6 +30,7 @@ namespace SimpleWixDsl.Swix
         public string Id { get; set; }
         public string Name { get; set; }
         public WixTargetDirectory Parent { get; set; }
+        public bool RefOnly { get; set; }
 
         public List<WixTargetDirectory> Subdirectories { get; private set; }
 

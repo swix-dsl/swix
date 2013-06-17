@@ -44,12 +44,29 @@ namespace SimpleWixDsl.Swix
             _model = model;
             _guidProvider = guidProvider;
 
+            VerifyDirectories();
             AssignCabFileIds();
             FindNonUniqueDirectoryReadableIds();
             AssignDirectoryIds();
             VerifyDirectoryRefs();
             VerifyCabFileRefs();
             HandleInlineTargetDirSpecifications();
+        }
+
+        private void VerifyDirectories()
+        {
+            foreach (var subdirectory in _model.RootDirectory.Subdirectories)
+                VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdirectory);
+        }
+
+        private void VerifySubdirectoriesDontHaveRefOnlyAttributeSet(WixTargetDirectory dir)
+        {
+            foreach (var subdir in dir.Subdirectories)
+            {
+                if (subdir.RefOnly)
+                    throw new SwixSemanticException(string.Format("Directory {0} is marked as refOnly and has parent. refOnly dirs can be only top-level", subdir.GetFullTargetPath()));
+                VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdir);
+            }
         }
 
         private void AssignCabFileIds()
@@ -320,9 +337,10 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var directory in rootDirectory.Subdirectories)
             {
-                doc.WriteStartElement("Directory");
+                doc.WriteStartElement(directory.RefOnly ? "DirectoryRef" : "Directory");
                 doc.WriteAttributeString("Id", directory.Id);
-                doc.WriteAttributeString("Name", directory.Name);
+                if (!directory.RefOnly)
+                    doc.WriteAttributeString("Name", directory.Name);
                 WriteSubDirectories(doc, directory);
                 doc.WriteEndElement();
             }
