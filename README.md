@@ -1,0 +1,4 @@
+swix
+====
+
+SimpleWIX DSL
