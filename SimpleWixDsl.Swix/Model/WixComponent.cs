@@ -45,6 +45,11 @@ namespace SimpleWixDsl.Swix
                 throw new SwixSemanticException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
             result.MultiInstance = multiInstance;
 
+            var win64 = context.GetInheritedAttribute("win64");
+            if (win64 != "yes" && win64 != "no" && win64 != null)
+                throw new SwixSemanticException("Optional 'win64' attribute could be only 'yes' or 'no'");
+            result.Win64 = win64;
+
             var id = context.GetInheritedAttribute("id");
             if (id != null)
                 result.Id = id;
@@ -76,6 +81,8 @@ namespace SimpleWixDsl.Swix
         public string FileName { get; set; }
 
         public string MultiInstance { get; set; }
+
+        public string Win64 { get; set; }
 
         public List<Shortcut> Shortcuts { get; set; }
 

@@ -277,6 +277,8 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("Id", id);
             if (component.MultiInstance != null)
                 doc.WriteAttributeString("MultiInstance", component.MultiInstance);
+            if (component.Win64 != null)
+                doc.WriteAttributeString("Win64", component.Win64);
             var componentGuid = _guidProvider.Get(SwixGuidType.Component, GetComponentFullTargetPath(component));
             doc.WriteAttributeString("Guid", componentGuid.ToString("B").ToUpperInvariant());
 
