@@ -5,5 +5,6 @@
         Component,
         Directory,
         Shortcut,
+        ServiceInstall,
     }
 }

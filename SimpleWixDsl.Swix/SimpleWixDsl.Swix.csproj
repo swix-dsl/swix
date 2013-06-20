@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttributeContext.cs" />
+    <Compile Include="Model\Service.cs" />
     <Compile Include="SemanticContexts\ComponentItem.cs" />
     <Compile Include="Model\CabFile.cs" />
     <Compile Include="Model\Shortcut.cs" />
@@ -38,6 +39,7 @@
     <Compile Include="SemanticContexts\Helpers\SectionHandlerAttribute.cs" />
     <Compile Include="SemanticContexts\Helpers\SemanticContextReflectionInfo.cs" />
     <Compile Include="SemanticContexts\Helpers\StubSwixElement.cs" />
+    <Compile Include="SemanticContexts\ServicesSection.cs" />
     <Compile Include="SemanticContexts\ShortcutsSection.cs" />
     <Compile Include="SwixParser.cs" />
     <Compile Include="SwixProcessor.cs" />

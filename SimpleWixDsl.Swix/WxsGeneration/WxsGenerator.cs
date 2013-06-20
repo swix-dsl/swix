@@ -33,6 +33,7 @@ namespace SimpleWixDsl.Swix
         private const int MaxLengthOfComponentId = 72;
         private const int MaxLengthOfDirectoryId = 72;
         private const int MaxLengthOfShortcutId = 72;
+        private const int MaxLengthOfServiceInstallId = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
@@ -293,6 +294,8 @@ namespace SimpleWixDsl.Swix
 
             doc.WriteEndElement();
 
+            WriteComponentServices(doc, component);
+
             doc.WriteEndElement();
         }
 
@@ -314,6 +317,50 @@ namespace SimpleWixDsl.Swix
                 doc.WriteAttributeString("Directory", shortcut.TargetDirRef);
                 doc.WriteEndElement();
             }
+        }
+
+        private void WriteComponentServices(XmlWriter doc, WixComponent component)
+        {
+            foreach (var service in component.Services)
+            {
+                doc.WriteStartElement("ServiceInstall");
+                if (service.Id == null)
+                {
+                    var guid = _guidProvider.Get(SwixGuidType.ServiceInstall, service.Name);
+                    service.Id = MakeUniqueId(guid, service.Name, MaxLengthOfServiceInstallId);
+                }
+                doc.WriteAttributeString("Id", service.Id);
+                doc.WriteAttributeString("Name", service.Name);
+                doc.WriteAttributeString("DisplayName", service.DisplayName ?? service.Name);
+                if (service.Description != null)
+                    doc.WriteAttributeString("Description", service.Description);
+                
+                var startupType = (service.Start != ServiceStartupType.Unset ? service.Start : ServiceStartupType.Auto).ToString();
+                doc.WriteAttributeString("Start", ToCamelCase(startupType));
+
+                var hostingType = (service.Type != ServiceHostingType.Unset ? service.Type : ServiceHostingType.OwnProcess).ToString();
+                doc.WriteAttributeString("Type", ToCamelCase(hostingType));
+
+                var errControl = (service.ErrorControl != ServiceErrorControl.Unset ? service.ErrorControl : ServiceErrorControl.Ignore).ToString();
+                doc.WriteAttributeString("ErrorControl", ToCamelCase(errControl));
+
+                if (service.Args != null)
+                    doc.WriteAttributeString("Arguments", service.Args);
+
+                if (service.Vital != null)
+                    doc.WriteAttributeString("Vital", service.Vital);
+
+                doc.WriteEndElement();
+            }
+        }
+
+        private string ToCamelCase(string str)
+        {
+            if (char.IsLower(str[0]))
+                return str;
+            var sb = new StringBuilder(str);
+            sb[0] = char.ToLower(str[0]);
+            return sb.ToString();
         }
 
         private void WriteCabFiles(XmlWriter doc, IEnumerable<CabFile> cabFiles)

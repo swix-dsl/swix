@@ -17,5 +17,11 @@ namespace SimpleWixDsl.Swix
         {
             return new ShortcutsSection(sectionContext, _component.Shortcuts);
         }
+
+        [SectionHandler("services")]
+        public ISemanticContext Services(IAttributeContext sectionContext)
+        {
+            return new ServicesSection(sectionContext, _component.Services);
+        }
     }
 }

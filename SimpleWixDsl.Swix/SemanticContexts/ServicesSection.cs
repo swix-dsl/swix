@@ -1,0 +1,40 @@
+﻿using System.Collections.Generic;
+using SimpleWixDsl.Ahl;
+
+namespace SimpleWixDsl.Swix
+{
+    public class ServicesSection : BaseSwixSemanticContext
+    {
+        private readonly List<Service> _services;
+        private readonly List<Service> _toAdd;
+
+        public ServicesSection(IAttributeContext attributeContext, List<Service> services) 
+            : base(attributeContext)
+        {
+            _services = services;
+            _toAdd = new List<Service>();
+        }
+
+        [ItemHandler]
+        public ISemanticContext HandleService(string key, IAttributeContext attributes)
+        {
+            return new StubSwixElement(attributes, () =>
+                {
+                    try
+                    {
+                        _toAdd.Add(Service.FromContext(key, attributes));
+                    }
+                    catch (SwixSemanticException e)
+                    {
+                        throw new SwixSemanticException(FormatError(e.Message));
+                    }
+                });
+        }
+
+        protected override void FinishItemCore()
+        {
+            base.FinishItemCore();
+            _services.AddRange(_toAdd);
+        }
+    }
+}

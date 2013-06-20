@@ -86,10 +86,13 @@ namespace SimpleWixDsl.Swix
 
         public List<Shortcut> Shortcuts { get; set; }
 
+        public List<Service> Services { get; set; }
+
         public WixComponent(string sourcePath)
         {
             SourcePath = sourcePath;
             Shortcuts = new List<Shortcut>();
+            Services = new List<Service>();
         }
     }
 }
