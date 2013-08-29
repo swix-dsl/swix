@@ -12,10 +12,17 @@ namespace SimpleWixDsl.MSBuild
     {
         private static readonly Regex VarDeclaration = new Regex(@"(?<name>\w+)=(?<value>.*)", RegexOptions.Compiled);
 
+        public SwixTransform()
+        {
+            GuidMode = SwixGuidMode.TreatAbsentGuidAsError.ToString();
+        }
+
         [Required]
         public string Source { get; set; }
 
         public string VariablesDefinitions { get; set; }
+        
+        public string GuidMode { get; set; }
 
         public override bool Execute()
         {
@@ -23,7 +30,7 @@ namespace SimpleWixDsl.MSBuild
             {
                 Log.LogMessage(MessageImportance.Low, "Transforming {0}...", Source);
                 var variables = ParseVariablesDefinitions();
-                SwixProcessor.Transform(Source, variables);
+                SwixProcessor.Transform(Source, (SwixGuidMode) Enum.Parse(typeof(SwixGuidMode), GuidMode), variables);
             }
             catch (Exception e)
             {

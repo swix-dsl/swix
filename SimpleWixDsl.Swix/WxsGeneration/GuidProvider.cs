@@ -8,12 +8,19 @@ namespace SimpleWixDsl.Swix
 {
     public class GuidProvider
     {
+        private readonly bool _treatAbsentGuidAsError;
+
         private static readonly Regex LineRegex = new Regex(@"^(?<path>\w+\\""(""""|[^""])*"")=(?<guid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
                                                         RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
-        public static GuidProvider CreateFromStream(StreamReader source)
+        public GuidProvider(bool treatAbsentGuidAsError)
         {
-            var result = new GuidProvider();
+            _treatAbsentGuidAsError = treatAbsentGuidAsError;
+        }
+
+        public static GuidProvider CreateFromStream(StreamReader source, bool treatAbsentGuidAsError)
+        {
+            var result = new GuidProvider(treatAbsentGuidAsError);
             string line;
             while ((line = source.ReadLine()) != null)
             {
@@ -45,15 +52,29 @@ namespace SimpleWixDsl.Swix
                     _currentGuids[key] = result;
                     return result;
                 }
+                if (_treatAbsentGuidAsError)
+                    throw new SwixSemanticException("Absent GUID as error: GUID for key " + key);
                 result = Guid.NewGuid();
                 _currentGuids[key] = result;
             }
             return result;
         }
 
-        public void SaveToStream(StreamWriter stream)
+        public void SaveToStream(StreamWriter stream, bool pruneUnused)
         {
-            foreach (var pair in _currentGuids.OrderBy(pair => pair.Key))
+            IEnumerable<KeyValuePair<string, Guid>> guidsToSave;
+            if (pruneUnused)
+            {
+                guidsToSave = _currentGuids;
+            }
+            else
+            {
+                var list = new List<KeyValuePair<string, Guid>>(_currentGuids);
+                list.AddRange(_loadedFromFileGuids.Except(_currentGuids));
+                guidsToSave = list;
+            }
+
+            foreach (var pair in guidsToSave.OrderBy(pair => pair.Key))
             {
                 var key = pair.Key;
                 var guid = pair.Value;

@@ -11,7 +11,7 @@ namespace SimpleWixDsl.SwixTransform
     {
         private static void Main(string[] args)
         {
-            SwixProcessor.Transform(args[0]);
+            SwixProcessor.Transform(args[0], SwixGuidMode.UseExistingAndUpdateStorage);
         }
     }
 }
