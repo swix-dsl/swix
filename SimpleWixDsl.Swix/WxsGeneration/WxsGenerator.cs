@@ -440,8 +440,9 @@ namespace SimpleWixDsl.Swix
             {
                 bool allowed = sb[i] >= 'a' && sb[i] <= 'z' ||
                                sb[i] >= 'A' && sb[i] <= 'Z' ||
+                               sb[i] == '_' ||
                                sb[i] >= '0' && sb[i] <= '9' && i > 0 ||
-                               sb[i] == '_' || sb[i] == '.';
+                               sb[i] == '.' && i > 0;
                 if (!allowed)
                     sb[i] = '_';
             }
