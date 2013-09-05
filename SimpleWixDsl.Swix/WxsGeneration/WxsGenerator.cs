@@ -104,17 +104,17 @@ namespace SimpleWixDsl.Swix
             if (_nonUniqueDirectoryReadableIds.Contains(targetDirRef))
             {
                 var msg = string.Format("{0} {1} references directory via implicit ID {2} which is not unique",
-                                        referencingEntityType,
-                                        referencingEntityName,
-                                        targetDirRef);
+                    referencingEntityType,
+                    referencingEntityName,
+                    targetDirRef);
                 throw new SwixSemanticException(msg);
             }
             if (!_directories.ContainsKey(targetDirRef))
             {
                 var msg = string.Format("{0} {1} references undeclared directory ID {2}",
-                                        referencingEntityType,
-                                        referencingEntityName,
-                                        targetDirRef);
+                    referencingEntityType,
+                    referencingEntityName,
+                    targetDirRef);
                 throw new SwixSemanticException(msg);
             }
         }
@@ -257,6 +257,7 @@ namespace SimpleWixDsl.Swix
 
         private void WriteComponents(XmlWriter doc, IEnumerable<WixComponent> components)
         {
+            WriteRemoveOnUninstallComponent(doc);
             var groupedByDirComponents = components.GroupBy(c => c.TargetDirRef);
             foreach (var group in groupedByDirComponents)
             {
@@ -269,6 +270,38 @@ namespace SimpleWixDsl.Swix
 
                 doc.WriteEndElement();
             }
+        }
+
+        private void WriteRemoveOnUninstallComponent(XmlWriter doc)
+        {
+            var removedDirIds = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
+                .Where(d => d.RemoveOnUninstall)
+                .Select(d => d.Id)
+                .ToList();
+
+            if (!removedDirIds.Any()) return;
+
+            doc.WriteStartElement("DirectoryRef");
+            doc.WriteAttributeString("Id", "TARGETDIR");
+
+            doc.WriteStartElement("Component");
+            const string id = "SWIX_RemoveOnUninstallComponent";
+            var guid = _guidProvider.Get(SwixGuidType.Component, id);
+            doc.WriteAttributeString("Id", id);
+            doc.WriteAttributeString("Guid", guid.ToString("B").ToUpperInvariant());
+            doc.WriteAttributeString("KeyPath", "yes");
+
+            foreach (var removedDirId in removedDirIds)
+            {
+                doc.WriteStartElement("RemoveFolder");
+                doc.WriteAttributeString("Id", removedDirId);
+                doc.WriteAttributeString("Directory", removedDirId);
+                doc.WriteAttributeString("On", "uninstall");
+                doc.WriteEndElement();
+            }
+
+            doc.WriteEndElement();
+            doc.WriteEndElement();
         }
 
         private void WriteComponent(XmlWriter doc, WixComponent component)

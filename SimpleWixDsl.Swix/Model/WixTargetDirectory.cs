@@ -17,6 +17,11 @@ namespace SimpleWixDsl.Swix
                 throw new SwixSemanticException("Attribute 'refOnly' should be either 'yes' or 'no'.");
             result.RefOnly = refOnly == "yes";
 
+            var removeOnUninstall = attributeContext.GetInheritedAttribute("removeOnUninstall");
+            if (removeOnUninstall != null && removeOnUninstall != "yes" && removeOnUninstall != "no")
+                throw new SwixSemanticException("Attribute 'removeOnUninstall' should be either 'yes' or 'no'.");
+            result.RemoveOnUninstall = removeOnUninstall == "yes";
+
             return result;
         }
 
@@ -31,6 +36,7 @@ namespace SimpleWixDsl.Swix
         public string Name { get; set; }
         public WixTargetDirectory Parent { get; set; }
         public bool RefOnly { get; set; }
+        public bool RemoveOnUninstall { get; set; }
 
         public List<WixTargetDirectory> Subdirectories { get; private set; }
 
