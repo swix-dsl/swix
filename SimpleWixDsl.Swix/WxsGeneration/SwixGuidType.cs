@@ -6,5 +6,6 @@
         Directory,
         Shortcut,
         ServiceInstall,
+        RemoveOnUninstallComponent,
     }
 }

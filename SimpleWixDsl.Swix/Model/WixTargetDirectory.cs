@@ -22,6 +22,15 @@ namespace SimpleWixDsl.Swix
                 throw new SwixSemanticException("Attribute 'removeOnUninstall' should be either 'yes' or 'no'.");
             result.RemoveOnUninstall = removeOnUninstall == "yes";
 
+            var componentGroupRef = attributeContext.GetInheritedAttribute("componentGroupRef");
+            if (componentGroupRef != null)
+                result.ComponentGroupRef = componentGroupRef;
+
+            var multiInstance = attributeContext.GetInheritedAttribute("multiInstance");
+            if (multiInstance != "yes" && multiInstance != "no" && multiInstance != null)
+                throw new SwixSemanticException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
+            result.MultiInstance = multiInstance;
+
             return result;
         }
 
@@ -37,6 +46,8 @@ namespace SimpleWixDsl.Swix
         public WixTargetDirectory Parent { get; set; }
         public bool RefOnly { get; set; }
         public bool RemoveOnUninstall { get; set; }
+        public string ComponentGroupRef { get; set; }
+        public string MultiInstance { get; set; }
 
         public List<WixTargetDirectory> Subdirectories { get; private set; }
 
