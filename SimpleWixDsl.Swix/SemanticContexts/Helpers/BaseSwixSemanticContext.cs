@@ -8,19 +8,36 @@ namespace SimpleWixDsl.Swix
 {
     public class BaseSwixSemanticContext : ISemanticContext
     {
+        private class AttributeContextFrame
+        {
+            public int SourceLine { get; private set; }
+            public IAttributeContext Context { get; private set; }
+
+            public AttributeContextFrame(int sourceLine, IAttributeContext context)
+            {
+                SourceLine = sourceLine;
+                Context = context;
+            }
+        }
+
         private static readonly Regex SwixVarRegex = new Regex(@"\$\(swix\.(?<group>[a-z]+)\.(?<name>\w+)\)", RegexOptions.Compiled);
         private static readonly Regex SwixConditionRegex = new Regex(@"^\s*'(?<lhs>[^']*)'\s*(?<op>==|!=)\s*'(?<rhs>[^']*)'\s*$", RegexOptions.Compiled);
-        private readonly Stack<IAttributeContext> _currentContexts = new Stack<IAttributeContext>();
+        private readonly Stack<AttributeContextFrame> _currentContexts = new Stack<AttributeContextFrame>();
         private int _currentLine;
 
         protected IAttributeContext CurrentAttributeContext
         {
-            get { return _currentContexts.Peek(); }
+            get { return _currentContexts.Peek().Context; }
         }
 
-        public BaseSwixSemanticContext(IAttributeContext attributeContext)
+        public int CurrentLine
         {
-            _currentContexts.Push(attributeContext);
+            get { return _currentLine; }
+        }
+
+        public BaseSwixSemanticContext(int sourceLine, IAttributeContext attributeContext)
+        {
+            _currentContexts.Push(new AttributeContextFrame(sourceLine, attributeContext));
         }
 
         public ISemanticContext PushLine(int line, string keyword, string key, IEnumerable<AhlAttribute> attributes)
@@ -79,7 +96,7 @@ namespace SimpleWixDsl.Swix
         {
             if (key != null)
                 throw new SwixSemanticException(FormatError("Meta-keyword 'set' doesn't allow key attribute"));
-            _currentContexts.Push(metaContext);
+            _currentContexts.Push(new AttributeContextFrame(CurrentLine, metaContext));
             return this;
         }
 
@@ -120,7 +137,13 @@ namespace SimpleWixDsl.Swix
         {
             if (_currentContexts.Count > 1)
             {
-                _currentContexts.Pop();
+                var frame = _currentContexts.Pop();
+                var unused = frame.Context.GetDirectlySetUnusedAttributeNames().ToArray();
+                if (unused.Any())
+                {
+                    var unusedList = String.Join(", ", unused);
+                    throw new SwixSemanticException(string.Format("Line {0}: These attributes were set, but not used anywhere: {1}. It could indicate typo in attribute name.", frame.SourceLine, unusedList));
+                }
                 return;
             }
             FinishItemCore();
@@ -137,7 +160,7 @@ namespace SimpleWixDsl.Swix
         protected string FormatError(string format, params object[] args)
         {
             var userMsg = string.Format(format, args);
-            return string.Format("Line {0}: {1}", _currentLine, userMsg);
+            return string.Format("Line {0}: {1}", CurrentLine, userMsg);
         }
 
         protected virtual IAttributeContext CreateNewAttributeContext()

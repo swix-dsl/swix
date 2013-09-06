@@ -6,8 +6,8 @@ namespace SimpleWixDsl.Swix
     {
         private readonly WixComponent _component;
         
-        public ComponentItem(IAttributeContext inheritedContext, WixComponent component) 
-            : base(inheritedContext)
+        public ComponentItem(int line, IAttributeContext inheritedContext, WixComponent component) 
+            : base(line, inheritedContext)
         {
             _component = component;
         }
@@ -15,13 +15,13 @@ namespace SimpleWixDsl.Swix
         [SectionHandler("shortcuts")]
         public ISemanticContext Shortcuts(IAttributeContext sectionContext)
         {
-            return new ShortcutsSection(sectionContext, _component.Shortcuts);
+            return new ShortcutsSection(CurrentLine, sectionContext, _component.Shortcuts);
         }
 
         [SectionHandler("services")]
         public ISemanticContext Services(IAttributeContext sectionContext)
         {
-            return new ServicesSection(sectionContext, _component.Services);
+            return new ServicesSection(CurrentLine, sectionContext, _component.Services);
         }
     }
 }

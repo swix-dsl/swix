@@ -6,8 +6,8 @@ namespace SimpleWixDsl.Swix
     {
         private readonly SwixModel _model;
 
-        public CabFilesSection(IAttributeContext attributeContext, SwixModel model)
-            : base(attributeContext)
+        public CabFilesSection(int line, IAttributeContext attributeContext, SwixModel model)
+            : base(line, attributeContext)
         {
             _model = model;
         }
@@ -15,7 +15,7 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext HandleFile(string key, IAttributeContext attributes)
         {
-            return new StubSwixElement(CurrentAttributeContext, () => _model.CabFiles.Add(CabFile.FromContext(key, attributes)));
+            return new StubSwixElement(CurrentLine, CurrentAttributeContext, () => _model.CabFiles.Add(CabFile.FromContext(key, attributes)));
         }
     }
 }

@@ -8,8 +8,8 @@ namespace SimpleWixDsl.Swix
         private readonly List<Service> _services;
         private readonly List<Service> _toAdd;
 
-        public ServicesSection(IAttributeContext attributeContext, List<Service> services) 
-            : base(attributeContext)
+        public ServicesSection(int line, IAttributeContext attributeContext, List<Service> services) 
+            : base(line, attributeContext)
         {
             _services = services;
             _toAdd = new List<Service>();
@@ -18,7 +18,7 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext HandleService(string key, IAttributeContext attributes)
         {
-            return new StubSwixElement(attributes, () =>
+            return new StubSwixElement(CurrentLine, attributes, () =>
                 {
                     try
                     {

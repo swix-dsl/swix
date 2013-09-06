@@ -10,7 +10,7 @@ namespace SimpleWixDsl.Swix
         private readonly SwixModel _result;
 
         public FileSemanticContext(SwixModel result)
-            : base(new AttributeContext(new Dictionary<string, string>()))
+            : base(0, new AttributeContext(new Dictionary<string, string>()))
         {
             _result = result;
         }
@@ -24,19 +24,19 @@ namespace SimpleWixDsl.Swix
         [SectionHandler("cabFiles")]
         public ISemanticContext CabFiles(IAttributeContext sectionContext)
         {
-            return new CabFilesSection(sectionContext, _result);
+            return new CabFilesSection(CurrentLine, sectionContext, _result);
         }
 
         [SectionHandler("directories")]
         public ISemanticContext Directories(IAttributeContext sectionContext)
         {
-            return new DirectoriesSection(sectionContext, _result.RootDirectory);
+            return new DirectoriesSection(CurrentLine, sectionContext, _result.RootDirectory);
         }
 
         [SectionHandler("components")]
         public ISemanticContext Components(IAttributeContext sectionContext)
         {
-            return new ComponentsSection(sectionContext, _result.Components);
+            return new ComponentsSection(CurrentLine, sectionContext, _result.Components);
         }
 
         [MetaHandler("define")]
@@ -49,7 +49,7 @@ namespace SimpleWixDsl.Swix
             if (!defineContext.GetDirectlySetAttributes().TryGetValue("value", out value))
                 throw new SwixSemanticException(FormatError("?define meta should have 'value' argument"));
             CurrentAttributeContext.SwixVariableDefinitions[key] = ExpandSwixVariables(value);
-            return new StubSwixElement(null, null);
+            return new StubSwixElement(CurrentLine, null, null);
         }
     }
 }

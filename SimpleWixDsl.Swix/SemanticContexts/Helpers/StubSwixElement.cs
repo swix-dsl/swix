@@ -9,8 +9,8 @@ namespace SimpleWixDsl.Swix
     {
         private readonly Action _onFinish;
 
-        public StubSwixElement(IAttributeContext attributeContext, Action onFinish)
-            : base(attributeContext)
+        public StubSwixElement(int line, IAttributeContext attributeContext, Action onFinish)
+            : base(line, attributeContext)
         {
             _onFinish = onFinish;
         }

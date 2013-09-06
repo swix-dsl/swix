@@ -11,8 +11,8 @@ namespace SimpleWixDsl.Swix
         private readonly List<WixComponent> _components;
         private readonly List<WixComponent> _toAdd;
 
-        public ComponentsSection(IAttributeContext attributeContext, List<WixComponent> components)
-            : base(attributeContext)
+        public ComponentsSection(int line, IAttributeContext attributeContext, List<WixComponent> components)
+            : base(line, attributeContext)
         {
             _components = components;
             _toAdd = new List<WixComponent>();
@@ -24,7 +24,7 @@ namespace SimpleWixDsl.Swix
             try
             {
                 var component = WixComponent.FromContext(key, itemContext);
-                var itemSemanticContext = new ComponentItem(CurrentAttributeContext, component);
+                var itemSemanticContext = new ComponentItem(CurrentLine, CurrentAttributeContext, component);
                 itemSemanticContext.OnFinished += (s, e) => _toAdd.Add(component);
                 return itemSemanticContext;
             }
@@ -37,7 +37,7 @@ namespace SimpleWixDsl.Swix
         [MetaHandler("harvest")]
         public ISemanticContext HandleMetaHarvest(string key, IAttributeContext metaContext)
         {
-            return new StubSwixElement(null, () =>
+            return new StubSwixElement(CurrentLine, null, () =>
             {
                 if (!Directory.Exists(key))
                     throw new SwixSemanticException(FormatError("Directory '" + key + "' does not exists"));

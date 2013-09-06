@@ -8,8 +8,8 @@ namespace SimpleWixDsl.Swix
         private readonly List<Shortcut> _shortcuts;
         private readonly List<Shortcut> _toAdd;
 
-        public ShortcutsSection(IAttributeContext attributeContext, List<Shortcut> shortcuts) 
-            : base(attributeContext)
+        public ShortcutsSection(int line, IAttributeContext attributeContext, List<Shortcut> shortcuts) 
+            : base(line, attributeContext)
         {
             _shortcuts = shortcuts;
             _toAdd = new List<Shortcut>();
@@ -18,7 +18,7 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext HandleShortcut(string key, IAttributeContext attributes)
         {
-            return new StubSwixElement(attributes, () =>
+            return new StubSwixElement(CurrentLine, attributes, () =>
                 {
                     try
                     {
