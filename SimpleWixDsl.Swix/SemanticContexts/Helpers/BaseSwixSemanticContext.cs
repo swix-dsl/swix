@@ -59,7 +59,7 @@ namespace SimpleWixDsl.Swix
                 var sectionName = keyword.Substring(1);
                 var sectionHandler = reflectionInfo.GetSectionHandler(sectionName);
                 if (sectionHandler == null)
-                    throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
+                    throw new SwixSemanticException(CurrentLine, string.Format("Section {0} is not allowed here according to SWIX format.", new[] {sectionName}));
                 var sectionContext = sectionHandler(this, CurrentAttributeContext);
                 var itemContext = sectionContext.PushLine(line, null, key, expandedAttrs);
                 itemContext.OnFinished += (s, e) => sectionContext.FinishItem();
@@ -71,11 +71,13 @@ namespace SimpleWixDsl.Swix
             if (keyword[0] == ':')
             {
                 if (key != null)
-                    throw new SwixSemanticException(FormatError("Section can't have key element"));
+                {
+                    throw new SwixSemanticException(CurrentLine, "Section can't have key element");
+                }
                 var sectionName = keyword.Substring(1);
                 var sectionHandler = reflectionInfo.GetSectionHandler(sectionName);
                 if (sectionHandler == null)
-                    throw new SwixSemanticException(FormatError("Section {0} is not allowed here according to SWIX format.", sectionName));
+                    throw new SwixSemanticException(CurrentLine, string.Format("Section {0} is not allowed here according to SWIX format.", new[] { sectionName }));
                 return sectionHandler(this, childContext);
             }
 
@@ -84,18 +86,22 @@ namespace SimpleWixDsl.Swix
                 var metaName = keyword.Substring(1);
                 var metaHandler = reflectionInfo.GetMetaHandler(metaName);
                 if (metaHandler == null)
-                    throw new SwixSemanticException(FormatError("Meta {0} is not allowed here according to SWIX format.", metaName));
+                {
+                    throw new SwixSemanticException(CurrentLine, string.Format("Meta {0} is not allowed here according to SWIX format.", metaName));
+                }
                 return metaHandler(this, key, childContext);
             }
 
-            throw new SwixSemanticException(FormatError("SWIX keywords are only prepended by :, ! or ?"));
+            throw new SwixSemanticException(CurrentLine, "SWIX keywords are only prepended by :, ! or ?");
         }
 
         [MetaHandler("set")]
         public ISemanticContext HandleMetaSet(string key, IAttributeContext metaContext)
         {
             if (key != null)
-                throw new SwixSemanticException(FormatError("Meta-keyword 'set' doesn't allow key attribute"));
+            {
+                throw new SwixSemanticException(CurrentLine, "Meta-keyword 'set' doesn't allow key attribute");
+            }
             _currentContexts.Push(new AttributeContextFrame(CurrentLine, metaContext));
             return this;
         }
@@ -104,10 +110,14 @@ namespace SimpleWixDsl.Swix
         public ISemanticContext HandleMetaIf(string key, IAttributeContext metaContext)
         {
             if (key == null)
-                throw new SwixSemanticException(FormatError("Meta-keyword 'if' requires condition as a key"));
+            {
+                throw new SwixSemanticException(CurrentLine, string.Format("Meta-keyword 'if' requires condition as a key"));
+            }
             var match = SwixConditionRegex.Match(key);
             if (!match.Success)
-                throw new SwixSemanticException(FormatError("Condition has incorrect format: {0}.", key));
+            {
+                throw new SwixSemanticException(CurrentLine, string.Format("Condition has incorrect format: {0}.", key));
+            }
             var op = match.Groups["op"].Value;
             var lhs = match.Groups["lhs"].Value;
             var rhs = match.Groups["rhs"].Value;
@@ -118,7 +128,7 @@ namespace SimpleWixDsl.Swix
                 case "!=":
                     return rhs != lhs ? HandleMetaSet(null, metaContext) : new IgnoringSemanticContext();
                 default:
-                    throw new SwixSemanticException(FormatError("Unknown operator in condition: {0}", op));
+                    throw new SwixSemanticException(CurrentLine, string.Format("Unknown operator in condition: {0}", op));
             }
         }
 
@@ -127,7 +137,9 @@ namespace SimpleWixDsl.Swix
             var reflectionInfo = SemanticContextReflectionInfo.Get(GetType());
             var itemHandler = reflectionInfo.GetItemHandler();
             if (itemHandler == null)
-                throw new SwixSemanticException(FormatError("Direct items in this context are not allowed in the SWIX format."));
+            {
+                throw new SwixSemanticException(CurrentLine, "Direct items in this context are not allowed in the SWIX format.");
+            }
             var itemContext = CreateNewAttributeContext();
             itemContext.SetAttributes(attributes);
             return itemHandler(this, key, itemContext);
@@ -142,7 +154,7 @@ namespace SimpleWixDsl.Swix
                 if (unused.Any())
                 {
                     var unusedList = String.Join(", ", unused);
-                    throw new SwixSemanticException(string.Format("Line {0}: These attributes were set, but not used anywhere: {1}. It could indicate typo in attribute name.", frame.SourceLine, unusedList));
+                    throw new SwixSemanticException(frame.SourceLine, string.Format("These attributes were set, but not used anywhere: {0}. It could indicate typo in attribute name.", unusedList));
                 }
                 return;
             }
@@ -156,12 +168,6 @@ namespace SimpleWixDsl.Swix
         }
 
         public event EventHandler<EventArgs> OnFinished;
-
-        protected string FormatError(string format, params object[] args)
-        {
-            var userMsg = string.Format(format, args);
-            return string.Format("Line {0}: {1}", CurrentLine, userMsg);
-        }
 
         protected virtual IAttributeContext CreateNewAttributeContext()
         {
@@ -179,17 +185,21 @@ namespace SimpleWixDsl.Swix
                     {
                         string varValue;
                         if (!CurrentAttributeContext.SwixVariableDefinitions.TryGetValue(name, out varValue))
-                            throw new SwixSemanticException(FormatError("Variable '{0}' is undefined", name));
+                        {
+                            throw new SwixSemanticException(CurrentLine, string.Format("Variable '{0}' is undefined", name));
+                        }
                         return varValue;
                     }
                     else if (group == "env")
                     {
                         string varValue = Environment.GetEnvironmentVariable(name);
                         if (varValue == null)
-                            throw new SwixSemanticException(FormatError("Environment variable '{0}' is undefined", name));
+                        {
+                            throw new SwixSemanticException(CurrentLine, string.Format("Environment variable '{0}' is undefined", name ));
+                        }
                         return varValue;
                     }
-                    throw new SwixSemanticException(FormatError("'{0}' is unknown variable group", group));
+                    throw new SwixSemanticException(CurrentLine, string.Format("'{0}' is unknown variable group", @group));
                 });
         }
     }

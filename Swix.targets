@@ -5,10 +5,16 @@
   <PropertyGroup>
     <SwixInstallPath Condition=" '$(SwixInstallPath)' == '' ">$(MSBuildThisFileDirectory)</SwixInstallPath>
     <SwixTasksPath Condition=" '$(SwixTasksPath)' == '' ">$(SwixInstallPath)\SimpleWixDsl.MSBuild.dll</SwixTasksPath>
-<!--    <BuildDependsOn Condition=" '$(BuildDependsOn)' != '' ">SwixTransformTarget;$(BuildDependsOn)</BuildDependsOn>
-    <BuildDependsOn Condition=" '$(BuildDependsOn)' == '' ">SwixTransformTarget</BuildDependsOn> -->
+    <BuildDependsOn>SwixTransformTarget;$(BuildDependsOn)</BuildDependsOn>
+    
+    <SwixGuidMode Condition=" '$(SwixGuidMode)' == '' ">UseExisting</SwixGuidMode>
   </PropertyGroup>
 
   <UsingTask TaskName="SwixTransform" AssemblyFile="$(SwixTasksPath)" />
+
+  <Target Name="SwixTransformTarget">
+    <Message Text="Transforming SWIX; SWIX Variables: $(SwixConstants)" />
+    <SwixTransform Sources="@(Swix)" VariablesDefinitions="$(SwixConstants)" GuidMode="$(SwixGuidMode)" />
+  </Target>
 
 </Project>

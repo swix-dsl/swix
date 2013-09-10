@@ -10,7 +10,7 @@
             if (shortcutTargetDirRef != null)
                 result.TargetDirRef = shortcutTargetDirRef;
             else
-                throw new SwixSemanticException("shortcutTargetDirRef attribute is mandatory for all shortcuts");
+                throw new SwixItemParsingException("shortcutTargetDirRef attribute is mandatory for all shortcuts");
 
             var shortcutTargetDir = context.GetInheritedAttribute("shortcutTargetDir");
             if (shortcutTargetDir != null)
@@ -22,7 +22,7 @@
 
             var args = context.GetInheritedAttribute("args");
             if (args != null && string.IsNullOrWhiteSpace(args))
-                throw new SwixSemanticException("Shortcut's 'args' cannot be empty. Either set it to some value or remove altogether");
+                throw new SwixItemParsingException("Shortcut's 'args' cannot be empty. Either set it to some value or remove altogether");
             result.Args = args;
 
             return result;

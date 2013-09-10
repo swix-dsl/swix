@@ -1,34 +1,25 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace SimpleWixDsl.Swix
 {
-    [Serializable]
     public class SwixSemanticException : Exception
     {
-        //
-        // For guidelines regarding the creation of new exception types, see
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
-        // and
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
-        //
+        private readonly int _lineNumber;
 
-        public SwixSemanticException()
+        public SwixSemanticException(int lineNumber, string message) : base(message)
         {
+            _lineNumber = lineNumber;
         }
 
-        public SwixSemanticException(string message) : base(message)
+        public SwixSemanticException(int lineNumber, string message, Exception inner)
+            : base(message, inner)
         {
+            _lineNumber = lineNumber;
         }
 
-        public SwixSemanticException(string message, Exception inner) : base(message, inner)
+        public int LineNumber
         {
-        }
-
-        protected SwixSemanticException(
-            SerializationInfo info,
-            StreamingContext context) : base(info, context)
-        {
+            get { return _lineNumber; }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SimpleWixDsl.Swix
             if (targetDirRef != null)
                 result.TargetDirRef = targetDirRef;
             else
-                throw new SwixSemanticException("targetDirRef attribute is mandatory for all components");
+                throw new SwixItemParsingException("targetDirRef attribute is mandatory for all components");
 
             var targetDir = context.GetInheritedAttribute("targetDir");
             if (targetDir != null)
@@ -34,7 +34,7 @@ namespace SimpleWixDsl.Swix
             if (cabFileRef != null)
                 result.CabFileRef = cabFileRef;
             else
-                throw new SwixSemanticException("cabFileRef attribute is mandatory for all components");
+                throw new SwixItemParsingException("cabFileRef attribute is mandatory for all components");
 
             var componentGroupRef = context.GetInheritedAttribute("componentGroupRef");
             if (componentGroupRef != null)
@@ -42,12 +42,12 @@ namespace SimpleWixDsl.Swix
 
             var multiInstance = context.GetInheritedAttribute("multiInstance");
             if (multiInstance != "yes" && multiInstance != "no" && multiInstance != null)
-                throw new SwixSemanticException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
+                throw new SwixItemParsingException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
             result.MultiInstance = multiInstance;
 
             var win64 = context.GetInheritedAttribute("win64");
             if (win64 != "yes" && win64 != "no" && win64 != null)
-                throw new SwixSemanticException("Optional 'win64' attribute could be only 'yes' or 'no'");
+                throw new SwixItemParsingException("Optional 'win64' attribute could be only 'yes' or 'no'");
             result.Win64 = win64;
 
             var id = context.GetInheritedAttribute("id");

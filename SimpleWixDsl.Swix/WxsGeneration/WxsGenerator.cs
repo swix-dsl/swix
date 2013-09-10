@@ -66,7 +66,7 @@ namespace SimpleWixDsl.Swix
             foreach (var subdir in dir.Subdirectories)
             {
                 if (subdir.RefOnly)
-                    throw new SwixSemanticException(string.Format("Directory {0} is marked as refOnly and has parent. refOnly dirs can be only top-level", subdir.GetFullTargetPath()));
+                    throw new SwixSemanticException(0, string.Format("Directory {0} is marked as refOnly and has parent. refOnly dirs can be only top-level", subdir.GetFullTargetPath()));
                 VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdir);
             }
         }
@@ -80,7 +80,7 @@ namespace SimpleWixDsl.Swix
             if (invalidDirectories.Any())
             {
                 var dirList = String.Join(", ", invalidDirectories);
-                throw new SwixSemanticException(string.Format("Directories {0} are marked as removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
+                throw new SwixSemanticException(0, string.Format("Directories {0} are marked as removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
             }
         }
 
@@ -99,7 +99,7 @@ namespace SimpleWixDsl.Swix
             foreach (var component in _model.Components)
             {
                 if (!_cabFileCounters.ContainsKey(component.CabFileRef))
-                    throw new SwixSemanticException(String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
+                    throw new SwixSemanticException(0, String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
             }
         }
 
@@ -121,7 +121,7 @@ namespace SimpleWixDsl.Swix
                     referencingEntityType,
                     referencingEntityName,
                     targetDirRef);
-                throw new SwixSemanticException(msg);
+                throw new SwixSemanticException(0, msg);
             }
             if (!_directories.ContainsKey(targetDirRef))
             {
@@ -129,7 +129,7 @@ namespace SimpleWixDsl.Swix
                     referencingEntityType,
                     referencingEntityName,
                     targetDirRef);
-                throw new SwixSemanticException(msg);
+                throw new SwixSemanticException(0, msg);
             }
         }
 

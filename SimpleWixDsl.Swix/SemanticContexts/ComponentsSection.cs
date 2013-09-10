@@ -30,7 +30,7 @@ namespace SimpleWixDsl.Swix
             }
             catch (SwixSemanticException e)
             {
-                throw new SwixSemanticException(FormatError(e.Message));
+                throw new SwixSemanticException(CurrentLine, e.Message);
             }
         }
 
@@ -40,7 +40,9 @@ namespace SimpleWixDsl.Swix
             return new StubSwixElement(CurrentLine, null, () =>
             {
                 if (!Directory.Exists(key))
-                    throw new SwixSemanticException(FormatError("Directory '" + key + "' does not exists"));
+                {
+                    throw new SwixSemanticException(CurrentLine, string.Format("Directory '{0}' does not exists", key));
+                }
                 var attrs = metaContext.GetDirectlySetAttributes();
                 string filter;
                 if (!attrs.TryGetValue("filter", out filter))
@@ -60,7 +62,7 @@ namespace SimpleWixDsl.Swix
                     }
                     catch (ArgumentException e)
                     {
-                        throw new SwixSemanticException(FormatError("Invalid Regex pattern in excludePathRegex argument: {0}", e.ToString()));
+                        throw new SwixSemanticException(CurrentLine, string.Format("Invalid Regex pattern in excludePathRegex argument: {0}", new[] { e.ToString() }));
                     }
                 }
 
@@ -88,9 +90,9 @@ namespace SimpleWixDsl.Swix
                         }
                         _toAdd.Add(component);
                     }
-                    catch (SwixSemanticException e)
+                    catch (SwixItemParsingException e)
                     {
-                        throw new SwixSemanticException(FormatError("During harvesting of {0} file, exception occurs:\n{1}", filepath, e.ToString()));
+                        throw new SwixSemanticException(CurrentLine, string.Format("During harvesting of {0} file, exception occurs:\n{1}", new[] {filepath, e.ToString()}));
                     }
                 }
             });

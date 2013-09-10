@@ -39,13 +39,13 @@ namespace SimpleWixDsl.Swix
             {
                 ServiceStartupType start;
                 if (!Enum.TryParse(startStr, true, out start))
-                    throw new SwixSemanticException("'start' attribute should be one of these values: 'auto', 'demand' or 'disabled'");
+                    throw new SwixItemParsingException("'start' attribute should be one of these values: 'auto', 'demand' or 'disabled'");
                 result.Start = start;
             }
 
             var vital = attributes.GetInheritedAttribute("vital");
             if (vital != null && vital != "yes" && vital != "no")
-                throw new SwixSemanticException("'vital' attribute should be either 'yes' or 'no'");
+                throw new SwixItemParsingException("'vital' attribute should be either 'yes' or 'no'");
             result.Vital = vital;
 
             var typeStr = attributes.GetInheritedAttribute("type");
@@ -53,7 +53,7 @@ namespace SimpleWixDsl.Swix
             {
                 ServiceHostingType type;
                 if (!Enum.TryParse(typeStr, true, out type))
-                    throw new SwixSemanticException("'type' attribute should be one of these values: 'ownProcess', 'sharedProcess', 'systemDriver' or 'kernelDriver'");
+                    throw new SwixItemParsingException("'type' attribute should be one of these values: 'ownProcess', 'sharedProcess', 'systemDriver' or 'kernelDriver'");
                 result.Type = type;
             }
 
@@ -62,7 +62,7 @@ namespace SimpleWixDsl.Swix
             {
                 ServiceErrorControl errorControl;
                 if (!Enum.TryParse(errorControlStr, true, out errorControl))
-                    throw new SwixSemanticException("'errorControl' attribute should be one of these values: 'ignore', 'normal' or 'critical'");
+                    throw new SwixItemParsingException("'errorControl' attribute should be one of these values: 'ignore', 'normal' or 'critical'");
                 result.ErrorControl = errorControl;
             }
 

@@ -23,9 +23,9 @@ namespace SimpleWixDsl.Swix
                 _subdirs.Add(dir);
                 return new DirectoriesSection(CurrentLine, CurrentAttributeContext, dir);
             }
-            catch (SwixSemanticException e)
+            catch (SwixItemParsingException e)
             {
-                throw new SwixSemanticException(FormatError("{0}", e.Message));
+                throw new SwixSemanticException(CurrentLine, string.Format("{0}", new[] {e.Message}));
             }
         }
 

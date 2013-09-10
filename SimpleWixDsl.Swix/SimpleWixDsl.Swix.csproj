@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttributeContext.cs" />
+    <Compile Include="SwixItemParsingException.cs" />
     <Compile Include="Model\Service.cs" />
     <Compile Include="SemanticContexts\ComponentItem.cs" />
     <Compile Include="Model\CabFile.cs" />

@@ -234,7 +234,7 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof (SwixSemanticException), ExpectedMessage = "Line 0: 'unknown' is unknown variable group")]
+        [ExpectedException(typeof (SwixSemanticException), ExpectedMessage = "'unknown' is unknown variable group")]
         public void VariableExpansion_UnknownGroup_ExceptionThrown()
         {
             var sut = new SemContextStub();
@@ -242,7 +242,7 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof (SwixSemanticException), ExpectedMessage = "Line 0: Variable 'var' is undefined")]
+        [ExpectedException(typeof (SwixSemanticException), ExpectedMessage = "Variable 'var' is undefined")]
         public void VariableExpansion_UndeclaredVariable_ExceptionThrown()
         {
             var sut = new SemContextStub();
@@ -296,7 +296,7 @@ namespace SimpleWixDsl.UnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(SwixSemanticException), ExpectedMessage = "Line 0: Environment variable 'Test' is undefined")]
+        [ExpectedException(typeof(SwixSemanticException), ExpectedMessage = "Environment variable 'Test' is undefined")]
         public void VariableExpansion_EnvironmentVariableDoesNotExist_ExceptionThrown()
         {
             if (Environment.GetEnvironmentVariables().Contains("Test"))

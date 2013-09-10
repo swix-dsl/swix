@@ -14,12 +14,12 @@ namespace SimpleWixDsl.Swix
 
             var refOnly = attributeContext.GetInheritedAttribute("refOnly");
             if (refOnly != null && refOnly != "yes" && refOnly != "no")
-                throw new SwixSemanticException("Attribute 'refOnly' should be either 'yes' or 'no'.");
+                throw new SwixItemParsingException("Attribute 'refOnly' should be either 'yes' or 'no'.");
             result.RefOnly = refOnly == "yes";
 
             var removeOnUninstall = attributeContext.GetInheritedAttribute("removeOnUninstall");
             if (removeOnUninstall != null && removeOnUninstall != "yes" && removeOnUninstall != "no")
-                throw new SwixSemanticException("Attribute 'removeOnUninstall' should be either 'yes' or 'no'.");
+                throw new SwixItemParsingException("Attribute 'removeOnUninstall' should be either 'yes' or 'no'.");
             result.RemoveOnUninstall = removeOnUninstall == "yes";
 
             var componentGroupRef = attributeContext.GetInheritedAttribute("componentGroupRef");
@@ -28,7 +28,7 @@ namespace SimpleWixDsl.Swix
 
             var multiInstance = attributeContext.GetInheritedAttribute("multiInstance");
             if (multiInstance != "yes" && multiInstance != "no" && multiInstance != null)
-                throw new SwixSemanticException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
+                throw new SwixItemParsingException("Optional 'multiInstance' attribute could be only 'yes' or 'no'");
             result.MultiInstance = multiInstance;
 
             return result;

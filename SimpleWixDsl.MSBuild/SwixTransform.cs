@@ -18,7 +18,7 @@ namespace SimpleWixDsl.MSBuild
         }
 
         [Required]
-        public string Source { get; set; }
+        public ITaskItem[] Sources { get; set; }
 
         public string VariablesDefinitions { get; set; }
         
@@ -26,17 +26,28 @@ namespace SimpleWixDsl.MSBuild
 
         public override bool Execute()
         {
-            try
+            foreach (var source in Sources)
             {
-                Log.LogMessage(MessageImportance.Low, "Transforming {0}...", Source);
-                var variables = ParseVariablesDefinitions();
-                SwixProcessor.Transform(Source, (SwixGuidMode) Enum.Parse(typeof(SwixGuidMode), GuidMode), variables);
-            }
-            catch (Exception e)
-            {
-                Log.LogErrorFromException(e);
-                return false;
-            }
+                try
+                {
+                    Log.LogMessage(MessageImportance.Low, "Transforming {0}...", source);
+                    var variables = ParseVariablesDefinitions();
+                    SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), variables);
+                }
+                catch (SwixSemanticException e)
+                {
+                    var file = source.GetMetadata("FullPath");
+                    var args = new BuildErrorEventArgs("SWIX", string.Empty, file, e.LineNumber, 0, e.LineNumber, 0, e.Message, string.Empty, string.Empty);
+                    
+                    BuildEngine.LogErrorEvent(args);
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    Log.LogErrorFromException(e);
+                    return false;
+                }
+            } 
             return true;
         }
 

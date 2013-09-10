@@ -53,7 +53,7 @@ namespace SimpleWixDsl.Swix
                     return result;
                 }
                 if (_treatAbsentGuidAsError)
-                    throw new SwixSemanticException("Absent GUID as error: GUID for key " + key);
+                    throw new SwixSemanticException(0, "Absent GUID as error: GUID for key " + key);
                 result = Guid.NewGuid();
                 _currentGuids[key] = result;
             }

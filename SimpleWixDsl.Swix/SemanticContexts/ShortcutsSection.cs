@@ -24,9 +24,9 @@ namespace SimpleWixDsl.Swix
                     {
                         _toAdd.Add(Shortcut.FromContext(key, attributes));
                     }
-                    catch (SwixSemanticException e)
+                    catch (SwixItemParsingException e)
                     {
-                        throw new SwixSemanticException(FormatError(e.Message));
+                        throw new SwixSemanticException(CurrentLine, e.Message);
                     }
                 });
         }

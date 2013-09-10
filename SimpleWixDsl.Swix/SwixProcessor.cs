@@ -23,14 +23,7 @@ namespace SimpleWixDsl.Swix
             SwixModel model;
             using (var sourceReader = new StreamReader(swixFilename))
             {
-                try
-                {
-                    model = SwixParser.Parse(sourceReader, variableDefinitions);
-                }
-                catch (SwixSemanticException e)
-                {
-                    throw new SwixSemanticException(string.Format("{0} {1}", swixFilename, e.Message));
-                }
+                model = SwixParser.Parse(sourceReader, variableDefinitions);
             }
 
             GuidProvider guidProvider;
@@ -42,7 +35,7 @@ namespace SimpleWixDsl.Swix
             else
             {
                 if (guidMode == SwixGuidMode.TreatAbsentGuidAsError)
-                    throw new SwixSemanticException("TreatAbsentGuidAsError mode is active, but no " + guidProviderFileName + " file is found");
+                    throw new SwixSemanticException(0, "TreatAbsentGuidAsError mode is active, but no " + guidProviderFileName + " file is found");
                 guidProvider = new GuidProvider(treatAbsentGuidAsError: false);
             }
 
