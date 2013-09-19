@@ -80,8 +80,8 @@ namespace SimpleWixDsl.Ahl
 
                 if (indent < Indent)
                 {
-                    var msg = String.Format("Inconsistent indentation at line {0}. Should be between <={1} or >={2}, but was {3}", lineNumber, _parentState.Indent, Indent, indent);
-                    throw new IndentationException(msg);
+                    var msg = String.Format("Inconsistent indentation. Should be between <={0} or >={1}, but was {2}", _parentState.Indent, Indent, indent);
+                    throw new IndentationException(lineNumber, msg);
                 }
 
                 // 2nd case
