@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using SimpleWixDsl.Ahl;
 using SimpleWixDsl.Swix;
 
 namespace SimpleWixDsl.MSBuild
@@ -34,7 +35,7 @@ namespace SimpleWixDsl.MSBuild
                     var variables = ParseVariablesDefinitions();
                     SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), variables);
                 }
-                catch (SwixSemanticException e)
+                catch (SourceCodeException e)
                 {
                     var file = source.GetMetadata("FullPath");
                     var args = new BuildErrorEventArgs("SWIX", string.Empty, file, e.LineNumber, 0, e.LineNumber, 0, e.Message, string.Empty, string.Empty);

@@ -36,7 +36,7 @@ namespace SimpleWixDsl.Ahl
             {
                 lineNumber++;
                 if (line.Contains('\t'))
-                    throw new LexerException(String.Format("Line {0} : AHL file cannot contain tabs", lineNumber));
+                    throw new LexerException(lineNumber, "AHL file cannot contain tabs");
 
                 line = StripComments(line);
 
@@ -50,7 +50,7 @@ namespace SimpleWixDsl.Ahl
                 line = line.Substring(indent);
                 var match = LineRegex.Match(line);
                 if (!match.Success)
-                    throw new LexerException(String.Format("Line {0}: doesn't match AHL syntax:\n{1}", lineNumber, line));
+                    throw new LexerException(lineNumber, String.Format("Line doesn't match AHL syntax:\n{0}", line));
 
                 string keyword = match.Groups["keyword"].Success ? match.Groups["keyword"].Captures[0].Value : null;
                 string key = match.Groups["key"].Success ? Unquote(match.Groups["key"].Captures[0].Value) : null;

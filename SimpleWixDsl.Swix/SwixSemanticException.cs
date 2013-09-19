@@ -1,25 +1,12 @@
-﻿using System;
+﻿using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.Swix
 {
-    public class SwixSemanticException : Exception
+    public class SwixSemanticException : SourceCodeException
     {
-        private readonly int _lineNumber;
-
-        public SwixSemanticException(int lineNumber, string message) : base(message)
+        public SwixSemanticException(int lineNumber, string message)
+            : base(lineNumber, message)
         {
-            _lineNumber = lineNumber;
-        }
-
-        public SwixSemanticException(int lineNumber, string message, Exception inner)
-            : base(message, inner)
-        {
-            _lineNumber = lineNumber;
-        }
-
-        public int LineNumber
-        {
-            get { return _lineNumber; }
         }
     }
 }
