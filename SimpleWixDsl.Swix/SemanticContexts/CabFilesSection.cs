@@ -15,7 +15,19 @@ namespace SimpleWixDsl.Swix
         [ItemHandler]
         public ISemanticContext HandleFile(string key, IAttributeContext attributes)
         {
-            return new StubSwixElement(CurrentLine, CurrentAttributeContext, () => _model.CabFiles.Add(CabFile.FromContext(key, attributes)));
+            return new StubSwixElement(CurrentLine, CurrentAttributeContext, () =>
+            {
+                try
+                {
+                    var cabFile = CabFile.FromContext(key, attributes);
+                    _model.CabFiles.Add(cabFile);
+                }
+                catch (SwixItemParsingException e)
+                {
+                    throw new SwixSemanticException(CurrentLine, string.Format("{0}", new[] { e.Message }));
+                }
+            });
+
         }
     }
 }
