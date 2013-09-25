@@ -22,6 +22,11 @@ namespace SimpleWixDsl.Swix
                 throw new SwixItemParsingException("Attribute 'removeOnUninstall' should be either 'yes' or 'no'.");
             result.RemoveOnUninstall = removeOnUninstall == "yes";
 
+            var createOnInstall = attributeContext.GetInheritedAttribute("createOnInstall");
+            if (createOnInstall != null && createOnInstall != "yes" && createOnInstall != "no")
+                throw new SwixItemParsingException("Attribute 'createOnInstall' should be either 'yes' or 'no'.");
+            result.CreateOnInstall = createOnInstall == "yes";
+
             var componentGroupRef = attributeContext.GetInheritedAttribute("componentGroupRef");
             if (componentGroupRef != null)
                 result.ComponentGroupRef = componentGroupRef;
@@ -45,6 +50,7 @@ namespace SimpleWixDsl.Swix
         public string Name { get; set; }
         public WixTargetDirectory Parent { get; set; }
         public bool RefOnly { get; set; }
+        public bool CreateOnInstall { get; set; }
         public bool RemoveOnUninstall { get; set; }
         public string ComponentGroupRef { get; set; }
         public string MultiInstance { get; set; }

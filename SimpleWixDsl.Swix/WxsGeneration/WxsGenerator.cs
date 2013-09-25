@@ -58,7 +58,7 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var subdirectory in _model.RootDirectory.Subdirectories)
                 VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdirectory);
-            VerifyDirectoriesMarkedAsRemoveOnUninstallHaveComponentGroupRefSet(_model.RootDirectory);
+            VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallHaveComponentGroupRefSet(_model.RootDirectory);
         }
 
         private void VerifySubdirectoriesDontHaveRefOnlyAttributeSet(WixTargetDirectory dir)
@@ -71,16 +71,16 @@ namespace SimpleWixDsl.Swix
             }
         }
 
-        private void VerifyDirectoriesMarkedAsRemoveOnUninstallHaveComponentGroupRefSet(WixTargetDirectory root)
+        private void VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallHaveComponentGroupRefSet(WixTargetDirectory root)
         {
             var invalidDirectories = TraverseDfs(root, d => d.Subdirectories)
-                .Where(d => d.RemoveOnUninstall && String.IsNullOrWhiteSpace(d.ComponentGroupRef))
+                .Where(d => (d.RemoveOnUninstall || d.CreateOnInstall) && String.IsNullOrWhiteSpace(d.ComponentGroupRef))
                 .Select(d => d.GetFullTargetPath())
                 .ToArray();
             if (invalidDirectories.Any())
             {
                 var dirList = String.Join(", ", invalidDirectories);
-                throw new SwixSemanticException(0, string.Format("Directories {0} are marked as removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
+                throw new SwixSemanticException(0, string.Format("Directories {0} are marked as createOnInstall/removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
             }
         }
 
@@ -274,12 +274,22 @@ namespace SimpleWixDsl.Swix
                     doc.WriteEndElement();
                 }
 
+                var creatableDirectories = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
+                    .Where(d => d.ComponentGroupRef == componentGroupRef && d.CreateOnInstall);
+                foreach (var dir in creatableDirectories)
+                {
+                    doc.WriteStartElement("ComponentRef");
+                    doc.WriteAttributeString("Id", GetCreateOnInstallComponentId(dir));
+                    doc.WriteEndElement();
+                }
+
                 doc.WriteEndElement();
             }
         }
 
         private void WriteComponents(XmlWriter doc, IEnumerable<WixComponent> components)
         {
+            WriteCreateOnInstallComponent(doc);
             WriteRemoveOnUninstallComponent(doc);
             var groupedByDirComponents = components.GroupBy(c => c.TargetDirRef);
             foreach (var group in groupedByDirComponents)
@@ -293,6 +303,36 @@ namespace SimpleWixDsl.Swix
 
                 doc.WriteEndElement();
             }
+        }
+
+        private void WriteCreateOnInstallComponent(XmlWriter doc)
+        {
+            var createdDirs = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
+                .Where(d => d.CreateOnInstall)
+                .ToArray();
+
+            if (!createdDirs.Any()) return;
+
+            doc.WriteStartElement("DirectoryRef");
+            doc.WriteAttributeString("Id", "TARGETDIR");
+
+            foreach (var createdDir in createdDirs)
+            {
+                doc.WriteStartElement("Component");
+                doc.WriteAttributeString("Id", GetCreateOnInstallComponentId(createdDir));
+                doc.WriteAttributeString("Guid", GetCreateOnInstallComponentGuid(createdDir).ToString("B").ToUpperInvariant());
+                doc.WriteAttributeString("KeyPath", "yes");
+                if (createdDir.MultiInstance != null)
+                    doc.WriteAttributeString("MultiInstance", createdDir.MultiInstance);
+
+                doc.WriteStartElement("CreateFolder");
+                doc.WriteAttributeString("Directory", createdDir.Id);
+                doc.WriteEndElement();
+
+                doc.WriteEndElement();
+            }
+
+            doc.WriteEndElement();
         }
 
         private void WriteRemoveOnUninstallComponent(XmlWriter doc)
@@ -475,6 +515,17 @@ namespace SimpleWixDsl.Swix
         private Guid GetRemoveOnUninstallComponentGuid(WixTargetDirectory removedDir)
         {
             return _guidProvider.Get(SwixGuidType.RemoveOnUninstallComponent, removedDir.GetFullTargetPath());
+        }
+
+        private string GetCreateOnInstallComponentId(WixTargetDirectory createdDir)
+        {
+            var guid = GetCreateOnInstallComponentGuid(createdDir);
+            return MakeUniqueId(guid, "CreateOnInstall_" + createdDir.Name, MaxLengthOfComponentId);
+        }
+
+        private Guid GetCreateOnInstallComponentGuid(WixTargetDirectory createdDir)
+        {
+            return _guidProvider.Get(SwixGuidType.CreateOnInstallComponent, createdDir.GetFullTargetPath());
         }
 
         private string MakeUniqueId(Guid guid, string filename, int maxLength)
