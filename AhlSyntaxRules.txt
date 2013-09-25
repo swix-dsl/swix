@@ -33,21 +33,21 @@ Additional
 ==========
 1. Alternative syntax for specifying one item in specific section:
     :my-section
-	  !my-subsection item-key-1 :: item-attribute=attribute-value-1
-	  !my-subsection item-key-2 :: item-attribute=attribute-value-2
+      !my-subsection item-key-1 :: item-attribute=attribute-value-1
+      !my-subsection item-key-2 :: item-attribute=attribute-value-2
 
   instead of
     :my-section
-	  :my-subsection
-	    item-key-1 :: item-attribute=attribute-value-1
-		item-key-2 :: item-attribute=attribute-value-2
+      :my-subsection
+        item-key-1 :: item-attribute=attribute-value-1
+        item-key-2 :: item-attribute=attribute-value-2
 
   May be especially useful when there's many sections with small number of items (1-2).
 
 2. Alternative syntax for attributes:
     :my-section
-	  my-item
-	    ?item-attribute=attribute-value-1
+      my-item
+        ?item-attribute=attribute-value-1
 
    May eliminate need to parse several lines of attributes. Also may be more convenient with long attributes or
    for copy&paste.
@@ -57,6 +57,6 @@ Additional
    Then it is possible to have different defaults in the same scope without redeclaring it again, like below:
 
      :my-section :: attr=10
-	   item-with-10
-	   ?attr=15
-	   item-with-15
+       item-with-10
+       ?attr=15
+       item-with-15

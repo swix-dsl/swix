@@ -14,17 +14,17 @@
 :components :: cabFile=Binaries, targetDirRef=INSTALLDIR, fromDir="$(var.SourceRoot)\App1\Folder1,,,"
   File.rxr :: id=abc, cabFile=TextFiles
   "Dir1\Fil e.dat" :: id=myfileid
-	additionalFileInSameComponent :: id=another
+    additionalFileInSameComponent :: id=another
       // yet one file would be an error
 
 :components :: cabFile=Binaries, targetDir=INSTALLDIR
   $(var.SourceRoot)\App1\Subfolder\File.dat :: componentGroup=Another
-	?shortcut name1 :: dirRef=MyAppProgramMenu
-	?shortcut name2 :: dirRef=MyAppProgramMenu
+    ?shortcut name1 :: dirRef=MyAppProgramMenu
+    ?shortcut name2 :: dirRef=MyAppProgramMenu
 
-	:shortcuts :: 
-	  name1 :: dirRef=MyAppProgramMenu
-	  name2 :: dirRef=MyAppProgramMenu
+    :shortcuts :: 
+      name1 :: dirRef=MyAppProgramMenu
+      name2 :: dirRef=MyAppProgramMenu
   $(var.SourceRoot)\App2\1.dat
   
 :components :: cabFile=TextFiles
