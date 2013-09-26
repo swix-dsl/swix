@@ -5,11 +5,16 @@ namespace SimpleWixDsl.Swix
 {
     public class WixComponent
     {
-        public static WixComponent FromContext(string key, IAttributeContext context)
+        public static string GetFullSourcePath(string key, IAttributeContext context)
         {
             var from = context.GetInheritedAttribute("from");
-            var path = from == null ? key : Path.Combine(from, key);
-            var result = new WixComponent(path);
+            var path = @from == null ? key : Path.Combine(@from, key);
+            return path;
+        }
+
+        public static WixComponent FromContext(string key, IAttributeContext context)
+        {
+            var result = new WixComponent(GetFullSourcePath(key, context));
 
             var fileName = context.GetInheritedAttribute("name");
             if (fileName != null)

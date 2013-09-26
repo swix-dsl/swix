@@ -15,8 +15,13 @@ namespace SimpleWixDsl.Swix
             _toAdd = new List<WixComponent>();
         }
 
+        protected List<WixComponent> GatheredComponents
+        {
+            get { return _toAdd; }
+        }
+
         [ItemHandler]
-        public ISemanticContext Component(string key, IAttributeContext itemContext)
+        public virtual ISemanticContext Component(string key, IAttributeContext itemContext)
         {
             try
             {
