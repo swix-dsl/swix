@@ -16,5 +16,7 @@ namespace SimpleWixDsl.Swix
         public WixTargetDirectory RootDirectory { get; private set; }
 
         public List<WixComponent> Components { get; private set; }
+
+        public int DiskIdStartFrom { get; set; }
     }
 }

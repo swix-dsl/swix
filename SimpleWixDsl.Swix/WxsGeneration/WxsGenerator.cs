@@ -86,7 +86,7 @@ namespace SimpleWixDsl.Swix
 
         private void AssignCabFileIds()
         {
-            int id = 1;
+            int id = _model.DiskIdStartFrom;
             foreach (var cabFile in _model.CabFiles)
             {
                 _cabFileCounters[cabFile.Name] = new CabFileCounter(id, cabFile.Split);
