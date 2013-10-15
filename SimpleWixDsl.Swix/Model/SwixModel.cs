@@ -4,6 +4,8 @@ namespace SimpleWixDsl.Swix
 {
     public class SwixModel
     {
+        private int? _diskIdStartFrom;
+
         public SwixModel()
         {
             CabFiles = new List<CabFile>();
@@ -17,6 +19,15 @@ namespace SimpleWixDsl.Swix
 
         public List<WixComponent> Components { get; private set; }
 
-        public int DiskIdStartFrom { get; set; }
+        public int DiskIdStartFrom
+        {
+            get { return _diskIdStartFrom ?? 1; }
+            set
+            {
+                if (_diskIdStartFrom != null && _diskIdStartFrom != value)
+                    throw new SwixException("DiskIdStartFrom property is already set");
+                _diskIdStartFrom = value;
+            }
+        }
     }
 }

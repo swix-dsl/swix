@@ -2,7 +2,7 @@
 
 namespace SimpleWixDsl.Swix
 {
-    public class SwixItemParsingException : Exception
+    public class SwixItemParsingException : SwixException
     {
         public SwixItemParsingException(string message) : base(message)
         {

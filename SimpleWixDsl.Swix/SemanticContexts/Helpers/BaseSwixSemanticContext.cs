@@ -158,7 +158,15 @@ namespace SimpleWixDsl.Swix
                 }
                 return;
             }
-            FinishItemCore();
+            try
+            {
+                FinishItemCore();
+            }
+            catch (SwixException e)
+            {
+                var msg = string.Format("Processing of element failed with the message: {0}", e.Message);
+                throw new SwixSemanticException(_currentContexts.Peek().SourceLine, msg);
+            }
             var handler = OnFinished;
             if (handler != null) handler(this, EventArgs.Empty);
         }

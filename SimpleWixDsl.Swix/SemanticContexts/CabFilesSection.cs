@@ -5,23 +5,26 @@ namespace SimpleWixDsl.Swix
     public class CabFilesSection : BaseSwixSemanticContext
     {
         private readonly SwixModel _model;
-        private int _diskIdsStartFrom;
+        private int? _diskIdsStartFrom;
 
         public CabFilesSection(int line, IAttributeContext attributeContext, SwixModel model)
             : base(line, attributeContext)
         {
             _model = model;
+
+            string startFromStr = attributeContext.GetInheritedAttribute("startFrom");
+            if (startFromStr != null)
+            {
+                int startFrom;
+                if (!int.TryParse(startFromStr, out startFrom))
+                    throw new SwixSemanticException(CurrentLine, "Can't parse startFrom number for cabFiles section");
+                _diskIdsStartFrom = startFrom;
+            }
         }
 
         [ItemHandler]
         public ISemanticContext HandleFile(string key, IAttributeContext attributes)
         {
-            string startFromStr = attributes.GetInheritedAttribute("startFrom") ?? "1";
-            int startFrom;
-            if (!int.TryParse(startFromStr, out startFrom))
-                throw new SwixSemanticException(CurrentLine, "Can't parse startFrom number for cabFiles section");
-            _diskIdsStartFrom = startFrom;
-
             return new StubSwixElement(CurrentLine, CurrentAttributeContext, () =>
             {
                 try
@@ -38,7 +41,8 @@ namespace SimpleWixDsl.Swix
 
         protected override void FinishItemCore()
         {
-            _model.DiskIdStartFrom = _diskIdsStartFrom;
+            if (_diskIdsStartFrom.HasValue)
+                _model.DiskIdStartFrom = _diskIdsStartFrom.Value;
             base.FinishItemCore();
         }
     }

@@ -44,6 +44,7 @@
     <Compile Include="SemanticContexts\ServicesSection.cs" />
     <Compile Include="SemanticContexts\ShortcutsSection.cs" />
     <Compile Include="SwixGuidMode.cs" />
+    <Compile Include="SwixException.cs" />
     <Compile Include="SwixParser.cs" />
     <Compile Include="SwixProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
