@@ -34,11 +34,14 @@ namespace SimpleWixDsl.Swix
         private const int MaxLengthOfDirectoryId = 72;
         private const int MaxLengthOfShortcutId = 72;
         private const int MaxLengthOfServiceInstallId = 72;
+        private const int MaxLengthOfRegistryValueId = 72;
+        private const int MaxLengthOfActionName = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
         private readonly Dictionary<string, WixTargetDirectory> _directories = new Dictionary<string, WixTargetDirectory>();
         private HashSet<string> _nonUniqueDirectoryReadableIds;
+        private Dictionary<string, HashSet<string>> _additinalComponentIdsByGroups = null;
 
         public WxsGenerator(SwixModel model, GuidProvider guidProvider)
         {
@@ -58,7 +61,7 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var subdirectory in _model.RootDirectory.Subdirectories)
                 VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdirectory);
-            VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallHaveComponentGroupRefSet(_model.RootDirectory);
+            VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallOrCustomizedHaveComponentGroupRefSet(_model.RootDirectory);
         }
 
         private void VerifySubdirectoriesDontHaveRefOnlyAttributeSet(WixTargetDirectory dir)
@@ -71,16 +74,16 @@ namespace SimpleWixDsl.Swix
             }
         }
 
-        private void VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallHaveComponentGroupRefSet(WixTargetDirectory root)
+        private void VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallOrCustomizedHaveComponentGroupRefSet(WixTargetDirectory root)
         {
             var invalidDirectories = TraverseDfs(root, d => d.Subdirectories)
-                .Where(d => (d.RemoveOnUninstall || d.CreateOnInstall) && String.IsNullOrWhiteSpace(d.ComponentGroupRef))
+                .Where(d => (d.RemoveOnUninstall || d.CreateOnInstall || d.Customization != null) && String.IsNullOrWhiteSpace(d.ComponentGroupRef))
                 .Select(d => d.GetFullTargetPath())
                 .ToArray();
             if (invalidDirectories.Any())
             {
                 var dirList = String.Join(", ", invalidDirectories);
-                throw new SwixSemanticException(0, string.Format("Directories {0} are marked as createOnInstall/removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
+                throw new SwixSemanticException(0, string.Format("Directories {0} are customized or marked as createOnInstall/removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
             }
         }
 
@@ -236,10 +239,11 @@ namespace SimpleWixDsl.Swix
 
                 doc.WriteStartElement("Fragment");
 
-                WriteComponentGroups(doc);
                 WriteSubDirectories(doc, _model.RootDirectory);
+                WriteDirectoryCustomizations(doc, _model.RootDirectory);
                 WriteCabFiles(doc, _model.CabFiles);
                 WriteComponents(doc, _model.Components);
+                WriteComponentGroups(doc);
 
                 doc.WriteEndElement();
 
@@ -251,6 +255,8 @@ namespace SimpleWixDsl.Swix
 
         private void WriteComponentGroups(XmlWriter doc)
         {
+            if (_additinalComponentIdsByGroups == null)
+                throw new InvalidOperationException("This method can't be executed until _additinalComponentIdsByGroups is filled");
             var groupedComponents = _model.Components.GroupBy(c => c.ComponentGroupRef);
             foreach (var group in groupedComponents)
             {
@@ -281,6 +287,17 @@ namespace SimpleWixDsl.Swix
                     doc.WriteStartElement("ComponentRef");
                     doc.WriteAttributeString("Id", GetCreateOnInstallComponentId(dir));
                     doc.WriteEndElement();
+                }
+
+                HashSet<string> additionalComponentIds;
+                if (_additinalComponentIdsByGroups.TryGetValue(componentGroupRef, out additionalComponentIds))
+                {
+                    foreach (var additionalId in additionalComponentIds)
+                    {
+                        doc.WriteStartElement("ComponentRef");
+                        doc.WriteAttributeString("Id", additionalId);
+                        doc.WriteEndElement();
+                    }
                 }
 
                 doc.WriteEndElement();
@@ -489,6 +506,125 @@ namespace SimpleWixDsl.Swix
                 WriteSubDirectories(doc, directory);
                 doc.WriteEndElement();
             }
+        }
+
+        private void WriteDirectoryCustomizations(XmlWriter doc, WixTargetDirectory rootDirectory)
+        {
+            var customizations = TraverseDfs(rootDirectory, d => d.Subdirectories)
+                .Where(d => d.Customization != null)
+                .Select(d => d.Customization);
+
+            _additinalComponentIdsByGroups = new Dictionary<string, HashSet<string>>();
+
+            foreach (var c in customizations)
+            {
+                // <Property> with RegistrySearch - getting saved value from registry if exists
+                doc.WriteStartElement("Property");
+                doc.WriteAttributeString("Id", c.WixPublicPropertyName);
+                doc.WriteAttributeString("Secure", "yes");
+
+                doc.WriteStartElement("RegistrySearch");
+                doc.WriteAttributeString("Id", c.WixPublicPropertyName);
+                doc.WriteAttributeString("Root", c.RegistryRoot.ToString());
+                doc.WriteAttributeString("Key", c.RegistryStorageKey);
+                doc.WriteAttributeString("Name", c.WixPublicPropertyName);
+                doc.WriteAttributeString("Type", "raw");
+                doc.WriteEndElement();
+
+                doc.WriteEndElement();
+
+                // first <SetProperty> - setting default value if saved value in registry was not found
+                // and no value was provided to public property explicitly (via command line)
+                string setDefaultValueActionName = null;
+                if (c.DefaultValue != null)
+                {
+                    doc.WriteStartElement("SetProperty");
+                    doc.WriteAttributeString("Id", c.Parent.Id);
+                    setDefaultValueActionName = GetTargetDirCustomizationActionUniqueName("Set" + c.Parent.Id);
+                    doc.WriteAttributeString("Action", setDefaultValueActionName);
+                    doc.WriteAttributeString("Before", "CostFinalize");
+                    doc.WriteAttributeString("Sequence", "both");
+                    doc.WriteAttributeString("Value", c.DefaultValue);
+                    doc.WriteValue("NOT " + c.WixPublicPropertyName);
+                    doc.WriteEndElement();
+                }
+
+                // second <SetProperty> - setting public property to result value if it wasn't provided explicitly
+                doc.WriteStartElement("SetProperty");
+                doc.WriteAttributeString("Id", c.WixPublicPropertyName);
+                doc.WriteAttributeString("After", setDefaultValueActionName ?? "CostFinalize");
+                doc.WriteAttributeString("Sequence", "execute");
+                doc.WriteAttributeString("Value", "[" + c.Parent.Id + "]");
+                doc.WriteValue("NOT " + c.WixPublicPropertyName);
+                doc.WriteEndElement();
+
+                // third <SetProperty> - setting result value to public property if it is specified explicitly
+                doc.WriteStartElement("SetProperty");
+                doc.WriteAttributeString("Id", c.Parent.Id);
+                var readableName = String.Format("Set_{0}_to_{1}", c.Parent.Id, c.WixPublicPropertyName);
+                var resToPublicActionName = GetTargetDirCustomizationActionUniqueName(readableName);
+                doc.WriteAttributeString("Action", resToPublicActionName);
+                doc.WriteAttributeString("Before", "CostFinalize");
+                doc.WriteAttributeString("Sequence", "both");
+                doc.WriteAttributeString("Value", "[" + c.WixPublicPropertyName + "]");
+                doc.WriteValue(c.WixPublicPropertyName);
+                doc.WriteEndElement();
+
+                // <DirectoryRef Id="TARGETDIR"> with component for saving value in Registry
+                doc.WriteStartElement("DirectoryRef");
+                doc.WriteAttributeString("Id", "TARGETDIR");
+
+                doc.WriteStartElement("Component");
+                var componentName = c.WixPublicPropertyName + "_TargetDirCustomizationComponent";
+                var componentId = GetTargetDirCustomizationComponentId(componentName);
+                doc.WriteAttributeString("Id", componentId);
+                doc.WriteAttributeString("Guid", GetTargetDirCustomizationComponentGuid(componentName).ToString("B").ToUpperInvariant());
+                doc.WriteAttributeString("KeyPath", "yes");
+                if (c.Parent.MultiInstance != null)
+                    doc.WriteAttributeString("MultiInstance", c.Parent.MultiInstance);
+
+                doc.WriteStartElement("RegistryValue");
+                doc.WriteAttributeString("Id", GetTargetDirCustomizationRegistryId(c.WixPublicPropertyName + "_RegistryId"));
+                doc.WriteAttributeString("Root", c.RegistryRoot.ToString());
+                doc.WriteAttributeString("Key", c.RegistryStorageKey);
+                doc.WriteAttributeString("Name", c.WixPublicPropertyName);
+                doc.WriteAttributeString("Value", "[" + c.WixPublicPropertyName + "]");
+                doc.WriteAttributeString("Type", "string");
+                doc.WriteAttributeString("KeyPath", "no");
+                doc.WriteEndElement(); // <RegistryValue ...>
+
+                doc.WriteEndElement(); // <Component ...>
+
+                doc.WriteEndElement(); // <DirectoryRef ...>
+
+                HashSet<string> additionalComponentIds;
+                if (!_additinalComponentIdsByGroups.TryGetValue(c.Parent.ComponentGroupRef, out additionalComponentIds))
+                    _additinalComponentIdsByGroups[c.Parent.ComponentGroupRef] = additionalComponentIds = new HashSet<string>();
+                additionalComponentIds.Add(componentId);
+            }
+        }
+
+        private string GetTargetDirCustomizationActionUniqueName(string name)
+        {
+            var guid = _guidProvider.Get(SwixGuidType.TargetDirCustomizationActionName, name);
+            return MakeUniqueId(guid, name, MaxLengthOfActionName);
+        }
+
+        private string GetTargetDirCustomizationRegistryId(string name)
+        {
+            var guid = _guidProvider.Get(SwixGuidType.TargetDirCustomizationRegistryId, name);
+            return MakeUniqueId(guid, name, MaxLengthOfRegistryValueId);
+        }
+
+        private string GetTargetDirCustomizationComponentId(string name)
+        {
+            var guid = GetTargetDirCustomizationComponentGuid(name);
+            return MakeUniqueId(guid, name, MaxLengthOfComponentId);
+        }
+
+        private Guid GetTargetDirCustomizationComponentGuid(string name)
+        {
+            return _guidProvider.Get(SwixGuidType.TargetDirCustomizationComponent, name);
         }
 
         private string GetComponentFullTargetPath(WixComponent component)

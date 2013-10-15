@@ -8,5 +8,8 @@
         ServiceInstall,
         CreateOnInstallComponent,
         RemoveOnUninstallComponent,
+        TargetDirCustomizationActionName,
+        TargetDirCustomizationComponent,
+        TargetDirCustomizationRegistryId,
     }
 }

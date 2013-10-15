@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttributeContext.cs" />
+    <Compile Include="Model\WixTargetDirCustomization.cs" />
     <Compile Include="SemanticContexts\HarvestSemanticContext.cs" />
     <Compile Include="SwixItemParsingException.cs" />
     <Compile Include="Model\Service.cs" />

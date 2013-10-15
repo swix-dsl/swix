@@ -55,6 +55,8 @@ namespace SimpleWixDsl.Swix
         public string ComponentGroupRef { get; set; }
         public string MultiInstance { get; set; }
 
+        public WixTargetDirCustomization Customization { get; set; }
+
         public List<WixTargetDirectory> Subdirectories { get; private set; }
 
         public string GetFullTargetPath()
