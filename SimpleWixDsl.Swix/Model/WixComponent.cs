@@ -41,6 +41,8 @@ namespace SimpleWixDsl.Swix
             else
                 throw new SwixItemParsingException("cabFileRef attribute is mandatory for all components");
 
+            result.Condition = context.GetInheritedAttribute("condition");
+
             var componentGroupRef = context.GetInheritedAttribute("componentGroupRef");
             if (componentGroupRef != null)
                 result.ComponentGroupRef = componentGroupRef;
@@ -78,6 +80,8 @@ namespace SimpleWixDsl.Swix
         public string TargetDirRef { get; set; }
 
         public string CabFileRef { get; set; }
+        
+        public string Condition { get; set; }
         
         public string ComponentGroupRef { get; set; }
 

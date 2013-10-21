@@ -396,6 +396,13 @@ namespace SimpleWixDsl.Swix
             var componentGuid = _guidProvider.Get(SwixGuidType.Component, GetComponentFullTargetPath(component));
             doc.WriteAttributeString("Guid", componentGuid.ToString("B").ToUpperInvariant());
 
+            if (component.Condition != null)
+            {
+                doc.WriteStartElement("Condition");
+                doc.WriteCData(component.Condition);
+                doc.WriteEndElement();
+            }
+
             doc.WriteStartElement("File");
             doc.WriteAttributeString("Id", id);
             doc.WriteAttributeString("KeyPath", "yes");
