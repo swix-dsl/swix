@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
@@ -60,6 +61,8 @@ namespace SimpleWixDsl.MSBuild
             var declarations = SplitVarDeclarations();
             foreach (var declString in declarations)
             {
+                if (String.IsNullOrWhiteSpace(declString))
+                    continue;
                 var match = VarDeclaration.Match(declString);
                 if (!match.Success)
                     throw new ArgumentException("Invalid VariablesDefinitions string: declaration '" + declString + "' is incorrect");
