@@ -97,7 +97,7 @@ namespace SimpleWixDsl.Swix
 
         public List<Service> Services { get; set; }
 
-        public WixComponent(string sourcePath)
+        private WixComponent(string sourcePath)
         {
             SourcePath = sourcePath;
             Shortcuts = new List<Shortcut>();
