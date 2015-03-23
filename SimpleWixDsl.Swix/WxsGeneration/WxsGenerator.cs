@@ -99,7 +99,7 @@ namespace SimpleWixDsl.Swix
 
         private void VerifyCabFileRefs()
         {
-            foreach (var component in _model.Components)
+            foreach (var component in _model.Components.Where(c => c.CabFileRef != null))
             {
                 if (!_cabFileCounters.ContainsKey(component.CabFileRef))
                     throw new SwixSemanticException(0, String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
@@ -408,7 +408,9 @@ namespace SimpleWixDsl.Swix
             doc.WriteAttributeString("KeyPath", "yes");
             doc.WriteAttributeString("Source", component.SourcePath);
             doc.WriteAttributeString("Name", component.FileName);
-            doc.WriteAttributeString("DiskId", _cabFileCounters[component.CabFileRef].GetNextId().ToString(CultureInfo.InvariantCulture));
+
+            if (component.CabFileRef != null)
+                doc.WriteAttributeString("DiskId", _cabFileCounters[component.CabFileRef].GetNextId().ToString(CultureInfo.InvariantCulture));
 
             WriteComponentShortcuts(doc, component);
 

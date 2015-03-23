@@ -38,9 +38,17 @@ namespace SimpleWixDsl.Swix
             var cabFileRef = context.GetInheritedAttribute("cabFileRef");
             if (cabFileRef != null)
                 result.CabFileRef = cabFileRef;
-            else
-                throw new SwixItemParsingException("cabFileRef attribute is mandatory for all components");
 
+            var moduleRef = context.GetInheritedAttribute("moduleRef");
+            if (moduleRef != null)
+                result.ModuleRef = moduleRef;
+
+            if (cabFileRef == null && moduleRef == null)
+                throw new SwixItemParsingException("cabFileRef or moduleRef attribute is mandatory for all components");
+
+            if (cabFileRef != null && moduleRef != null)
+                throw new SwixItemParsingException("You can't specify both cabFileRef and moduleRef for same component");
+            
             result.Condition = context.GetInheritedAttribute("condition");
 
             var componentGroupRef = context.GetInheritedAttribute("componentGroupRef");
@@ -80,6 +88,8 @@ namespace SimpleWixDsl.Swix
         public string TargetDirRef { get; set; }
 
         public string CabFileRef { get; set; }
+        
+        public string ModuleRef { get; set; }
         
         public string Condition { get; set; }
         
