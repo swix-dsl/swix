@@ -30,18 +30,13 @@ namespace SimpleWixDsl.Swix
             }
         }
 
-        private const int MaxLengthOfComponentId = 72;
-        private const int MaxLengthOfDirectoryId = 72;
-        private const int MaxLengthOfShortcutId = 72;
-        private const int MaxLengthOfServiceInstallId = 72;
-        private const int MaxLengthOfRegistryValueId = 72;
-        private const int MaxLengthOfActionName = 72;
+        private const int MaxIdLength = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
         private readonly Dictionary<string, WixTargetDirectory> _directories = new Dictionary<string, WixTargetDirectory>();
         private HashSet<string> _nonUniqueDirectoryReadableIds;
-        private Dictionary<string, HashSet<string>> _additinalComponentIdsByGroups = null;
+        private Dictionary<string, HashSet<string>> _additionalComponentIdsByGroups = null;
 
         public WxsGenerator(SwixModel model, GuidProvider guidProvider)
         {
@@ -140,7 +135,7 @@ namespace SimpleWixDsl.Swix
         {
             foreach (var dir in TraverseDfs(_model.RootDirectory, dir => dir.Subdirectories))
             {
-                var id = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId);
+                var id = dir.Id ?? MakeReadableId(dir.Name, MaxIdLength);
                 if (_nonUniqueDirectoryReadableIds.Contains(id))
                 {
                     AssignDirectoryUniqueId(dir);
@@ -205,7 +200,7 @@ namespace SimpleWixDsl.Swix
             var usedIds = new HashSet<string>();
             foreach (var dir in TraverseDfs(_model.RootDirectory, dir => dir.Subdirectories))
             {
-                var id = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId);
+                var id = dir.Id ?? MakeReadableId(dir.Name, MaxIdLength);
                 bool isUnique = usedIds.Add(id);
                 if (!isUnique)
                     _nonUniqueDirectoryReadableIds.Add(id);
@@ -214,7 +209,7 @@ namespace SimpleWixDsl.Swix
 
         private void AssignDirectoryUniqueId(WixTargetDirectory dir)
         {
-            var readableId = dir.Id ?? MakeReadableId(dir.Name, MaxLengthOfDirectoryId - 33);
+            var readableId = dir.Id ?? MakeReadableId(dir.Name, MaxIdLength - 33);
             var guid = _guidProvider.Get(SwixGuidType.Directory, dir.GetFullTargetPath());
             var finalId = String.Format("{0}_{1:N}", readableId, guid);
             dir.Id = finalId;
@@ -255,8 +250,8 @@ namespace SimpleWixDsl.Swix
 
         private void WriteComponentGroups(XmlWriter doc)
         {
-            if (_additinalComponentIdsByGroups == null)
-                throw new InvalidOperationException("This method can't be executed until _additinalComponentIdsByGroups is filled");
+            if (_additionalComponentIdsByGroups == null)
+                throw new InvalidOperationException("This method can't be executed until _additionalComponentIdsByGroups is filled");
             var groupedComponents = _model.Components.GroupBy(c => c.ComponentGroupRef);
             foreach (var group in groupedComponents)
             {
@@ -290,7 +285,7 @@ namespace SimpleWixDsl.Swix
                 }
 
                 HashSet<string> additionalComponentIds;
-                if (_additinalComponentIdsByGroups.TryGetValue(componentGroupRef, out additionalComponentIds))
+                if (_additionalComponentIdsByGroups.TryGetValue(componentGroupRef, out additionalComponentIds))
                 {
                     foreach (var additionalId in additionalComponentIds)
                     {
@@ -428,7 +423,7 @@ namespace SimpleWixDsl.Swix
                 doc.WriteStartElement("Shortcut");
                 var fullPath = string.Format("{0}\\{1}", _directories[shortcut.TargetDirRef].GetFullTargetPath(), shortcut.Name);
                 var guid = _guidProvider.Get(SwixGuidType.Shortcut, fullPath);
-                var id = MakeUniqueId(guid, shortcut.Name, MaxLengthOfShortcutId);
+                var id = MakeUniqueId(guid, shortcut.Name, MaxIdLength);
                 doc.WriteAttributeString("Id", id);
                 doc.WriteAttributeString("Name", shortcut.Name);
                 if (shortcut.Args != null)
@@ -449,7 +444,7 @@ namespace SimpleWixDsl.Swix
                 if (service.Id == null)
                 {
                     var guid = _guidProvider.Get(SwixGuidType.ServiceInstall, service.Name);
-                    service.Id = MakeUniqueId(guid, service.Name, MaxLengthOfServiceInstallId);
+                    service.Id = MakeUniqueId(guid, service.Name, MaxIdLength);
                 }
                 doc.WriteAttributeString("Id", service.Id);
                 doc.WriteAttributeString("Name", service.Name);
@@ -523,7 +518,7 @@ namespace SimpleWixDsl.Swix
                 .Where(d => d.Customization != null)
                 .Select(d => d.Customization);
 
-            _additinalComponentIdsByGroups = new Dictionary<string, HashSet<string>>();
+            _additionalComponentIdsByGroups = new Dictionary<string, HashSet<string>>();
 
             foreach (var c in customizations)
             {
@@ -607,8 +602,8 @@ namespace SimpleWixDsl.Swix
                 doc.WriteEndElement(); // <DirectoryRef ...>
 
                 HashSet<string> additionalComponentIds;
-                if (!_additinalComponentIdsByGroups.TryGetValue(c.Parent.ComponentGroupRef, out additionalComponentIds))
-                    _additinalComponentIdsByGroups[c.Parent.ComponentGroupRef] = additionalComponentIds = new HashSet<string>();
+                if (!_additionalComponentIdsByGroups.TryGetValue(c.Parent.ComponentGroupRef, out additionalComponentIds))
+                    _additionalComponentIdsByGroups[c.Parent.ComponentGroupRef] = additionalComponentIds = new HashSet<string>();
                 additionalComponentIds.Add(componentId);
             }
         }
@@ -616,19 +611,19 @@ namespace SimpleWixDsl.Swix
         private string GetTargetDirCustomizationActionUniqueName(string name)
         {
             var guid = _guidProvider.Get(SwixGuidType.TargetDirCustomizationActionName, name);
-            return MakeUniqueId(guid, name, MaxLengthOfActionName);
+            return MakeUniqueId(guid, name, MaxIdLength);
         }
 
         private string GetTargetDirCustomizationRegistryId(string name)
         {
             var guid = _guidProvider.Get(SwixGuidType.TargetDirCustomizationRegistryId, name);
-            return MakeUniqueId(guid, name, MaxLengthOfRegistryValueId);
+            return MakeUniqueId(guid, name, MaxIdLength);
         }
 
         private string GetTargetDirCustomizationComponentId(string name)
         {
             var guid = GetTargetDirCustomizationComponentGuid(name);
-            return MakeUniqueId(guid, name, MaxLengthOfComponentId);
+            return MakeUniqueId(guid, name, MaxIdLength);
         }
 
         private Guid GetTargetDirCustomizationComponentGuid(string name)
@@ -648,13 +643,13 @@ namespace SimpleWixDsl.Swix
         {
             if (component.Id != null) return component.Id;
             var guid = _guidProvider.Get(SwixGuidType.Component, GetComponentFullTargetPath(component));
-            return component.Id = MakeUniqueId(guid, component.FileName, MaxLengthOfComponentId);
+            return component.Id = MakeUniqueId(guid, component.FileName, MaxIdLength);
         }
 
         private string GetRemoveOnUninstallComponentId(WixTargetDirectory removedDir)
         {
             var guid = GetRemoveOnUninstallComponentGuid(removedDir);
-            return MakeUniqueId(guid, "RemoveOnUninstall_" + removedDir.Name, MaxLengthOfComponentId);
+            return MakeUniqueId(guid, "RemoveOnUninstall_" + removedDir.Name, MaxIdLength);
         }
 
         private Guid GetRemoveOnUninstallComponentGuid(WixTargetDirectory removedDir)
@@ -665,7 +660,7 @@ namespace SimpleWixDsl.Swix
         private string GetCreateOnInstallComponentId(WixTargetDirectory createdDir)
         {
             var guid = GetCreateOnInstallComponentGuid(createdDir);
-            return MakeUniqueId(guid, "CreateOnInstall_" + createdDir.Name, MaxLengthOfComponentId);
+            return MakeUniqueId(guid, "CreateOnInstall_" + createdDir.Name, MaxIdLength);
         }
 
         private Guid GetCreateOnInstallComponentGuid(WixTargetDirectory createdDir)
