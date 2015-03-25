@@ -30,19 +30,20 @@ namespace SimpleWixDsl.Swix
             }
         }
 
-        private const int MaxIdLength = 72;
         private readonly SwixModel _model;
         private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
         private readonly Dictionary<string, WixTargetDirectory> _directories = new Dictionary<string, WixTargetDirectory>();
         private HashSet<string> _nonUniqueDirectoryReadableIds;
         private Dictionary<string, HashSet<string>> _additionalComponentIdsByGroups = null;
+        private bool? _forModule = null;
 
         public WxsGenerator(SwixModel model, GuidProvider guidProvider)
         {
             _model = model;
             _guidProvider = guidProvider;
 
+            DetectIfModule();
             VerifyDirectories();
             AssignCabFileIds();
             FindNonUniqueDirectoryReadableIds();
@@ -50,6 +51,20 @@ namespace SimpleWixDsl.Swix
             VerifyDirectoryRefs();
             VerifyCabFileRefs();
             HandleInlineTargetDirSpecifications();
+        }
+
+        private int MaxIdLength
+        {
+            get
+            {
+                if (_forModule == null)
+                    throw new InvalidOperationException("You can't call this property right now");
+
+                // when merging MSM module into MSI, its IDs are prepended with MSM guid, and their total length
+                // should be less than or equal to 72. Prepended guid is 36 symbols, plus there's one dot added
+                // before it, so in total it is 37 symbols added
+                return _forModule == true ? 72 - 37 : 72;
+            }
         }
 
         private void VerifyDirectories()
@@ -246,6 +261,11 @@ namespace SimpleWixDsl.Swix
                 doc.WriteEndDocument();
                 doc.Flush();
             }
+        }
+
+        private void DetectIfModule()
+        {
+            _forModule = _model.Components.Any(c => c.ModuleRef != null);
         }
 
         private void WriteComponentGroups(XmlWriter doc)
