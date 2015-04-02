@@ -272,51 +272,63 @@ namespace SimpleWixDsl.Swix
         {
             if (_additionalComponentIdsByGroups == null)
                 throw new InvalidOperationException("This method can't be executed until _additionalComponentIdsByGroups is filled");
-            var groupedComponents = _model.Components.GroupBy(c => c.ComponentGroupRef);
+            var groupedComponents = _model.Components.ToLookup(c => c.ComponentGroupRef);
             foreach (var group in groupedComponents)
             {
                 var componentGroupRef = group.Key;
-                doc.WriteStartElement("ComponentGroup");
-                doc.WriteAttributeString("Id", componentGroupRef);
+                WriteComponentGroupRef(doc, componentGroupRef, group);
+            }
 
-                foreach (var component in group)
-                {
-                    doc.WriteStartElement("ComponentRef");
-                    doc.WriteAttributeString("Id", GetComponentId(component));
-                    doc.WriteEndElement();
-                }
+            var groupsWithoutFileComponents = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
+                .Where(d => (d.RemoveOnUninstall || d.CreateOnInstall) && !groupedComponents.Contains(d.ComponentGroupRef))
+                .Select(d => d.ComponentGroupRef)
+                .Distinct();
+            foreach (var compGroup in groupsWithoutFileComponents)
+                WriteComponentGroupRef(doc, compGroup, Enumerable.Empty<WixComponent>());
+        }
 
-                var removableDirectories = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
-                    .Where(d => d.ComponentGroupRef == componentGroupRef && d.RemoveOnUninstall);
-                foreach (var dir in removableDirectories)
-                {
-                    doc.WriteStartElement("ComponentRef");
-                    doc.WriteAttributeString("Id", GetRemoveOnUninstallComponentId(dir));
-                    doc.WriteEndElement();
-                }
+        private void WriteComponentGroupRef(XmlWriter doc, string componentGroupRef, IEnumerable<WixComponent> fileComponents)
+        {
+            doc.WriteStartElement("ComponentGroup");
+            doc.WriteAttributeString("Id", componentGroupRef);
 
-                var creatableDirectories = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
-                    .Where(d => d.ComponentGroupRef == componentGroupRef && d.CreateOnInstall);
-                foreach (var dir in creatableDirectories)
-                {
-                    doc.WriteStartElement("ComponentRef");
-                    doc.WriteAttributeString("Id", GetCreateOnInstallComponentId(dir));
-                    doc.WriteEndElement();
-                }
-
-                HashSet<string> additionalComponentIds;
-                if (_additionalComponentIdsByGroups.TryGetValue(componentGroupRef, out additionalComponentIds))
-                {
-                    foreach (var additionalId in additionalComponentIds)
-                    {
-                        doc.WriteStartElement("ComponentRef");
-                        doc.WriteAttributeString("Id", additionalId);
-                        doc.WriteEndElement();
-                    }
-                }
-
+            foreach (var component in fileComponents)
+            {
+                doc.WriteStartElement("ComponentRef");
+                doc.WriteAttributeString("Id", GetComponentId(component));
                 doc.WriteEndElement();
             }
+
+            var removableDirectories = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
+                .Where(d => d.ComponentGroupRef == componentGroupRef && d.RemoveOnUninstall);
+            foreach (var dir in removableDirectories)
+            {
+                doc.WriteStartElement("ComponentRef");
+                doc.WriteAttributeString("Id", GetRemoveOnUninstallComponentId(dir));
+                doc.WriteEndElement();
+            }
+
+            var creatableDirectories = TraverseDfs(_model.RootDirectory, d => d.Subdirectories)
+                .Where(d => d.ComponentGroupRef == componentGroupRef && d.CreateOnInstall);
+            foreach (var dir in creatableDirectories)
+            {
+                doc.WriteStartElement("ComponentRef");
+                doc.WriteAttributeString("Id", GetCreateOnInstallComponentId(dir));
+                doc.WriteEndElement();
+            }
+
+            HashSet<string> additionalComponentIds;
+            if (_additionalComponentIdsByGroups.TryGetValue(componentGroupRef, out additionalComponentIds))
+            {
+                foreach (var additionalId in additionalComponentIds)
+                {
+                    doc.WriteStartElement("ComponentRef");
+                    doc.WriteAttributeString("Id", additionalId);
+                    doc.WriteEndElement();
+                }
+            }
+
+            doc.WriteEndElement();
         }
 
         private void WriteComponents(XmlWriter doc, IEnumerable<WixComponent> components)
