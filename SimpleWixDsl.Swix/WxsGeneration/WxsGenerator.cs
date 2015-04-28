@@ -484,6 +484,9 @@ namespace SimpleWixDsl.Swix
                 if (service.Description != null)
                     doc.WriteAttributeString("Description", service.Description);
                 
+                if (service.Account != null)
+                    doc.WriteAttributeString("Account", service.Account);
+
                 var startupType = (service.Start != ServiceStartupType.Unset ? service.Start : ServiceStartupType.Auto).ToString();
                 doc.WriteAttributeString("Start", ToCamelCase(startupType));
 
