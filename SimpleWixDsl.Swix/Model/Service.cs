@@ -7,6 +7,7 @@ namespace SimpleWixDsl.Swix
         public string Id { get; set; }
         public string Name { get; set; }
         public string Account { get; set; }
+        public string Password { get; set; }
         public string DisplayName { get; set; }
         public string Description { get; set; }
         public string Args { get; set; }
@@ -38,6 +39,10 @@ namespace SimpleWixDsl.Swix
             var account = attributes.GetInheritedAttribute("account");
             if (account != null)
                 result.Account = account;
+
+            var password = attributes.GetInheritedAttribute("password");
+            if (password != null)
+                result.Password = password;
 
             var startStr = attributes.GetInheritedAttribute("start");
             if (startStr != null)
