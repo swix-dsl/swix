@@ -13,6 +13,7 @@ SWIX does not try to replace WIX entirely or cover each possible case - instead 
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
+    <repository type="git" url="https://github.com/swix-dsl/swix.git" branch="master" commit="$commit$" />
   </metadata>
   <files>
     <file src="OutputRoot\SimpleWixDsl.*.dll" target="tools" />

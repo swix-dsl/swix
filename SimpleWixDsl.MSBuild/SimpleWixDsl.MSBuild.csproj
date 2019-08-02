@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <IsPackable>True</IsPackable>
     <NuspecFile>..\swix.nuspec</NuspecFile>
-    <NuspecProperties>version=$(nupkgversion)</NuspecProperties>
+    <NuspecProperties>version=$(nupkgversion);commit=$(commitsha)</NuspecProperties>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461" />
