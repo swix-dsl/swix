@@ -171,7 +171,7 @@ namespace SimpleWixDsl.UnitTests
             ExpectLine(3, 2, "!ss", "ssx", new AhlAttribute("c", "3"), new AhlAttribute("d", "4"));
             ExpectLine(4, 2, null, "y", new AhlAttribute("e", "5"), new AhlAttribute("f", "6"), new AhlAttribute("g", "7"));
             RunTest(@"
-:s ::a=""1,"",b  =2 
+:s ::a=""1,"",b  =2
   !ss   ""ssx""::c=3,d=4
   y::e=5,f=""6"",g=7");
         }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{D7FE2372-8697-4B39-AD69-002B6F9C06EE}</ProjectGuid>
@@ -7,18 +7,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SimpleWixDsl.UnitTests</RootNamespace>
     <AssemblyName>SimpleWixDsl.UnitTests</AssemblyName>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
+    <SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildThisFileDirectory)..\</SolutionDir>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)ProjectConfigurations.targets" />
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -39,9 +30,6 @@
     <Compile Include="SwixParsingIntegrationTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SimpleWixDsl.Ahl\SimpleWixDsl.Ahl.csproj">
       <Project>{5143CB6C-0F8A-45EB-88C4-49353E34D39E}</Project>
       <Name>SimpleWixDsl.Ahl</Name>
@@ -51,8 +39,15 @@
       <Name>SimpleWixDsl.Swix</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit">
+      <Version>2.6.2</Version>
+    </PackageReference>
+    <PackageReference Include="RhinoMocks">
+      <Version>3.6.1</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
