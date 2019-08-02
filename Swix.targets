@@ -1,20 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
-         DefaultTargets="Build">
+<Project>
 
   <PropertyGroup>
-    <SwixInstallPath Condition=" '$(SwixInstallPath)' == '' ">$(MSBuildThisFileDirectory)</SwixInstallPath>
+    <SwixInstallPath Condition=" '$(SwixInstallPath)' == '' ">$(MSBuildThisFileDirectory)..\tools</SwixInstallPath>
     <SwixTasksPath Condition=" '$(SwixTasksPath)' == '' ">$(SwixInstallPath)\SimpleWixDsl.MSBuild.dll</SwixTasksPath>
     <BuildDependsOn>SwixTransformTarget;$(BuildDependsOn)</BuildDependsOn>
     
     <SwixGuidMode Condition=" '$(SwixGuidMode)' == '' ">UseExisting</SwixGuidMode>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Swix Include="$(MSBuildProjectDirectory)**\*.swix" />
+    <Compile Remove="@(Swix->'%(filename).generated.wxs')" />
+  </ItemGroup>
+
   <UsingTask TaskName="SwixTransform" AssemblyFile="$(SwixTasksPath)" />
 
-  <Target Name="SwixTransformTarget">
+  <Target Name="SwixTransformTarget" Inputs="@(Swix)" Outputs="@(Swix->'%(filename).generated.wxs')">
     <Message Text="Transforming SWIX; SWIX Variables: $(SwixConstants)" />
     <SwixTransform Sources="@(Swix)" VariablesDefinitions="$(SwixConstants)" GuidMode="$(SwixGuidMode)" />
+    <ItemGroup>
+      <Compile Include="@(Swix->'%(filename).generated.wxs')" />
+    </ItemGroup>
   </Target>
 
 </Project>

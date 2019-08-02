@@ -11,5 +11,7 @@
     <OutputPath>$(OutputRoot)</OutputPath>
     <IntermediateOutputPath>$(OutputRoot)\obj\$(MSBuildProjectName)\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>$(IntermediateOutputPath)</BaseIntermediateOutputPath>
+    
+    <IsPackable>False</IsPackable> <!-- to be overridden where appropriate -->
   </PropertyGroup>
 </Project>
