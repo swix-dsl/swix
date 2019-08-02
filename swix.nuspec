@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Swix</id>
+    <version>$version$</version>
+    <description>Simple WIX
+
+Domain Specific Language (DSL) that tries to take away most painful aspects of working with WIX. SWIX source file processed before WIX compilation starts and translated to WIX source file, which is consumed by WIX transparently. You may inspect generated file and ensure that everything written is translated correctly.
+
+SWIX does not try to replace WIX entirely or cover each possible case - instead it complements WIX where it is feasible and beneficial.</description>
+    <authors>Ivan Danilov</authors>
+    <projectUrl>https://github.com/swix-dsl/swix</projectUrl>
+    <license type="expression">MIT</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <repository type="git" url="https://github.com/swix-dsl/swix.git" branch="master" commit="$commit$" />
+  </metadata>
+  <files>
+    <file src="OutputRoot\SimpleWixDsl.*.dll" target="tools" />
+    <file src="Swix.targets" target="build" />
+  </files>
+</package>

@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    
+    <Product>SimpleWixDsl</Product>
+    
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <OutputRoot>$(MSBuildThisFileDirectory)OutputRoot</OutputRoot>
+    <OutputPath>$(OutputRoot)</OutputPath>
+    <IntermediateOutputPath>$(OutputRoot)\obj\$(MSBuildProjectName)\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>$(IntermediateOutputPath)</BaseIntermediateOutputPath>
+    
+    <IsPackable>False</IsPackable> <!-- to be overridden where appropriate -->
+  </PropertyGroup>
+</Project>
