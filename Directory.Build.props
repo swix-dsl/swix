@@ -1,28 +1,15 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
+<Project>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <WarningLevel>4</WarningLevel>
+    <TargetFramework>net472</TargetFramework>
+    
+    <Product>SimpleWixDsl</Product>
+    
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <ErrorReport>prompt</ErrorReport>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
 
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
     <OutputRoot>$(MSBuildThisFileDirectory)OutputRoot</OutputRoot>
     <OutputPath>$(OutputRoot)</OutputPath>
     <IntermediateOutputPath>$(OutputRoot)\obj\$(MSBuildProjectName)\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>$(IntermediateOutputPath)</BaseIntermediateOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE;CODE_ANALYSIS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 </Project>

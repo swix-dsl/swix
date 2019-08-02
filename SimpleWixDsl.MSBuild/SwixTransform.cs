@@ -23,7 +23,7 @@ namespace SimpleWixDsl.MSBuild
         public ITaskItem[] Sources { get; set; }
 
         public string VariablesDefinitions { get; set; }
-        
+
         public string GuidMode { get; set; }
 
         public override bool Execute()
@@ -40,7 +40,7 @@ namespace SimpleWixDsl.MSBuild
                 {
                     var file = source.GetMetadata("FullPath");
                     var args = new BuildErrorEventArgs("SWIX", string.Empty, file, e.LineNumber, 0, e.LineNumber, 0, e.Message, string.Empty, string.Empty);
-                    
+
                     BuildEngine.LogErrorEvent(args);
                     return false;
                 }
@@ -49,7 +49,7 @@ namespace SimpleWixDsl.MSBuild
                     Log.LogErrorFromException(e);
                     return false;
                 }
-            } 
+            }
             return true;
         }
 

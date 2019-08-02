@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWixDsl.UnitTests", "SimpleWixDsl.UnitTests\SimpleWixDsl.UnitTests.csproj", "{D7FE2372-8697-4B39-AD69-002B6F9C06EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleWixDsl.UnitTests", "SimpleWixDsl.UnitTests\SimpleWixDsl.UnitTests.csproj", "{D7FE2372-8697-4B39-AD69-002B6F9C06EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWixDsl.Swix", "SimpleWixDsl.Swix\SimpleWixDsl.Swix.csproj", "{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}"
 EndProject
@@ -37,20 +37,20 @@ Global
 		{D7FE2372-8697-4B39-AD69-002B6F9C06EE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2E7AADA-56DB-4E6D-B6EC-066A2989F4E5}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{5143CB6C-0F8A-45EB-88C4-49353E34D39E}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{8F415605-EFB5-47ED-A4ED-96F4EA8E971E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8F415605-EFB5-47ED-A4ED-96F4EA8E971E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F415605-EFB5-47ED-A4ED-96F4EA8E971E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F415605-EFB5-47ED-A4ED-96F4EA8E971E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A138E6C6-0EEC-40B1-8C53-7D6D33F84B29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A138E6C6-0EEC-40B1-8C53-7D6D33F84B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A138E6C6-0EEC-40B1-8C53-7D6D33F84B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A138E6C6-0EEC-40B1-8C53-7D6D33F84B29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A138E6C6-0EEC-40B1-8C53-7D6D33F84B29}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{A138E6C6-0EEC-40B1-8C53-7D6D33F84B29}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
