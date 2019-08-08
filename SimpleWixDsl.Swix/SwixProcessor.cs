@@ -43,16 +43,16 @@ namespace SimpleWixDsl.Swix
             using (var outputStream = new StreamWriter(outputFile))
                 wxsGenerator.WriteToStream(outputStream);
 
-                if (guidMode == SwixGuidMode.UseExistingAndExtendStorage)
-                {
-                    using (var guidOutputStream = new StreamWriter(guidProviderFileName))
-                        guidProvider.SaveToStream(guidOutputStream, pruneUnused: false);
-                }
-                else if (guidMode == SwixGuidMode.UseExistingAndUpdateStorage)
-                {
-                    using (var guidOutputStream = new StreamWriter(guidProviderFileName))
-                        guidProvider.SaveToStream(guidOutputStream, pruneUnused: true);
-                }
+            if (guidMode == SwixGuidMode.UseExistingAndExtendStorage)
+            {
+                using (var guidOutputStream = new StreamWriter(guidProviderFileName))
+                    guidProvider.SaveToStream(guidOutputStream, pruneUnused: false);
+            }
+            else if (guidMode == SwixGuidMode.UseExistingAndUpdateStorage)
+            {
+                using (var guidOutputStream = new StreamWriter(guidProviderFileName))
+                    guidProvider.SaveToStream(guidOutputStream, pruneUnused: true);
+            }
         }
 
         private static void StripReadonlyIfSet(string filename)
