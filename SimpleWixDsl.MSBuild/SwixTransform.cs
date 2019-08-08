@@ -95,7 +95,7 @@ namespace SimpleWixDsl.MSBuild
                 {
                     case '\\':
                         if (i == VariablesDefinitions.Length - 1)
-                            throw new ArgumentException("Invalid VariablesDefinitions string: '\\' can't be the last symbol");
+                            current.Append('\\');
                         lastSymbolWasEscape = true;
                         continue;
                     case ';':
