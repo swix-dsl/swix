@@ -8,7 +8,10 @@ namespace SimpleWixDsl.Swix
     /// </summary>
     public class SwixProcessor
     {
-        public static void Transform(string swixFilename, SwixGuidMode guidMode, IDictionary<string, string> variableDefinitions = null)
+        public static void Transform(string swixFilename,
+                                     SwixGuidMode guidMode,
+                                     string targetFolderPath,
+                                     IDictionary<string, string> variableDefinitions = null)
         {
             var folderPath = Path.GetDirectoryName(swixFilename) ?? Path.GetPathRoot(swixFilename);
             var baseName = Path.GetFileNameWithoutExtension(swixFilename);
@@ -16,7 +19,7 @@ namespace SimpleWixDsl.Swix
             if (File.Exists(guidProviderFileName))
                 StripReadonlyIfSet(guidProviderFileName);
 
-            var outputFile = Path.Combine(folderPath, baseName + ".generated.wxs");
+            var outputFile = Path.Combine(targetFolderPath, baseName + ".generated.wxs");
             if (File.Exists(outputFile))
                 StripReadonlyIfSet(outputFile);
 
@@ -43,16 +46,16 @@ namespace SimpleWixDsl.Swix
             using (var outputStream = new StreamWriter(outputFile))
                 wxsGenerator.WriteToStream(outputStream);
 
-                if (guidMode == SwixGuidMode.UseExistingAndExtendStorage)
-                {
-                    using (var guidOutputStream = new StreamWriter(guidProviderFileName))
-                        guidProvider.SaveToStream(guidOutputStream, pruneUnused: false);
-                }
-                else if (guidMode == SwixGuidMode.UseExistingAndUpdateStorage)
-                {
-                    using (var guidOutputStream = new StreamWriter(guidProviderFileName))
-                        guidProvider.SaveToStream(guidOutputStream, pruneUnused: true);
-                }
+            if (guidMode == SwixGuidMode.UseExistingAndExtendStorage)
+            {
+                using (var guidOutputStream = new StreamWriter(guidProviderFileName))
+                    guidProvider.SaveToStream(guidOutputStream, pruneUnused: false);
+            }
+            else if (guidMode == SwixGuidMode.UseExistingAndUpdateStorage)
+            {
+                using (var guidOutputStream = new StreamWriter(guidProviderFileName))
+                    guidProvider.SaveToStream(guidOutputStream, pruneUnused: true);
+            }
         }
 
         private static void StripReadonlyIfSet(string filename)

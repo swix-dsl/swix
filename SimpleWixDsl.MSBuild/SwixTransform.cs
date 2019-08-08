@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -22,9 +21,11 @@ namespace SimpleWixDsl.MSBuild
         [Required]
         public ITaskItem[] Sources { get; set; }
 
-        public string VariablesDefinitions { get; set; }
+        public ITaskItem[] VariablesDefinitions { get; set; }
 
         public string GuidMode { get; set; }
+
+        public string TargetDirectory { get; set; }
 
         public override bool Execute()
         {
@@ -34,7 +35,9 @@ namespace SimpleWixDsl.MSBuild
                 {
                     Log.LogMessage(MessageImportance.Low, "Transforming {0}...", source);
                     var variables = ParseVariablesDefinitions();
-                    SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), variables);
+                    var varList = string.Concat(variables.Select(v => $"\n    {v.Key} = {v.Value}"));
+                    Log.LogMessage(MessageImportance.Low, $"Swix variables parsed:{varList}");
+                    SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), TargetDirectory, variables);
                 }
                 catch (SourceCodeException e)
                 {
@@ -58,7 +61,7 @@ namespace SimpleWixDsl.MSBuild
             var result = new Dictionary<string, string>();
             if (VariablesDefinitions == null)
                 return result;
-            var declarations = SplitVarDeclarations();
+            var declarations = VariablesDefinitions.Select(d => d.ItemSpec);
             foreach (var declString in declarations)
             {
                 if (String.IsNullOrWhiteSpace(declString))
@@ -69,41 +72,6 @@ namespace SimpleWixDsl.MSBuild
                 result.Add(match.Groups["name"].Value, match.Groups["value"].Value);
             }
             return result;
-        }
-
-        private IEnumerable<string> SplitVarDeclarations()
-        {
-            bool lastSymbolWasEscape = false;
-            var current = new StringBuilder();
-            for (int i = 0; i < VariablesDefinitions.Length; i++)
-            {
-                var ch = VariablesDefinitions[i];
-                if (lastSymbolWasEscape)
-                {
-                    if (ch == ';' || ch == '\\')
-                        current.Append(ch);
-                    else
-                        current.Append('\\').Append(ch);
-                    lastSymbolWasEscape = false;
-                    continue;
-                }
-                switch (ch)
-                {
-                    case '\\':
-                        if (i == VariablesDefinitions.Length - 1)
-                            throw new ArgumentException("Invalid VariablesDefinitions string: '\\' can't be the last symbol");
-                        lastSymbolWasEscape = true;
-                        continue;
-                    case ';':
-                        yield return current.ToString();
-                        current.Clear();
-                        break;
-                    default:
-                        current.Append(ch);
-                        break;
-                }
-            }
-            yield return current.ToString();
         }
     }
 }

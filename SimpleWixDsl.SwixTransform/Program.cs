@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,8 @@ namespace SimpleWixDsl.SwixTransform
     {
         private static void Main(string[] args)
         {
-            SwixProcessor.Transform(args[0], SwixGuidMode.UseExistingAndUpdateStorage);
+            var targetPath = Path.GetDirectoryName(args[0]);
+            SwixProcessor.Transform(args[0], SwixGuidMode.UseExistingAndUpdateStorage, targetPath);
         }
     }
 }
