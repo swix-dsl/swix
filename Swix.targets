@@ -5,20 +5,25 @@
     <SwixTasksPath Condition=" '$(SwixTasksPath)' == '' ">$(SwixInstallPath)\SimpleWixDsl.MSBuild.dll</SwixTasksPath>
     
     <SwixGuidMode Condition=" '$(SwixGuidMode)' == '' ">UseExisting</SwixGuidMode>
+    <SwixTargetDirectory Condition=" '$(SwixTargetDirectory)' == '' ">$(IntermediateOutputPath)</SwixTargetDirectory>
   </PropertyGroup>
 
   <ItemGroup>
     <Swix Include="$(MSBuildProjectDirectory)\**\*.swix" />
-    <Compile Remove="@(Swix->'%(filename).generated.wxs')" />
   </ItemGroup>
 
   <UsingTask TaskName="SwixTransform" AssemblyFile="$(SwixTasksPath)" />
 
-  <Target Name="SwixTransformTarget" BeforeTargets="Harvest" Inputs="@(Swix)" Outputs="@(Swix->'%(filename).generated.wxs')">
-    <Message Text="Transforming SWIX; SWIX Variables: $(SwixConstants)" />
-    <SwixTransform Sources="@(Swix)" VariablesDefinitions="$(SwixConstants)" GuidMode="$(SwixGuidMode)" />
+  <Target Name="SwixTransformTarget" BeforeTargets="Harvest" Inputs="@(Swix)" Outputs="@(Swix->'$(SwixTargetDirectory)%(filename).generated.wxs')">
+    <PropertyGroup>
+      <SwixTargetDirectoryWithSlash Condition=" HasTrailingSlash('$(SwixTargetDirectory)') ">$(SwixTargetDirectory)</SwixTargetDirectoryWithSlash>
+      <SwixTargetDirectoryWithSlash Condition=" !HasTrailingSlash('$(SwixTargetDirectory)') ">$(SwixTargetDirectory)\</SwixTargetDirectoryWithSlash>
+    </PropertyGroup>
+    <Message Text="Transforming SWIX; SWIX Variables: $(SwixConstants); SwixTargetDirectory: $(SwixTargetDirectory)" />
+    <SwixTransform Sources="@(Swix)" VariablesDefinitions="$(SwixConstants)" TargetDirectory="$(SwixTargetDirectoryWithSlash)" GuidMode="$(SwixGuidMode)" />
     <ItemGroup>
-      <Compile Include="@(Swix->'%(filename).generated.wxs')" />
+      <Compile  Remove="@(Swix->'$(SwixTargetDirectoryWithSlash)%(filename).generated.wxs')" />
+      <Compile Include="@(Swix->'$(SwixTargetDirectoryWithSlash)%(filename).generated.wxs')" />
     </ItemGroup>
   </Target>
 

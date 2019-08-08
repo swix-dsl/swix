@@ -26,6 +26,8 @@ namespace SimpleWixDsl.MSBuild
 
         public string GuidMode { get; set; }
 
+        public string TargetDirectory { get; set; }
+
         public override bool Execute()
         {
             foreach (var source in Sources)
@@ -34,7 +36,9 @@ namespace SimpleWixDsl.MSBuild
                 {
                     Log.LogMessage(MessageImportance.Low, "Transforming {0}...", source);
                     var variables = ParseVariablesDefinitions();
-                    SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), variables);
+                    var varList = string.Concat(variables.Select(v => $"\n    {v.Key} = {v.Value}"));
+                    Log.LogMessage(MessageImportance.Low, $"Swix variables parsed:{varList}");
+                    SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), TargetDirectory, variables);
                 }
                 catch (SourceCodeException e)
                 {
