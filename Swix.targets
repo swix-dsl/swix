@@ -14,7 +14,7 @@
 
   <UsingTask TaskName="SwixTransform" AssemblyFile="$(SwixTasksPath)" />
 
-  <Target Name="SwixTransformTarget" BeforeTargets="Harvest" Inputs="@(Swix)" Outputs="@(Swix->'$(SwixTargetDirectory)%(filename).generated.wxs')">
+  <Target Name="SwixTransform" BeforeTargets="Compile" Inputs="@(Swix)" Outputs="@(Swix->'$(SwixTargetDirectory)%(filename).generated.wxs')">
     <PropertyGroup>
       <SwixTargetDirectoryWithSlash Condition=" HasTrailingSlash('$(SwixTargetDirectory)') ">$(SwixTargetDirectory)</SwixTargetDirectoryWithSlash>
       <SwixTargetDirectoryWithSlash Condition=" !HasTrailingSlash('$(SwixTargetDirectory)') ">$(SwixTargetDirectory)\</SwixTargetDirectoryWithSlash>
