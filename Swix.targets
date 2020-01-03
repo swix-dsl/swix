@@ -20,7 +20,9 @@
       <SwixTargetDirectoryWithSlash Condition=" !HasTrailingSlash('$(SwixTargetDirectory)') ">$(SwixTargetDirectory)\</SwixTargetDirectoryWithSlash>
     </PropertyGroup>
     <Message Text="Transforming SWIX; SWIX Variables: @(SwixConstants); SwixTargetDirectory: $(SwixTargetDirectory)" />
-    <SwixTransform Sources="@(Swix)" VariablesDefinitions="@(SwixConstants)" TargetDirectory="$(SwixTargetDirectoryWithSlash)" GuidMode="$(SwixGuidMode)" />
+    <SwixTransform Sources="@(Swix)" VariablesDefinitions="@(SwixConstants)" TargetDirectory="$(SwixTargetDirectoryWithSlash)" GuidMode="$(SwixGuidMode)">
+      <Output ItemName="SwixIncludedFiles" TaskParameter="Files" />
+    </SwixTransform>
     <ItemGroup>
       <Compile  Remove="@(Swix->'$(SwixTargetDirectoryWithSlash)%(filename).generated.wxs')" />
       <Compile Include="@(Swix->'$(SwixTargetDirectoryWithSlash)%(filename).generated.wxs')" />

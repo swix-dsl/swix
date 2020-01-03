@@ -8,10 +8,10 @@ namespace SimpleWixDsl.Swix
     /// </summary>
     public class SwixProcessor
     {
-        public static void Transform(string swixFilename,
-                                     SwixGuidMode guidMode,
-                                     string targetFolderPath,
-                                     IDictionary<string, string> variableDefinitions = null)
+        public static SwixModel Transform(string swixFilename,
+                                          SwixGuidMode guidMode,
+                                          string targetFolderPath,
+                                          IDictionary<string, string> variableDefinitions = null)
         {
             var folderPath = Path.GetDirectoryName(swixFilename) ?? Path.GetPathRoot(swixFilename);
             var baseName = Path.GetFileNameWithoutExtension(swixFilename);
@@ -56,6 +56,8 @@ namespace SimpleWixDsl.Swix
                 using (var guidOutputStream = new StreamWriter(guidProviderFileName))
                     guidProvider.SaveToStream(guidOutputStream, pruneUnused: true);
             }
+
+            return model;
         }
 
         private static void StripReadonlyIfSet(string filename)

@@ -23,12 +23,16 @@ namespace SimpleWixDsl.MSBuild
 
         public ITaskItem[] VariablesDefinitions { get; set; }
 
+        [Output]
+        public ITaskItem[] Files { get; set; }
+
         public string GuidMode { get; set; }
 
         public string TargetDirectory { get; set; }
 
         public override bool Execute()
         {
+            var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var source in Sources)
             {
                 try
@@ -37,7 +41,8 @@ namespace SimpleWixDsl.MSBuild
                     var variables = ParseVariablesDefinitions();
                     var varList = string.Concat(variables.Select(v => $"\n    {v.Key} = {v.Value}"));
                     Log.LogMessage(MessageImportance.Low, $"Swix variables parsed:{varList}");
-                    SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), TargetDirectory, variables);
+                    var model = SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), TargetDirectory, variables);
+                    files.UnionWith(model.Components.Select(c => c.SourcePath));
                 }
                 catch (SourceCodeException e)
                 {
@@ -53,6 +58,8 @@ namespace SimpleWixDsl.MSBuild
                     return false;
                 }
             }
+
+            Files = files.Select(f => new TaskItem(f)).ToArray();
             return true;
         }
 
