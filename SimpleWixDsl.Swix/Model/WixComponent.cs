@@ -48,7 +48,8 @@ namespace SimpleWixDsl.Swix
 
             if (cabFileRef != null && moduleRef != null)
                 throw new SwixItemParsingException("You can't specify both cabFileRef and moduleRef for same component");
-            
+
+            result.OutputTag = context.GetInheritedAttribute("outputTag");
             result.Condition = context.GetInheritedAttribute("condition");
 
             var componentGroupRef = context.GetInheritedAttribute("componentGroupRef");
@@ -80,20 +81,26 @@ namespace SimpleWixDsl.Swix
         /// <summary>
         /// Allows to declare dir inline without previous declaration in :directories section.
         /// Will be created under specified TargetDirRef which is still mandatory.
-        /// Separate directory entry with unique ID will be created in the directory structure 
-        /// automatically. 
+        /// Separate directory entry with unique ID will be created in the directory structure
+        /// automatically.
         /// </summary>
         public string TargetDir { get; set; }
 
         public string TargetDirRef { get; set; }
 
         public string CabFileRef { get; set; }
-        
+
         public string ModuleRef { get; set; }
-        
+
         public string Condition { get; set; }
-        
+
         public string ComponentGroupRef { get; set; }
+
+        /// <summary>
+        /// If set, the item will be present in the MSBuild transform output with metadata 'Tag' set
+        /// to the specified value.
+        /// </summary>
+        public string OutputTag { get; set; }
 
         public string Id { get; set; }
 

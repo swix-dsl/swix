@@ -32,7 +32,7 @@ namespace SimpleWixDsl.MSBuild
 
         public override bool Execute()
         {
-            var files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var result = new List<ITaskItem>();
             foreach (var source in Sources)
             {
                 try
@@ -42,7 +42,15 @@ namespace SimpleWixDsl.MSBuild
                     var varList = string.Concat(variables.Select(v => $"\n    {v.Key} = {v.Value}"));
                     Log.LogMessage(MessageImportance.Low, $"Swix variables parsed:{varList}");
                     var model = SwixProcessor.Transform(source.ItemSpec, (SwixGuidMode) Enum.Parse(typeof (SwixGuidMode), GuidMode), TargetDirectory, variables);
-                    files.UnionWith(model.Components.Select(c => c.SourcePath));
+
+                    ITaskItem ToItem(WixComponent c)
+                    {
+                        var r = new TaskItem(c.SourcePath);
+                        r.SetMetadata("Tag", c.OutputTag);
+                        return r;
+                    }
+
+                    result.AddRange(model.Components.Where(c => !string.IsNullOrEmpty(c.OutputTag)).Select(ToItem));
                 }
                 catch (SourceCodeException e)
                 {
@@ -59,7 +67,7 @@ namespace SimpleWixDsl.MSBuild
                 }
             }
 
-            Files = files.Select(f => new TaskItem(f)).ToArray();
+            Files = result.ToArray();
             return true;
         }
 
