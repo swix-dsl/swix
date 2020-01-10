@@ -84,7 +84,11 @@ namespace SimpleWixDsl.MSBuild
                 var match = VarDeclaration.Match(declString);
                 if (!match.Success)
                     throw new ArgumentException("Invalid VariablesDefinitions string: declaration '" + declString + "' is incorrect");
-                result.Add(match.Groups["name"].Value, match.Groups["value"].Value);
+                var key = match.Groups["name"].Value;
+                if (result.ContainsKey(key))
+                    throw new ArgumentException($"Duplicate variable declaration '{declString}': key '{key}' was defined before");
+
+                result.Add(key, match.Groups["value"].Value);
             }
             return result;
         }
