@@ -59,7 +59,7 @@ namespace SimpleWixDsl.Swix
 
             bool withSubfolders = _directlySetAttrsibutes.ContainsKey("withSubfolders") && _directlySetAttrsibutes["withSubfolders"] == "yes";
 
-            var manuallySpecifiedSourcePaths = new HashSet<string>(GatheredComponents.Select(c => Path.GetFullPath(c.SourcePath)));
+            var manuallySpecifiedSourcePaths = new HashSet<string>(GatheredComponents.Select(c => Path.GetFullPath(c.SourcePath)), StringComparer.OrdinalIgnoreCase);
             var harvestedComponents = new List<WixComponent>();
             var folder = Path.GetFullPath(_folder); // eliminates relative parts like a\b\..\b2\c
             var files = Directory.GetFiles(folder, filter, withSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
@@ -108,7 +108,7 @@ namespace SimpleWixDsl.Swix
             {
                 try
                 {
-                    excludePathRegex = new Regex(excludePathRegexStr, RegexOptions.Compiled);
+                    excludePathRegex = new Regex(excludePathRegexStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 }
                 catch (ArgumentException e)
                 {
