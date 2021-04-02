@@ -5,3 +5,4 @@ _ReSharper*
 *.user
 *.suo
 /.vs/
+launchSettings.json

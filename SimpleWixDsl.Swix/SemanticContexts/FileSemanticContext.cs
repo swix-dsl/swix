@@ -47,11 +47,13 @@ namespace SimpleWixDsl.Swix
             {
                 throw new SwixSemanticException(CurrentLine, "You have to specify name of new SWIX variable and it should match '^\\w+$' regex");
             }
+
             string value;
             if (!defineContext.GetDirectlySetAttributes().TryGetValue("value", out value))
             {
                 throw new SwixSemanticException(CurrentLine, "?define meta should have 'value' argument");
             }
+
             CurrentAttributeContext.SwixVariableDefinitions[key] = ExpandSwixVariables(value);
             return new StubSwixElement(CurrentLine, null, null);
         }

@@ -5,8 +5,8 @@ namespace SimpleWixDsl.Swix
     public class ComponentItem : BaseSwixSemanticContext
     {
         private readonly WixComponent _component;
-        
-        public ComponentItem(int line, IAttributeContext inheritedContext, WixComponent component) 
+
+        public ComponentItem(int line, IAttributeContext inheritedContext, WixComponent component)
             : base(line, inheritedContext)
         {
             _component = component;

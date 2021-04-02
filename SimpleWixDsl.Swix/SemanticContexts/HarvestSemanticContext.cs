@@ -10,13 +10,13 @@ namespace SimpleWixDsl.Swix
     public class HarvestSemanticContext : ComponentsSection
     {
         private readonly string _folder;
-        private readonly IDictionary<string, string> _directlySetAttrsibutes;
+        private readonly IDictionary<string, string> _directlySetAttributes;
 
         public HarvestSemanticContext(int line, string folder, IAttributeContext context, List<WixComponent> components)
             : base(line, AddFromFolder(context, folder), components)
         {
             _folder = folder;
-            _directlySetAttrsibutes = CurrentAttributeContext.GetDirectlySetAttributes();
+            _directlySetAttributes = CurrentAttributeContext.GetDirectlySetAttributes();
         }
 
         private static IAttributeContext AddFromFolder(IAttributeContext attributeContext, string folder)
@@ -27,6 +27,7 @@ namespace SimpleWixDsl.Swix
                 // nested components searched by default in the directory being harvested
                 attributeContext.SetAttributes(new[] {new AhlAttribute("from", folder)});
             }
+
             return attributeContext;
         }
 
@@ -40,24 +41,23 @@ namespace SimpleWixDsl.Swix
             var fullPath = WixComponent.GetFullSourcePath(key, itemContext);
             var invalidPathChars = Path.GetInvalidPathChars();
             if (fullPath.IndexOfAny(invalidPathChars) != -1)
-                throw new SwixSemanticException(CurrentLine, String.Format("Components inside ?harvest meta should reference existing files without WIX variables."));
+                throw new SwixSemanticException(CurrentLine, "Components inside ?harvest meta should reference existing files without WIX variables.");
             if (!File.Exists(fullPath))
-                throw new SwixSemanticException(CurrentLine, String.Format("File {0} is not found. Components inside ?harvest meta should reference existing files without WIX variables.", fullPath));
+                throw new SwixSemanticException(CurrentLine, $"File {fullPath} is not found. Components inside ?harvest meta should reference existing files without WIX variables.");
             return base.Component(key, itemContext);
         }
 
         protected override void FinishItemCore()
         {
             if (!Directory.Exists(_folder))
-                throw new SwixSemanticException(CurrentLine, string.Format("Directory '{0}' does not exists", _folder));
+                throw new SwixSemanticException(CurrentLine, $"Directory '{_folder}' does not exists");
 
             var excludePathRegex = PrepareExcludeRegex();
 
-            string filter;
-            if (!_directlySetAttrsibutes.TryGetValue("filter", out filter))
+            if (!_directlySetAttributes.TryGetValue("filter", out string filter))
                 filter = "*.*";
 
-            bool withSubfolders = _directlySetAttrsibutes.ContainsKey("withSubfolders") && _directlySetAttrsibutes["withSubfolders"] == "yes";
+            bool withSubfolders = _directlySetAttributes.ContainsKey("withSubfolders") && _directlySetAttributes["withSubfolders"] == "yes";
 
             var manuallySpecifiedSourcePaths = new HashSet<string>(GatheredComponents.Select(c => Path.GetFullPath(c.SourcePath)), StringComparer.OrdinalIgnoreCase);
             var harvestedComponents = new List<WixComponent>();
@@ -83,13 +83,15 @@ namespace SimpleWixDsl.Swix
                             ? relativeDir
                             : Path.Combine(component.TargetDir, relativeDir);
                     }
+
                     harvestedComponents.Add(component);
                 }
                 catch (SwixItemParsingException e)
                 {
-                    throw new SwixSemanticException(CurrentLine, string.Format("During harvesting of {0} file, exception occurs:\n{1}", new[] {filepath, e.ToString()}));
+                    throw new SwixSemanticException(CurrentLine, $"During harvesting of {filepath} file, exception occurs:\n{e}");
                 }
             }
+
             GatheredComponents.AddRange(harvestedComponents);
 
             base.FinishItemCore();
@@ -99,8 +101,7 @@ namespace SimpleWixDsl.Swix
         {
             var attrs = CurrentAttributeContext.GetDirectlySetAttributes();
             Regex excludePathRegex;
-            string excludePathRegexStr;
-            if (!attrs.TryGetValue("excludePathRegex", out excludePathRegexStr))
+            if (!attrs.TryGetValue("excludePathRegex", out string excludePathRegexStr))
             {
                 excludePathRegex = new Regex("a^", RegexOptions.Compiled); // will match nothing
             }
@@ -112,9 +113,10 @@ namespace SimpleWixDsl.Swix
                 }
                 catch (ArgumentException e)
                 {
-                    throw new SwixSemanticException(CurrentLine, string.Format("Invalid Regex pattern in excludePathRegex argument: {0}", new[] {e.ToString()}));
+                    throw new SwixSemanticException(CurrentLine, $"Invalid Regex pattern in excludePathRegex argument: {e}");
                 }
             }
+
             return excludePathRegex;
         }
     }

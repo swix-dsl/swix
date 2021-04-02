@@ -25,7 +25,7 @@ namespace SimpleWixDsl.Swix
             }
             catch (SwixItemParsingException e)
             {
-                throw new SwixSemanticException(CurrentLine, string.Format("{0}", new[] {e.Message}));
+                throw new SwixSemanticException(CurrentLine, e.Message);
             }
         }
 
@@ -41,7 +41,7 @@ namespace SimpleWixDsl.Swix
                 throw new SwixSemanticException(CurrentLine, "registryStorageKey attribute for ?makeCustomizable is mandatory");
             if (_currentDir.Customization != null)
                 throw new SwixSemanticException(CurrentLine, "This directory already has customization assigned");
-            WixTargetDirCustomization customization; 
+            WixTargetDirCustomization customization;
             try
             {
                 customization = new WixTargetDirCustomization(_currentDir, registryStorageKey, publicWixPathPropertyName);
@@ -49,7 +49,8 @@ namespace SimpleWixDsl.Swix
             catch (SwixItemParsingException e)
             {
                 throw new SwixSemanticException(CurrentLine, e.Message);
-            } 
+            }
+
             customization.DefaultValue = defaultValue;
             return new StubSwixElement(CurrentLine, attributes, () => _currentDir.Customization = customization);
         }

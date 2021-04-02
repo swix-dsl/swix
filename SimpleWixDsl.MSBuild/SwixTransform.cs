@@ -79,7 +79,7 @@ namespace SimpleWixDsl.MSBuild
             var declarations = VariablesDefinitions.Select(d => d.ItemSpec);
             foreach (var declString in declarations)
             {
-                if (String.IsNullOrWhiteSpace(declString))
+                if (string.IsNullOrWhiteSpace(declString))
                     continue;
                 var match = VarDeclaration.Match(declString);
                 if (!match.Success)

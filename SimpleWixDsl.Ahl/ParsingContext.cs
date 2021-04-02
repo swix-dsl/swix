@@ -14,21 +14,12 @@ namespace SimpleWixDsl.Ahl
 
         private class StubParsingState : IParsingState
         {
-            public int Indent
-            {
-                get { return -1; }
-            }
+            public int Indent => -1;
 
             public IParsingState PushLine(int lineNumber, int indent, string keyword, string key, IEnumerable<AhlAttribute> attributes)
-            {
-                var msg = String.Format("Inconsistent indent at line {0}", lineNumber);
-                throw new InvalidOperationException(msg);
-            }
+                => throw new InvalidOperationException($"Inconsistent indent at line {lineNumber}");
 
-            public IParsingState PushEof()
-            {
-                return null;
-            }
+            public IParsingState PushEof() => null;
         }
 
         private class ParsingState : IParsingState
@@ -37,7 +28,7 @@ namespace SimpleWixDsl.Ahl
             private readonly IParsingState _parentState;
 
             public ParsingState(ISemanticContext semanticContext)
-                :this(new StubParsingState(), semanticContext)
+                : this(new StubParsingState(), semanticContext)
             {
             }
 
@@ -56,12 +47,12 @@ namespace SimpleWixDsl.Ahl
                 // 1. indent equals to one of parent's indents --> finish prev semantic context and pass line to parent
                 // 2. indent equals to our indent --> finish prev semantic context and add this line to current one
                 //
-                // note that indent can't be greater than ours, when ours is not -1: as it is not -1 there was at 
+                // note that indent can't be greater than ours, when ours is not -1: as it is not -1 there was at
                 // least one child, hence this ParsingState can't be on top of the states' stack: each time we add
                 // item to it directly, we switch there immediately; if item is added to parent - this state is done
                 // at all and replaced in stack with newly added item.
-                // So with correct input we may happen here with Indent!=-1 only from child state via 1st case. But 
-                // then larged indent case already has been excluded by indent<Indent clause with exception.
+                // So with correct input we may happen here with Indent!=-1 only from child state via 1st case. But
+                // then larger indent case already has been excluded by indent<Indent clause with exception.
 
                 // 1st case
                 if (indent <= _parentState.Indent)
@@ -74,22 +65,23 @@ namespace SimpleWixDsl.Ahl
                 if (Indent == -1)
                 {
                     Indent = indent;
-                    var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
-                    return new ParsingState(this, semSubcontext);
+                    var semSubContext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
+                    return new ParsingState(this, semSubContext);
                 }
 
                 if (indent < Indent)
                 {
-                    var msg = String.Format("Inconsistent indentation. Should be between <={0} or >={1}, but was {2}", _parentState.Indent, Indent, indent);
+                    var msg = $"Inconsistent indentation. Should be between <={_parentState.Indent} or >={Indent}, but was {indent}";
                     throw new IndentationException(lineNumber, msg);
                 }
 
                 // 2nd case
                 if (indent == Indent)
                 {
-                    var semSubcontext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
-                    return new ParsingState(this, semSubcontext);
+                    var semSubContext = _semanticContext.PushLine(lineNumber, keyword, key, attributes);
+                    return new ParsingState(this, semSubContext);
                 }
+
                 throw new InvalidOperationException("This was not supposed to happen.");
             }
 

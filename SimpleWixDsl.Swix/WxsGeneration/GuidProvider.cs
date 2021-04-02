@@ -40,12 +40,11 @@ namespace SimpleWixDsl.Swix
 
         public Guid Get(SwixGuidType type, string path)
         {
-            if (path == null) throw new ArgumentNullException("path");
+            if (path == null) throw new ArgumentNullException(nameof(path));
             path = path.Replace("\"", "\"\"");
-            var key = String.Format("{0}\\\"{1}\"", type, path);
+            var key = $"{type}\\\"{path}\"";
 
-            Guid result;
-            if (!_currentGuids.TryGetValue(key, out result))
+            if (!_currentGuids.TryGetValue(key, out var result))
             {
                 if (_loadedFromFileGuids.TryGetValue(key, out result))
                 {

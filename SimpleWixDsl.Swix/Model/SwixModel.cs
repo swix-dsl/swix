@@ -13,11 +13,11 @@ namespace SimpleWixDsl.Swix
             Components = new List<WixComponent>();
         }
 
-        public List<CabFile> CabFiles { get; private set; }
+        public List<CabFile> CabFiles { get; }
 
-        public WixTargetDirectory RootDirectory { get; private set; }
+        public WixTargetDirectory RootDirectory { get; }
 
-        public List<WixComponent> Components { get; private set; }
+        public List<WixComponent> Components { get; }
 
         public int DiskIdStartFrom
         {

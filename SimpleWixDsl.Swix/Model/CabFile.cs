@@ -9,12 +9,11 @@
             var compressionLevel = attributeContext.GetInheritedAttribute("compressionLevel");
             result.CompressionLevel = compressionLevel ?? "none";
 
-            string splitStr = attributeContext.GetInheritedAttribute("split") ?? "1";
-            int split;
-            if (!int.TryParse(splitStr, out split))
-                throw new SwixItemParsingException(string.Format("Can't parse split number for cabFile '{0}'", name));
+            var splitStr = attributeContext.GetInheritedAttribute("split") ?? "1";
+            if (!int.TryParse(splitStr, out var split))
+                throw new SwixItemParsingException($"Can't parse split number for cabFile '{name}'");
             if (split <= 0 || split >= 100)
-                throw new SwixItemParsingException(string.Format("Split number must be positive integer less than 100 in the cabFile '{0}'", name));
+                throw new SwixItemParsingException($"Split number must be positive integer less than 100 in the cabFile '{name}'");
             result.Split = split;
 
             return result;

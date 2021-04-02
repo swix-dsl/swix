@@ -10,13 +10,13 @@ namespace SimpleWixDsl.Ahl
     {
         private static readonly Regex LineRegex = new Regex(
             @"^
-		       ( (?<keyword>[:!?][-A-Za-z_][-A-Za-z_0-9]*)  
-		         (\ +(?<key>[^=\n\r!?: ,""]+|""(""""|[^""])*""))?
-		       |
-		         (?<key>[^=\n\r!?: ,""]+|""(""""|[^""])*"")
-		       )  \ *
-		       (::\ *(?<attrName>[-A-Za-z_][-A-Za-z_0-9]*)\ *=\ *(?<attrValue>[^=\n\r!?: ,""]+|""(""""|[^""])*"")  (\ *,\ *
-		             (?<attrName>[-A-Za-z_][-A-Za-z_0-9]*)\ *=\ *(?<attrValue>[^=\n\r!?: ,""]+|""(""""|[^""])*""))*\ *)?$",
+               ( (?<keyword>[:!?][-A-Za-z_][-A-Za-z_0-9]*)
+                 (\ +(?<key>[^=\n\r!?: ,""]+|""(""""|[^""])*""))?
+               |
+                 (?<key>[^=\n\r!?: ,""]+|""(""""|[^""])*"")
+               )  \ *
+               (::\ *(?<attrName>[-A-Za-z_][-A-Za-z_0-9]*)\ *=\ *(?<attrValue>[^=\n\r!?: ,""]+|""(""""|[^""])*"")  (\ *,\ *
+                     (?<attrName>[-A-Za-z_][-A-Za-z_0-9]*)\ *=\ *(?<attrValue>[^=\n\r!?: ,""]+|""(""""|[^""])*""))*\ *)?$",
             RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         private readonly TextReader _sourceStream;
@@ -50,7 +50,7 @@ namespace SimpleWixDsl.Ahl
                 line = line.Substring(indent);
                 var match = LineRegex.Match(line);
                 if (!match.Success)
-                    throw new LexerException(lineNumber, String.Format("Line doesn't match AHL syntax:\n{0}", line));
+                    throw new LexerException(lineNumber, $"Line doesn't match AHL syntax:\n{line}");
 
                 string keyword = match.Groups["keyword"].Success ? match.Groups["keyword"].Captures[0].Value : null;
                 string key = match.Groups["key"].Success ? Unquote(match.Groups["key"].Captures[0].Value) : null;
@@ -65,6 +65,7 @@ namespace SimpleWixDsl.Ahl
 
                 _parsingContext.PushLine(lineNumber, indent, keyword, key, attributes);
             }
+
             _parsingContext.PushEof();
         }
 
@@ -80,6 +81,7 @@ namespace SimpleWixDsl.Ahl
                     return line.Substring(0, pos);
                 current += 2; // next time skip these '//' found now
             }
+
             return line;
         }
 
@@ -90,6 +92,7 @@ namespace SimpleWixDsl.Ahl
                 // it is not a quoted string - just give it back
                 return value;
             }
+
             return value.Substring(1, value.Length - 2).Replace("\"\"", "\"");
         }
     }

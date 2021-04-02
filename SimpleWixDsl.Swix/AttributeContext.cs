@@ -10,63 +10,26 @@ namespace SimpleWixDsl.Swix
         private class NullAttributeContext : IAttributeContext
         {
             private readonly Dictionary<string, string> _emptyDictionary = new Dictionary<string, string>();
-
-            public string GetInheritedAttribute(string attributeName)
-            {
-                return null;
-            }
-
-            public void SetAttributes(IEnumerable<AhlAttribute> attributes)
-            {
-                throw new NotSupportedException();
-            }
-
-            public void SetAttributes(IDictionary<string, string> attributes)
-            {
-                throw new NotSupportedException();
-            }
-
-            public IDictionary<string, string> GetDirectlySetAttributes()
-            {
-                return _emptyDictionary;
-            }
-
-            public IDictionary<string, string> SwixVariableDefinitions
-            {
-                get { return null; }
-            }
-
-            public IEnumerable<string> GetDirectlySetUnusedAttributeNames()
-            {
-                return Enumerable.Empty<string>();
-            }
+            public string GetInheritedAttribute(string attributeName) => null;
+            public void SetAttributes(IEnumerable<AhlAttribute> attributes) => throw new NotSupportedException();
+            public IDictionary<string, string> GetDirectlySetAttributes() => _emptyDictionary;
+            public IDictionary<string, string> SwixVariableDefinitions => null;
+            public IEnumerable<string> GetDirectlySetUnusedAttributeNames() => Enumerable.Empty<string>();
         }
 
         private class AttributeValueHolder
         {
-            private string _value;
-            private bool _isUsed;
+            private readonly string _value;
 
-            public AttributeValueHolder(string value)
-            {
-                _value = value;
-            }
+            public AttributeValueHolder(string value) => _value = value;
 
             public string GetValue()
             {
-                _isUsed = true;
+                IsUsed = true;
                 return _value;
             }
 
-            public void SetValue(string value)
-            {
-                _value = value;
-            }
-
-            public bool IsUsed
-            {
-                get { return _isUsed; }
-            }
+            public bool IsUsed { get; private set; }
         }
 
         private static readonly NullAttributeContext _nullAttributeContext = new NullAttributeContext();
@@ -81,15 +44,14 @@ namespace SimpleWixDsl.Swix
 
         public AttributeContext(IAttributeContext parentContext)
         {
-            if (parentContext == null) throw new ArgumentNullException("parentContext");
+            if (parentContext == null) throw new ArgumentNullException(nameof(parentContext));
             SwixVariableDefinitions = parentContext.SwixVariableDefinitions;
             _parentContext = parentContext;
         }
 
         public string GetInheritedAttribute(string attributeName)
         {
-            AttributeValueHolder result;
-            if (_attributes.TryGetValue(attributeName, out result))
+            if (_attributes.TryGetValue(attributeName, out var result))
                 return result.GetValue();
             return _parentContext.GetInheritedAttribute(attributeName);
         }
@@ -100,18 +62,12 @@ namespace SimpleWixDsl.Swix
                 _attributes[attr.Key] = new AttributeValueHolder(attr.Value);
         }
 
-        public void SetAttributes(IDictionary<string, string> attributes)
-        {
-            foreach (var pair in attributes)
-                _attributes[pair.Key] = new AttributeValueHolder(pair.Value);
-        }
-
         public IDictionary<string, string> GetDirectlySetAttributes()
         {
             return _attributes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.GetValue());
         }
 
-        public IDictionary<string, string> SwixVariableDefinitions { get; private set; }
+        public IDictionary<string, string> SwixVariableDefinitions { get; }
 
         public IEnumerable<string> GetDirectlySetUnusedAttributeNames()
         {
@@ -123,7 +79,6 @@ namespace SimpleWixDsl.Swix
     {
         string GetInheritedAttribute(string attributeName);
         void SetAttributes(IEnumerable<AhlAttribute> attributes);
-        void SetAttributes(IDictionary<string, string> attributes);
         IDictionary<string, string> GetDirectlySetAttributes();
 
         IDictionary<string, string> SwixVariableDefinitions { get; }

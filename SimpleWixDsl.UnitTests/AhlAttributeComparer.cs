@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using SimpleWixDsl.Ahl;
 
 namespace SimpleWixDsl.UnitTests
@@ -16,8 +15,8 @@ namespace SimpleWixDsl.UnitTests
 
             if (a.Key == b.Key && a.Value == b.Value) return 0;
 
-            int keyComparison = String.CompareOrdinal(a.Key, b.Key);
-            return keyComparison != 0 ? keyComparison : String.CompareOrdinal(a.Value, b.Value);
+            int keyComparison = string.CompareOrdinal(a.Key, b.Key);
+            return keyComparison != 0 ? keyComparison : string.CompareOrdinal(a.Value, b.Value);
         }
     }
 }

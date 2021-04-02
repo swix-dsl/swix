@@ -10,33 +10,14 @@ namespace SimpleWixDsl.Swix
 {
     public class WxsGenerator
     {
-        private class CabFileCounter
-        {
-            private readonly int _splitNumber;
-            private int _current;
-
-            public CabFileCounter(int startId, int splitNumber)
-            {
-                _current = 0;
-                StartId = startId;
-                _splitNumber = splitNumber;
-            }
-
-            public int StartId { get; private set; }
-
-            public int GetNextId()
-            {
-                return StartId + _current++%_splitNumber;
-            }
-        }
-
-        private readonly SwixModel _model;
-        private readonly GuidProvider _guidProvider;
         private readonly Dictionary<string, CabFileCounter> _cabFileCounters = new Dictionary<string, CabFileCounter>();
         private readonly Dictionary<string, WixTargetDirectory> _directories = new Dictionary<string, WixTargetDirectory>();
+        private readonly GuidProvider _guidProvider;
+
+        private readonly SwixModel _model;
+        private Dictionary<string, HashSet<string>> _additionalComponentIdsByGroups;
+        private bool? _forModule;
         private HashSet<string> _nonUniqueDirectoryReadableIds;
-        private Dictionary<string, HashSet<string>> _additionalComponentIdsByGroups = null;
-        private bool? _forModule = null;
 
         public WxsGenerator(SwixModel model, GuidProvider guidProvider)
         {
@@ -69,31 +50,31 @@ namespace SimpleWixDsl.Swix
 
         private void VerifyDirectories()
         {
-            foreach (var subdirectory in _model.RootDirectory.Subdirectories)
-                VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdirectory);
+            foreach (var subDir in _model.RootDirectory.Subdirectories)
+                VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subDir);
             VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallOrCustomizedHaveComponentGroupRefSet(_model.RootDirectory);
         }
 
         private void VerifySubdirectoriesDontHaveRefOnlyAttributeSet(WixTargetDirectory dir)
         {
-            foreach (var subdir in dir.Subdirectories)
+            foreach (var subDir in dir.Subdirectories)
             {
-                if (subdir.RefOnly)
-                    throw new SwixSemanticException(0, string.Format("Directory {0} is marked as refOnly and has parent. refOnly dirs can be only top-level", subdir.GetFullTargetPath()));
-                VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subdir);
+                if (subDir.RefOnly)
+                    throw new SwixSemanticException(0, $"Directory {subDir.GetFullTargetPath()} is marked as refOnly and has parent. refOnly dirs can be only top-level");
+                VerifySubdirectoriesDontHaveRefOnlyAttributeSet(subDir);
             }
         }
 
         private void VerifyDirectoriesMarkedAsCreateOnInstallOrRemoveOnUninstallOrCustomizedHaveComponentGroupRefSet(WixTargetDirectory root)
         {
             var invalidDirectories = TraverseDfs(root, d => d.Subdirectories)
-                .Where(d => (d.RemoveOnUninstall || d.CreateOnInstall || d.Customization != null) && String.IsNullOrWhiteSpace(d.ComponentGroupRef))
+                .Where(d => (d.RemoveOnUninstall || d.CreateOnInstall || d.Customization != null) && string.IsNullOrWhiteSpace(d.ComponentGroupRef))
                 .Select(d => d.GetFullTargetPath())
                 .ToArray();
             if (invalidDirectories.Any())
             {
-                var dirList = String.Join(", ", invalidDirectories);
-                throw new SwixSemanticException(0, string.Format("Directories {0} are customized or marked as createOnInstall/removeOnUninstall but don't have valid ComponentGroupRef assigned", dirList));
+                var dirList = string.Join(", ", invalidDirectories);
+                throw new SwixSemanticException(0, $"Directories {dirList} are customized or marked as createOnInstall/removeOnUninstall but don't have valid ComponentGroupRef assigned");
             }
         }
 
@@ -110,10 +91,8 @@ namespace SimpleWixDsl.Swix
         private void VerifyCabFileRefs()
         {
             foreach (var component in _model.Components.Where(c => c.CabFileRef != null))
-            {
                 if (!_cabFileCounters.ContainsKey(component.CabFileRef))
-                    throw new SwixSemanticException(0, String.Format("Component {0} references cabFile {1} which was not declared", component.SourcePath, component.CabFileRef));
-            }
+                    throw new SwixSemanticException(0, $"Component {component.SourcePath} references cabFile {component.CabFileRef} which was not declared");
         }
 
         private void VerifyDirectoryRefs()
@@ -129,21 +108,10 @@ namespace SimpleWixDsl.Swix
         private void VerifyTargetDirRef(string referencingEntityType, string referencingEntityName, string targetDirRef)
         {
             if (_nonUniqueDirectoryReadableIds.Contains(targetDirRef))
-            {
-                var msg = string.Format("{0} {1} references directory via implicit ID {2} which is not unique",
-                    referencingEntityType,
-                    referencingEntityName,
-                    targetDirRef);
-                throw new SwixSemanticException(0, msg);
-            }
+                throw new SwixSemanticException(0, $"{referencingEntityType} {referencingEntityName} references directory via implicit ID {targetDirRef} which is not unique");
+
             if (!_directories.ContainsKey(targetDirRef))
-            {
-                var msg = string.Format("{0} {1} references undeclared directory ID {2}",
-                    referencingEntityType,
-                    referencingEntityName,
-                    targetDirRef);
-                throw new SwixSemanticException(0, msg);
-            }
+                throw new SwixSemanticException(0, $"{referencingEntityType} {referencingEntityName} references undeclared directory ID {targetDirRef}");
         }
 
         private void AssignDirectoryIds()
@@ -171,6 +139,7 @@ namespace SimpleWixDsl.Swix
             {
                 if (component.TargetDir == string.Empty)
                     component.TargetDir = null;
+
                 if (component.TargetDir != null)
                 {
                     component.TargetDirRef = HandleInlineTargetDir(component.TargetDirRef, component.TargetDir);
@@ -192,20 +161,22 @@ namespace SimpleWixDsl.Swix
 
         private string HandleInlineTargetDir(string targetDirRef, string targetDir)
         {
-            string[] path = targetDir.Split('\\');
+            var path = targetDir.Split('\\');
             var dir = _directories[targetDirRef];
             foreach (var nextDirName in path)
             {
-                var nextDir = dir.Subdirectories.Find(subdir => subdir.Name == nextDirName);
+                var nextDir = dir.Subdirectories.Find(subDir => subDir.Name == nextDirName);
                 if (nextDir == null)
                 {
                     nextDir = new WixTargetDirectory(nextDirName, dir);
                     AssignDirectoryUniqueId(nextDir);
                     dir.Subdirectories.Add(nextDir);
                 }
+
                 dir = nextDir;
             }
-            string resultingTargetDirRef = dir.Id;
+
+            var resultingTargetDirRef = dir.Id;
             return resultingTargetDirRef;
         }
 
@@ -216,7 +187,7 @@ namespace SimpleWixDsl.Swix
             foreach (var dir in TraverseDfs(_model.RootDirectory, dir => dir.Subdirectories))
             {
                 var id = dir.Id ?? MakeReadableId(dir.Name, MaxIdLength);
-                bool isUnique = usedIds.Add(id);
+                var isUnique = usedIds.Add(id);
                 if (!isUnique)
                     _nonUniqueDirectoryReadableIds.Add(id);
             }
@@ -226,7 +197,7 @@ namespace SimpleWixDsl.Swix
         {
             var readableId = dir.Id ?? MakeReadableId(dir.Name, MaxIdLength - 33);
             var guid = _guidProvider.Get(SwixGuidType.Directory, dir.GetFullTargetPath());
-            var finalId = String.Format("{0}_{1:N}", readableId, guid);
+            var finalId = $"{readableId}_{guid:N}";
             dir.Id = finalId;
             _directories[finalId] = dir;
         }
@@ -272,6 +243,7 @@ namespace SimpleWixDsl.Swix
         {
             if (_additionalComponentIdsByGroups == null)
                 throw new InvalidOperationException("This method can't be executed until _additionalComponentIdsByGroups is filled");
+
             var groupedComponents = _model.Components.ToLookup(c => c.ComponentGroupRef);
             foreach (var group in groupedComponents)
             {
@@ -317,16 +289,13 @@ namespace SimpleWixDsl.Swix
                 doc.WriteEndElement();
             }
 
-            HashSet<string> additionalComponentIds;
-            if (_additionalComponentIdsByGroups.TryGetValue(componentGroupRef, out additionalComponentIds))
-            {
+            if (_additionalComponentIdsByGroups.TryGetValue(componentGroupRef, out var additionalComponentIds))
                 foreach (var additionalId in additionalComponentIds)
                 {
                     doc.WriteStartElement("ComponentRef");
                     doc.WriteAttributeString("Id", additionalId);
                     doc.WriteEndElement();
                 }
-            }
 
             doc.WriteEndElement();
         }
@@ -398,7 +367,7 @@ namespace SimpleWixDsl.Swix
                 doc.WriteAttributeString("KeyPath", "yes");
                 if (removedDir.MultiInstance != null)
                     doc.WriteAttributeString("MultiInstance", removedDir.MultiInstance);
-                
+
                 doc.WriteStartElement("RemoveFolder");
                 doc.WriteAttributeString("Id", removedDir.Id);
                 doc.WriteAttributeString("Directory", removedDir.Id);
@@ -453,7 +422,7 @@ namespace SimpleWixDsl.Swix
             foreach (var shortcut in component.Shortcuts)
             {
                 doc.WriteStartElement("Shortcut");
-                var fullPath = string.Format("{0}\\{1}", _directories[shortcut.TargetDirRef].GetFullTargetPath(), shortcut.Name);
+                var fullPath = $"{_directories[shortcut.TargetDirRef].GetFullTargetPath()}\\{shortcut.Name}";
                 var guid = _guidProvider.Get(SwixGuidType.Shortcut, fullPath);
                 var id = MakeUniqueId(guid, shortcut.Name, MaxIdLength);
                 doc.WriteAttributeString("Id", id);
@@ -478,12 +447,13 @@ namespace SimpleWixDsl.Swix
                     var guid = _guidProvider.Get(SwixGuidType.ServiceInstall, service.Name);
                     service.Id = MakeUniqueId(guid, service.Name, MaxIdLength);
                 }
+
                 doc.WriteAttributeString("Id", service.Id);
                 doc.WriteAttributeString("Name", service.Name);
                 doc.WriteAttributeString("DisplayName", service.DisplayName ?? service.Name);
                 if (service.Description != null)
                     doc.WriteAttributeString("Description", service.Description);
-                
+
                 if (service.Account != null)
                     doc.WriteAttributeString("Account", service.Account);
 
@@ -525,8 +495,8 @@ namespace SimpleWixDsl.Swix
                 var counter = _cabFileCounters[cabFile.Name];
                 for (int i = 0; i < cabFile.Split; i++)
                 {
-                    var id = string.Format("{0}", counter.StartId + i);
-                    var filename = string.Format("{0}_{1:D2}.cab", cabFile.Name, counter.StartId + i);
+                    var id = $"{counter.StartId + i}";
+                    var filename = $"{cabFile.Name}_{counter.StartId + i:D2}.cab";
                     doc.WriteStartElement("Media");
                     doc.WriteAttributeString("Id", id);
                     doc.WriteAttributeString("Cabinet", filename);
@@ -603,7 +573,7 @@ namespace SimpleWixDsl.Swix
                 // third <SetProperty> - setting result value to public property if it is specified explicitly
                 doc.WriteStartElement("SetProperty");
                 doc.WriteAttributeString("Id", c.Parent.Id);
-                var readableName = String.Format("Set_{0}_to_{1}", c.Parent.Id, c.WixPublicPropertyName);
+                var readableName = $"Set_{c.Parent.Id}_to_{c.WixPublicPropertyName}";
                 var resToPublicActionName = GetTargetDirCustomizationActionUniqueName(readableName);
                 doc.WriteAttributeString("Action", resToPublicActionName);
                 doc.WriteAttributeString("Before", "CostFinalize");
@@ -639,8 +609,7 @@ namespace SimpleWixDsl.Swix
 
                 doc.WriteEndElement(); // <DirectoryRef ...>
 
-                HashSet<string> additionalComponentIds;
-                if (!_additionalComponentIdsByGroups.TryGetValue(c.Parent.ComponentGroupRef, out additionalComponentIds))
+                if (!_additionalComponentIdsByGroups.TryGetValue(c.Parent.ComponentGroupRef, out var additionalComponentIds))
                     _additionalComponentIdsByGroups[c.Parent.ComponentGroupRef] = additionalComponentIds = new HashSet<string>();
                 additionalComponentIds.Add(componentId);
             }
@@ -674,7 +643,7 @@ namespace SimpleWixDsl.Swix
             if (component.TargetDir != null)
                 throw new InvalidOperationException("This method should not be called before handling inline targetDirs");
             var dir = _directories[component.TargetDirRef];
-            return string.Format("{0}\\{1}", dir.GetFullTargetPath(), component.FileName);
+            return $"{dir.GetFullTargetPath()}\\{component.FileName}";
         }
 
         private string GetComponentId(WixComponent component)
@@ -709,7 +678,7 @@ namespace SimpleWixDsl.Swix
         private string MakeUniqueId(Guid guid, string filename, int maxLength)
         {
             var readableId = MakeReadableId(filename, maxLength - 33); // 32 for guid and 1 for separation underscore
-            return String.Format("{0}_{1:N}", readableId, guid);
+            return $"{readableId}_{guid:N}";
         }
 
         private static string MakeReadableId(string filename, int maxIdLength)
@@ -752,6 +721,23 @@ namespace SimpleWixDsl.Swix
                 foreach (var subtreeNode in TraverseDfs(child, childrenSelector))
                     yield return subtreeNode;
             }
+        }
+
+        private class CabFileCounter
+        {
+            private readonly int _splitNumber;
+            private int _current;
+
+            public CabFileCounter(int startId, int splitNumber)
+            {
+                _current = 0;
+                StartId = startId;
+                _splitNumber = splitNumber;
+            }
+
+            public int StartId { get; }
+
+            public int GetNextId() => StartId + _current++ % _splitNumber;
         }
     }
 }
