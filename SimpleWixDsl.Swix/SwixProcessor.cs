@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SimpleWixDsl.Swix
@@ -8,6 +9,8 @@ namespace SimpleWixDsl.Swix
     /// </summary>
     public class SwixProcessor
     {
+        public static string TempDir;
+
         public static SwixModel Transform(string swixFilename,
                                           SwixGuidMode guidMode,
                                           string targetFolderPath,
@@ -23,10 +26,18 @@ namespace SimpleWixDsl.Swix
             if (File.Exists(outputFile))
                 StripReadonlyIfSet(outputFile);
 
-            SwixModel model;
-            using (var sourceReader = new StreamReader(swixFilename))
+            TempDir = Path.Combine(targetFolderPath, "swixtemp");
+            try
             {
-                model = SwixParser.Parse(sourceReader, variableDefinitions);
+                if (Directory.Exists(TempDir))
+                {
+                    Directory.Delete(TempDir, recursive: true);
+                    Directory.CreateDirectory(TempDir);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Warning: Cannot clean temp directory {TempDir}: {e}");
             }
 
             GuidProvider guidProvider;
@@ -40,6 +51,12 @@ namespace SimpleWixDsl.Swix
                 if (guidMode == SwixGuidMode.TreatAbsentGuidAsError)
                     throw new SwixSemanticException(0, $"TreatAbsentGuidAsError mode is active, but no {guidProviderFileName} file is found");
                 guidProvider = new GuidProvider(treatAbsentGuidAsError: false);
+            }
+
+            SwixModel model;
+            using (var sourceReader = new StreamReader(swixFilename))
+            {
+                model = SwixParser.Parse(sourceReader, guidProvider, variableDefinitions);
             }
 
             var wxsGenerator = new WxsGenerator(model, guidProvider);

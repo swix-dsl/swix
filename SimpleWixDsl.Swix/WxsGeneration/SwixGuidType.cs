@@ -11,5 +11,6 @@
         TargetDirCustomizationActionName,
         TargetDirCustomizationComponent,
         TargetDirCustomizationRegistryId,
+        ZipArchive,
     }
 }

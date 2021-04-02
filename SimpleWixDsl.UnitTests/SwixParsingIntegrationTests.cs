@@ -47,7 +47,8 @@ namespace SimpleWixDsl.UnitTests
         public SwixModel Parse(string input)
         {
             var stream = new StringReader(input);
-            return SwixParser.Parse(stream);
+            var guidProvider = new GuidProvider(treatAbsentGuidAsError: false);
+            return SwixParser.Parse(stream, guidProvider);
         }
     }
 }

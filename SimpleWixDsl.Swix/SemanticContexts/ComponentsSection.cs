@@ -42,6 +42,12 @@ namespace SimpleWixDsl.Swix
             return new HarvestSemanticContext(CurrentLine, key, metaContext, _toAdd);
         }
 
+        [MetaHandler("unzip")]
+        public ISemanticContext HandleMetaZip(string key, IAttributeContext metaContext)
+        {
+            return new ZipSemanticContext(CurrentLine, key, metaContext, _toAdd);
+        }
+
         protected override void FinishItemCore()
         {
             _components.AddRange(_toAdd);

@@ -6,22 +6,24 @@ namespace SimpleWixDsl.Swix
 {
     public class SwixParser
     {
-        public static SwixModel Parse(TextReader sourceStream, IDictionary<string, string> variableDefinitions = null)
+        public static SwixModel Parse(TextReader sourceStream, GuidProvider guidProvider, IDictionary<string, string> variableDefinitions = null)
         {
-            return new SwixParser(sourceStream).Run(variableDefinitions);
+            return new SwixParser(sourceStream, guidProvider).Run(variableDefinitions);
         }
 
         private readonly TextReader _sourceStream;
+        private readonly GuidProvider _guidProvider;
 
-        private SwixParser(TextReader sourceStream)
+        private SwixParser(TextReader sourceStream, GuidProvider guidProvider)
         {
             _sourceStream = sourceStream;
+            _guidProvider = guidProvider;
         }
 
         private SwixModel Run(IDictionary<string, string> variableDefinitions)
         {
             var result = new SwixModel();
-            var semanticContext = new FileSemanticContext(result);
+            var semanticContext = new FileSemanticContext(result, _guidProvider);
             if (variableDefinitions != null)
                 semanticContext.SetPredefinedSwixVariables(variableDefinitions);
             IParsingContext parsingContext = new ParsingContext(semanticContext);

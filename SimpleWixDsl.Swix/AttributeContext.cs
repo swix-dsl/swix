@@ -14,6 +14,7 @@ namespace SimpleWixDsl.Swix
             public void SetAttributes(IEnumerable<AhlAttribute> attributes) => throw new NotSupportedException();
             public IDictionary<string, string> GetDirectlySetAttributes() => _emptyDictionary;
             public IDictionary<string, string> SwixVariableDefinitions => null;
+            public GuidProvider GuidProvider => null;
             public IEnumerable<string> GetDirectlySetUnusedAttributeNames() => Enumerable.Empty<string>();
         }
 
@@ -36,10 +37,11 @@ namespace SimpleWixDsl.Swix
         private readonly Dictionary<string, AttributeValueHolder> _attributes = new Dictionary<string, AttributeValueHolder>();
         private readonly IAttributeContext _parentContext;
 
-        public AttributeContext(IDictionary<string, string> swixVariableDefinitions)
+        public AttributeContext(IDictionary<string, string> swixVariableDefinitions, GuidProvider guidProvider)
             : this(_nullAttributeContext)
         {
             SwixVariableDefinitions = swixVariableDefinitions;
+            GuidProvider = guidProvider;
         }
 
         public AttributeContext(IAttributeContext parentContext)
@@ -47,6 +49,7 @@ namespace SimpleWixDsl.Swix
             if (parentContext == null) throw new ArgumentNullException(nameof(parentContext));
             SwixVariableDefinitions = parentContext.SwixVariableDefinitions;
             _parentContext = parentContext;
+            GuidProvider = parentContext.GuidProvider;
         }
 
         public string GetInheritedAttribute(string attributeName)
@@ -68,6 +71,7 @@ namespace SimpleWixDsl.Swix
         }
 
         public IDictionary<string, string> SwixVariableDefinitions { get; }
+        public GuidProvider GuidProvider { get; }
 
         public IEnumerable<string> GetDirectlySetUnusedAttributeNames()
         {
@@ -82,6 +86,7 @@ namespace SimpleWixDsl.Swix
         IDictionary<string, string> GetDirectlySetAttributes();
 
         IDictionary<string, string> SwixVariableDefinitions { get; }
+        GuidProvider GuidProvider { get; }
         IEnumerable<string> GetDirectlySetUnusedAttributeNames();
     }
 }

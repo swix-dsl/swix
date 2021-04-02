@@ -7,8 +7,13 @@ namespace SimpleWixDsl.Swix
     {
         public static string GetFullSourcePath(string key, IAttributeContext context)
         {
+            var fromBase = context.GetInheritedAttribute("fromBase");
             var from = context.GetInheritedAttribute("from");
             var path = @from == null ? key : Path.Combine(@from, key);
+
+            if (fromBase != null)
+                path = Path.Combine(fromBase, path);
+
             return path;
         }
 

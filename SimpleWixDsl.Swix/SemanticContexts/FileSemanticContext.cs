@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using SimpleWixDsl.Ahl;
 
@@ -9,8 +8,8 @@ namespace SimpleWixDsl.Swix
     {
         private readonly SwixModel _result;
 
-        public FileSemanticContext(SwixModel result)
-            : base(0, new AttributeContext(new Dictionary<string, string>()))
+        public FileSemanticContext(SwixModel result, GuidProvider guidProvider)
+            : base(0, new AttributeContext(new Dictionary<string, string>(), guidProvider))
         {
             _result = result;
         }

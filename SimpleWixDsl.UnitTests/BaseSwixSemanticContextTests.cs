@@ -15,7 +15,7 @@ namespace SimpleWixDsl.UnitTests
         private class SemContextStub : BaseSwixSemanticContext
         {
             public SemContextStub()
-                : base(0, new AttributeContext(new Dictionary<string, string>()))
+                : base(0, new AttributeContext(new Dictionary<string, string>(), null))
             {
                 AttributeContextFactory = () => new AttributeContext(CurrentAttributeContext);
             }
