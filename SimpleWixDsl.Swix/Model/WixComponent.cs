@@ -75,6 +75,10 @@ namespace SimpleWixDsl.Swix
             if (id != null)
                 result.Id = id;
 
+            var sddl = context.GetInheritedAttribute("sddl");
+            if (sddl != null)
+                result.Sddl = sddl;
+
             return result;
         }
 
@@ -108,6 +112,17 @@ namespace SimpleWixDsl.Swix
         public string OutputTag { get; set; }
 
         public string Id { get; set; }
+
+        /// <summary>
+        /// If set, Swix will generate PermissionEx element for the file with specified SDDL string.
+        /// Effectively, it allows to set ACL permissions for a file.
+        /// </summary>
+        /// <remarks>
+        /// To find the correct SDDL, one can set desired permissions on a test file and then from
+        /// an elevated command line, run 'cacls.exe testfile.txt /s'. It will show file permissions
+        /// as an SDDL string.
+        /// </remarks>
+        public string Sddl { get; set; }
 
         public string FileName { get; set; }
 

@@ -12,5 +12,6 @@
         TargetDirCustomizationComponent,
         TargetDirCustomizationRegistryId,
         ZipArchive,
+        SddlPermission,
     }
 }

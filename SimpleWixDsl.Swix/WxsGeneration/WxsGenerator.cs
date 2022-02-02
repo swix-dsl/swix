@@ -408,12 +408,26 @@ namespace SimpleWixDsl.Swix
             if (component.CabFileRef != null)
                 doc.WriteAttributeString("DiskId", _cabFileCounters[component.CabFileRef].GetNextId().ToString(CultureInfo.InvariantCulture));
 
+            if (component.Sddl != null)
+                WritePermissionElement(doc, component);
+
             WriteComponentShortcuts(doc, component);
 
             doc.WriteEndElement();
 
             WriteComponentServices(doc, component);
 
+            doc.WriteEndElement();
+        }
+
+        private void WritePermissionElement(XmlWriter doc, WixComponent component)
+        {
+            var path = GetComponentFullTargetPath(component);
+            var guid = _guidProvider.Get(SwixGuidType.SddlPermission, path);
+            var id = MakeUniqueId(guid, component.FileName, MaxIdLength);
+            doc.WriteStartElement("PermissionEx");
+            doc.WriteAttributeString("Id", id);
+            doc.WriteAttributeString("Sddl", component.Sddl);
             doc.WriteEndElement();
         }
 
